@@ -1,10 +1,10 @@
 class MovementComponent extends Component {
-    constantAcceleration: { xy: Vec2; z: number };
-    accelerationDirection: { xy: Vec2; z: number };
-    maxAcceleration: { xy: Vec2 };
-    velocity: { xy: Vec2; z: number };
-    maxVelocity: { xy: Vec2; z: number };
-    minVelocity: { xy: Vec2; z: number };
+    constantAcceleration: Vec3;
+    accelerationDirection: Vec3;
+    acceleration: number ;
+    velocity: Vec3;
+    maxVelocity: Vec3;
+    minVelocity: Vec3;
     jumpPower: number;
     jumpAllowed: boolean;
     jumpRequested: boolean;
@@ -13,12 +13,12 @@ class MovementComponent extends Component {
 
     constructor() {
         super(ComponentTypeEnum.MOVEMENT);
-        this.constantAcceleration = { xy: new Vec2(0.0, -10.0), z: 0.0 };
-        this.accelerationDirection = { xy: new Vec2(0.0, 0.0), z: 0.0 };
-        this.maxAcceleration = { xy: new Vec2(10.0, 0.0) };
-        this.velocity = { xy: new Vec2(0.0, 0.0), z: 0.0 };
-        this.maxVelocity = { xy: new Vec2(3.0, 100.0), z: 0.0 };
-        this.minVelocity = { xy: new Vec2(-3.0, -100.0), z: 0.0 };
+        this.constantAcceleration = new Vec3({x: 0.0, y: -9.8, z: 0.0});
+        this.accelerationDirection = new Vec3();
+        this.acceleration = 6.0;
+        this.velocity = new Vec3();
+        this.maxVelocity = new Vec3({x: 3.0, y: 100.0, z: 0.0 });
+        this.minVelocity = new Vec3({x: -3.0, y: -100.0, z:0.0 });
         this.jumpPower = 6.0;
         this.jumpAllowed = true;
         this.jumpRequested = false;

@@ -1,25 +1,33 @@
 class Camera {
     private gl: WebGL2RenderingContext;
-    private posX: number;
-    private posY: number;
-    private zoom: number;
-    private rotation: number;
+    private pos: Vec3;
+    private dir: Vec3;
+    private fov: number;
     private ratio: number;
-    private matrixNeedsUpdate: boolean;
+    private viewMatrixNeedsUpdate: boolean;
+    private projMatrixNeedsUpdate: boolean;
     private viewMatrix: Matrix4;
+    private projectionMatrix: Matrix4;
+    private viewProjMatrix: Matrix4;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
 
-        //----View----
-		this.posX = 0.0;
-		this.posY = 0.0;
-        this.zoom = 1.0;
-        this.rotation = 0.0;
-        this.ratio = 16.0/9.0;
+        // ----View----
+		this.pos = new Vec3();
+        this.dir = new Vec3({x: 0.0, y: 0.0, z: -1.0});
         this.viewMatrix = new Matrix4(null);
-        this.matrixNeedsUpdate = true;
-        //------------
+        this.viewMatrixNeedsUpdate = true;
+        // ------------
+
+        // ----Proj----
+        this.projectionMatrix =  new Matrix4(null);
+        this.projMatrixNeedsUpdate = true;
+        this.ratio = 16.0/9.0;
+        this.fov = 85.0;
+        // ------------
+
+        this.viewProjMatrix = new Matrix4(null);
 	}
 
     getViewMatrix() {
@@ -27,39 +35,49 @@ class Camera {
     }
 
     getPosition() {
-        return {x: this.posX, y: this.posY};
+        return this.pos;
     }
 
-    setPosition(posX, posY) {
-        this.posX = posX;
-        this.posY = posY;
-        this.matrixNeedsUpdate = true;
+    setPosition(posX, posY, posZ?) {
+        this.pos.x = posX;
+        this.pos.y = posY;
+        if (posZ) {
+            this.pos.z = posZ;
+        }
+        this.viewMatrixNeedsUpdate = true;
     }
 
-    setZoom(zoomAmount) {
-        this.zoom = zoomAmount;
-        this.matrixNeedsUpdate = true;
-    }
-
-    setRotation(rotation) {
-        this.rotation = rotation;
-        this.matrixNeedsUpdate = true;
+    setFOV(fov: number) {
+        this.fov = fov;
+        this.projMatrixNeedsUpdate = true;
     }
 
     setAspectRatio(ratio) {
         this.ratio = ratio;
-        this.matrixNeedsUpdate = true;
+        this.projMatrixNeedsUpdate = true;
     }
 
-    bindViewMatrix(uniformLocation: WebGLUniformLocation) {
-        if (this.matrixNeedsUpdate) {
-            this.viewMatrix.setIdentity();
-            this.viewMatrix.scale(this.zoom, this.zoom * this.ratio, 1.0);
-            this.viewMatrix.rotate(this.rotation, 0.0, 0.0, 1.0);
-            this.viewMatrix.translate(-this.posX, -this.posY, 0.0);
-            this.matrixNeedsUpdate = false;
+    bindViewProjMatrix(uniformLocation: WebGLUniformLocation) {
+        let updateViewProj = false;
+        if (this.viewMatrixNeedsUpdate) {
+            this.viewMatrix.setLookAt(this.pos.x, this.pos.y, this.pos.z,
+                this.pos.x + this.dir.x, this.pos.y + this.dir.y, this.pos.z + this.dir.z,
+                0.0, 1.0, 0.0);
+            this.viewMatrixNeedsUpdate = false;
+            updateViewProj = true;
         }
-        
-        this.gl.uniformMatrix4fv(uniformLocation, false, this.viewMatrix.elements);
+
+        if (this.projMatrixNeedsUpdate) {
+            this.projectionMatrix.setPerspective(this.fov, this.ratio, 0.01, 1000.0);
+            this.projMatrixNeedsUpdate = false;
+            updateViewProj = true;
+        }
+
+        if (updateViewProj) {
+            this.viewProjMatrix = this.projectionMatrix;
+            this.viewProjMatrix.concat(this.viewMatrix);
+        }
+
+        this.gl.uniformMatrix4fv(uniformLocation, false, this.viewProjMatrix.elements);
     }
 };

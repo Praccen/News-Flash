@@ -90,7 +90,7 @@ class Rendering {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		this.simpleShaderProgram.use();
-		this.camera.bindViewMatrix(this.simpleShaderProgram.getUniformLocation("viewMatrix"));
+		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
 
 		for (let quad of this.quads.values()) {
 			quad.draw();

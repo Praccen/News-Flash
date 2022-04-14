@@ -3,13 +3,8 @@ enum ComponentTypeEnum {
     COLLISION,
     GRAPHICS,
     INPUT,
-    AUDIO,
     MOVEMENT,
-    PLAYER,
-    BOMB,
     POSITION,
-    MAPTILE,
-    CAMERAFOCUS,
 }
 
 class Component {

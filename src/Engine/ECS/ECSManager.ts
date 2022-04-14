@@ -30,7 +30,6 @@ class ECSManager {
         this.systems.set("COLLISION", new CollisionSystem());
         this.systems.set("INPUT", new InputSystem());
         this.systems.set("MOVEMENT", new MovementSystem());
-        this.systems.set("CAMERA", new CameraSystem());
         this.systems.set("GRAPHICS", new GraphicsSystem(this.rendering));
     }
 
@@ -49,7 +48,6 @@ class ECSManager {
         this.systems.get("MOVEMENT").update(dt);
         this.systems.get("COLLISION").update(dt);
         this.systems.get("GRAPHICS").update(dt);
-        this.systems.get("CAMERA").update(dt);
     }
 
     updateRenderingSystems(dt: number) {

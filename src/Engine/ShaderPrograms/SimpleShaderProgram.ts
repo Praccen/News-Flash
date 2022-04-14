@@ -8,14 +8,14 @@ layout (location = 2) in vec2 inTexCoords;
 
 // If uniforms change, also update SimpleShaderProgram to match
 uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
+uniform mat4 viewProjMatrix;
 uniform mat4 textureMatrix;
 
 out vec4 color;
 out vec2 texCoords;
 
 void main() {
-    gl_Position = viewMatrix * modelMatrix * vec4(inPosition, 1.0);
+    gl_Position = viewProjMatrix * modelMatrix * vec4(inPosition, 1.0);
     color = inColor;
     texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
 }`;
@@ -62,7 +62,7 @@ class SimpleShaderProgram extends ShaderProgram {
         this.use();
 
         this.setUniformLocation("modelMatrix");
-        this.setUniformLocation("viewMatrix");
+        this.setUniformLocation("viewProjMatrix");
         this.setUniformLocation("textureMatrix");
         this.setUniformLocation("texture0");
         this.setUniformLocation("useTexture");
