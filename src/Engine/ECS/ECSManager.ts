@@ -28,7 +28,6 @@ class ECSManager {
     initializeSystems(audio: AudioPlayer) {
         this.systems.set("ANIMATION", new AnimationSystem());
         this.systems.set("COLLISION", new CollisionSystem());
-        this.systems.set("INPUT", new InputSystem());
         this.systems.set("MOVEMENT", new MovementSystem());
         this.systems.set("GRAPHICS", new GraphicsSystem(this.rendering));
     }
@@ -44,7 +43,6 @@ class ECSManager {
         this.removeComponents();
         this.removeEntitiesMarkedForDeletion();
 
-        this.systems.get("INPUT").update(dt);
         this.systems.get("MOVEMENT").update(dt);
         this.systems.get("COLLISION").update(dt);
         this.systems.get("GRAPHICS").update(dt);

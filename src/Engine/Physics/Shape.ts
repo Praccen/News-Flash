@@ -51,7 +51,7 @@ class Shape {
 
             for (const originalVertex of this.originalVertices) {
                 let transformedVertex = this.transformMatrix.multiplyVector4(new Vector4([originalVertex.x, originalVertex.y, 0, 1.0]));
-                let transformedVertexVec2 = new Vec2(transformedVertex.elements[0], transformedVertex.elements[1]);
+                let transformedVertexVec2 = new Vec2({x: transformedVertex.elements[0], y: transformedVertex.elements[1]});
                 this.transformedVertices.push(transformedVertexVec2);
             }
             this.verticesNeedsUpdate = false;
@@ -66,7 +66,7 @@ class Shape {
             for (const originalNormal of this.originalNormals) {
                 let tempMatrix = new Matrix4(this.transformMatrix);
                 let transformedNormal = tempMatrix.invert().transpose().multiplyVector3(new Vector3([originalNormal.x, originalNormal.y, 0.0])).normalize();
-                this.transformedNormals.push(new Vec2(transformedNormal.elements[0], transformedNormal.elements[1]));
+                this.transformedNormals.push(new Vec2({x: transformedNormal.elements[0], y: transformedNormal.elements[1]}));
             }
             this.normalsNeedsUpdate = false;
         }

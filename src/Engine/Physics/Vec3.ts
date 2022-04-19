@@ -16,6 +16,18 @@ class Vec3 {
         }
     }
 
+    elements(): number[] {
+        return [this.x, this.y, this.z];
+    }
+
+    vector3(): Vector3 {
+        let retVec = new Vector3(null);
+        retVec.elements[0] = this.x;
+        retVec.elements[1] = this.y;
+        retVec.elements[2] = this.z;
+        return retVec;
+    }
+
     setValues(x?: number, y?: number, z?: number) {
         if (x) {
             this.x = x;
@@ -26,6 +38,12 @@ class Vec3 {
         if (z) {
             this.z = z;
         }
+    }
+
+    deepAssign(base: any) {
+        this.x = base.x;
+        this.y = base.y;
+        this.z = base.z;
     }
 
     length(): number {
@@ -48,6 +66,15 @@ class Vec3 {
 
     dot(otherVec: Vec3): number {
         return this.x * otherVec.x + this.y * otherVec.y + this.z * otherVec.z;
+    }
+
+    cross(otherVec: Vec3): Vec3 {
+        let tempVec: Vec3 = new Vec3();
+        tempVec.x = this.y * otherVec.z - this.z * otherVec.y;
+        tempVec.y = this.x * otherVec.z - this.z * otherVec.x;
+        tempVec.z = this.x * otherVec.y - this.y * otherVec.x;
+        this.deepAssign(tempVec);
+        return this;
     }
 
     flip(): Vec3 {

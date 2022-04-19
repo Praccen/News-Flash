@@ -2,7 +2,6 @@ enum ComponentTypeEnum {
     ANIMATION,
     COLLISION,
     GRAPHICS,
-    INPUT,
     MOVEMENT,
     POSITION,
 }

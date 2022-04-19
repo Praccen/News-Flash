@@ -8,7 +8,6 @@ class Camera {
     private projMatrixNeedsUpdate: boolean;
     private viewMatrix: Matrix4;
     private projectionMatrix: Matrix4;
-    private viewProjMatrix: Matrix4;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
@@ -26,24 +25,49 @@ class Camera {
         this.ratio = 16.0/9.0;
         this.fov = 85.0;
         // ------------
-
-        this.viewProjMatrix = new Matrix4(null);
 	}
 
     getViewMatrix() {
         return this.viewMatrix;
     }
 
-    getPosition() {
+    getPosition(): Vec3 {
         return this.pos;
     }
 
-    setPosition(posX, posY, posZ?) {
+    getDir(): Vec3 {
+        return this.dir;
+    }
+
+    getRight(): Vec3 {
+        let returnVec: Vec3 = new Vec3(this.dir);
+        let upVec: Vec3 = new Vec3({x: 0.0, y: 1.0, z: 0.0});
+        returnVec.cross(upVec);
+        returnVec.normalize();
+        return returnVec;
+    }
+
+    setPosition(posX: number, posY: number, posZ?: number) {
         this.pos.x = posX;
         this.pos.y = posY;
         if (posZ) {
             this.pos.z = posZ;
         }
+        this.viewMatrixNeedsUpdate = true;
+    }
+
+    translate(posX: number, posY: number, posZ: number) {
+        this.pos.x += posX;
+        this.pos.y += posY;
+        this.pos.z += posZ;
+        this.viewMatrixNeedsUpdate = true;
+    }
+
+    setDir(dirX: number, dirY: number, dirZ: number) {
+        this.dir.x = dirX;
+        this.dir.y = dirY;
+        this.dir.z = dirZ;
+        this.dir.normalize();
         this.viewMatrixNeedsUpdate = true;
     }
 
@@ -74,10 +98,9 @@ class Camera {
         }
 
         if (updateViewProj) {
-            this.viewProjMatrix = this.projectionMatrix;
-            this.viewProjMatrix.concat(this.viewMatrix);
+            let viewProj = new Matrix4(this.projectionMatrix);
+            viewProj = viewProj.concat(this.viewMatrix);
+            this.gl.uniformMatrix4fv(uniformLocation, false, viewProj.elements);
         }
-
-        this.gl.uniformMatrix4fv(uniformLocation, false, this.viewProjMatrix.elements);
     }
 };

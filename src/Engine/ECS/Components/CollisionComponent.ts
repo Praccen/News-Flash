@@ -18,12 +18,12 @@ class CollisionComponent extends Component {
         this.dragFactor = dragFactor;
 
         this.shape = new Shape();
-        this.shape.addNormal(new Vec2(1.0, 0.0));
-        this.shape.addNormal(new Vec2(0.0, 1.0));
+        this.shape.addNormal(new Vec2({x: 1.0, y: 0.0}));
+        this.shape.addNormal(new Vec2({x: 0.0, y: 1.0}));
 
-        this.shape.addVertex(new Vec2(-0.5, 0.5));
-        this.shape.addVertex(new Vec2(-0.5, -0.5));
-        this.shape.addVertex(new Vec2(0.5, -0.5));
-        this.shape.addVertex(new Vec2(0.5, 0.5));
+        this.shape.addVertex(new Vec2({x: -0.5, y: 0.5}));
+        this.shape.addVertex(new Vec2({x: -0.5, y: -0.5}));
+        this.shape.addVertex(new Vec2({x: 0.5, y: -0.5}));
+        this.shape.addVertex(new Vec2({x: 0.5, y: 0.5}));
     }
 };
