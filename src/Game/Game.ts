@@ -30,7 +30,8 @@ class Game {
 
     createTestEntity() {
         let entity = this.ecsManager.createEntity();
-        this.ecsManager.addComponent(entity, new GraphicsComponent(this.rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png")));
+        let smileyPath = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
+        this.ecsManager.addComponent(entity, new GraphicsComponent(this.rendering.getNewPhongQuad(smileyPath, smileyPath)));
         this.ecsManager.addComponent(entity, new PositionComponent());
         // let movComp = new MovementComponent();
         // movComp.constantAcceleration.y = 0.0;

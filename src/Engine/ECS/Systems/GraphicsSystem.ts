@@ -22,7 +22,7 @@ class GraphicsSystem extends System {
 
         if (index != -1) {
             let graphComp = <GraphicsComponent> this.entities[index].getComponent(ComponentTypeEnum.GRAPHICS);
-            this.rendering.deleteQuad(graphComp.quad);
+            this.rendering.deletePhongQuad(graphComp.quad);
 
             this.entities.splice(index, 1);
         }

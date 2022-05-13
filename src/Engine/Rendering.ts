@@ -12,14 +12,19 @@ class Rendering {
 	private simpleShaderProgram: SimpleShaderProgram;
 	private crtShaderProgram: CrtShaderProgram;
 	private screenQuadShaderProgram: ScreenQuadShaderProgram;
+	private phongShaderProgram: PhongShaderProgram;
 
 	private quads: Array<Quad>;
+	private phongQuads: Array<PhongQuad>;
 
 	private crtFramebuffer: Framebuffer;
 	private crtQuad: ScreenQuad;
 
 	private screenFramebuffer: Framebuffer;
 	private screenQuad: ScreenQuad;
+
+	private directionalLight: DirectionalLight;
+	private pointLights: Array<PointLight>;
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
@@ -31,6 +36,7 @@ class Rendering {
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
+		this.phongShaderProgram = new PhongShaderProgram(this.gl);
 
 		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height);
 		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.texture);
@@ -41,6 +47,10 @@ class Rendering {
 		this.initGL();
 
 		this.quads = new Array<Quad>();
+		this.phongQuads = new Array<PhongQuad>();
+
+		this.directionalLight = new DirectionalLight(this.gl, this.phongShaderProgram);
+		this.pointLights = new Array<PointLight>();
 	}
 
 	initGL() {
@@ -71,7 +81,17 @@ class Rendering {
 
 	getNewQuad(texturePath: string): Quad {
 		const length = this.quads.push(new Quad(this.gl, this.simpleShaderProgram, this.textureStore.getTexture(texturePath)));
-		return this.quads[length-1];
+		return this.quads[length - 1];
+	}
+
+	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
+		const length = this.phongQuads.push(new PhongQuad(this.gl, this.phongShaderProgram, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
+		return this.phongQuads[length - 1];
+	}
+
+	getNewPointLight() {
+		const length = this.pointLights.push(new PointLight(this.gl, this.phongShaderProgram, this.pointLights.length));
+		return this.pointLights[length - 1];
 	}
 
     deleteQuad(quad: Quad) {
@@ -80,6 +100,13 @@ class Rendering {
             this.quads.splice(index, 1);
         }
     }
+
+	deletePhongQuad(quad: PhongQuad) {
+		let index = this.phongQuads.findIndex(q => q == quad);
+		if (index != -1) {
+            this.phongQuads.splice(index, 1);
+        }
+	}
 
 	draw() {
         if (this.useCrt ) {
@@ -94,6 +121,20 @@ class Rendering {
 
 		for (let quad of this.quads.values()) {
 			quad.draw();
+		}
+
+		this.phongShaderProgram.use();
+		this.camera.bindViewProjMatrix(this.phongShaderProgram.getUniformLocation("viewProjMatrix"));
+
+		this.directionalLight.bind();
+
+		this.gl.uniform1ui(this.phongShaderProgram.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
+		for (let pointLight of this.pointLights.values()) {
+			pointLight.bind();
+		}
+
+		for (let phongQuad of this.phongQuads.values()) {
+			phongQuad.draw();
 		}
 
 		// Disable depth for screen quad(s) rendering

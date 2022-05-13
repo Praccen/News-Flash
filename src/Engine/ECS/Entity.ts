@@ -24,7 +24,7 @@ class Entity {
         let index = this.components.findIndex(c => c.type == type);
         if (index != -1) {
             if (type == ComponentTypeEnum.GRAPHICS) {
-                rendering.deleteQuad((<GraphicsComponent> this.components[index]).quad);
+                rendering.deletePhongQuad((<GraphicsComponent> this.components[index]).quad);
             }
             this.components.splice(index, 1);
         }
