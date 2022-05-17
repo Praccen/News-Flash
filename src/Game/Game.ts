@@ -3,10 +3,6 @@ class Game {
     private rendering: Rendering;
     private ecsManager: ECSManager;
 
-    gameOver: boolean;
-    gameWon: boolean;
-    gameLost: boolean;
-
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
         this.rendering = rendering;
@@ -16,12 +12,8 @@ class Game {
 
         for (let i = 0; i < 100; i++) {
             this.createPointLight(new Vec3({x: i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
-            this.createTestEntity(i * 0.1, -5.0 * i);
+            this.createTestEntity(i * 0.1, -10.0 * i);
         }
-
-        this.gameOver = false;
-        this.gameWon = false;
-        this.gameLost = false;
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
@@ -39,13 +31,7 @@ class Game {
         posComp.rotation.setValues(rotX, 0.0, 0.0);
         this.ecsManager.addComponent(entity, posComp);
 
-        // let movComp = new MovementComponent();
-        // movComp.constantAcceleration.y = 0.0;
-        // this.ecsManager.addComponent(entity, movComp);
-        let cComp = new CollisionComponent();
-        cComp.isConstraint = true;
-        this.ecsManager.addComponent(entity, cComp);
-        let ac = new AnimationComponent();
+        // let ac = new AnimationComponent();
         // ac.spriteMap.setNrOfSprites(2, 1);
         // ac.startingTile = {x: 0, y: 0};
         // ac.advanceBy = {x: 1.0, y: 0.0};
