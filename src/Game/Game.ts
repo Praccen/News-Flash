@@ -3,8 +3,6 @@ class Game {
     private rendering: Rendering;
     private ecsManager: ECSManager;
 
-    private testEntity: Entity;
-
     gameOver: boolean;
     gameWon: boolean;
     gameLost: boolean;
@@ -16,9 +14,10 @@ class Game {
 
         this.rendering.useCrt = false;
 
-        this.testEntity = this.createTestEntity();
-        this.createTestEntity(1.0, -45.0);
-        this.createTestEntity(2.0, -80.0);
+        for (let i = 0; i < 100; i++) {
+            this.createPointLight(new Vec3({x: i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
+            this.createTestEntity(i * 0.1, -5.0 * i);
+        }
 
         this.gameOver = false;
         this.gameWon = false;
@@ -55,6 +54,14 @@ class Game {
         // this.ecsManager.addComponent(entity, ac);
 
         return entity;
+    }
+
+    createPointLight(position: Vec3, colour: Vec3): PointLight {
+        let pl = this.rendering.getNewPointLight();
+        pl.position = position;
+        pl.colour = colour;
+
+        return pl;
     }
 
     update(dt: number) {

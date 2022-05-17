@@ -30,7 +30,7 @@ void main() {
     gl_Position = viewProjMatrix * worldPos;
 }`;
     
-let pointLightsToAllocate: number = 10;
+let pointLightsToAllocate: number = 100;
 
 const phongFragmentShaderSrc: string = 
 `#version 300 es
@@ -75,12 +75,25 @@ uniform vec3 camPos; //Used for specular lighting
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
 
+mat4 thresholdMatrix = mat4(
+	1.0, 9.0, 3.0, 11.0,
+	13.0, 5.0, 15.0, 7.0,
+	4.0, 12.0, 2.0, 10.0,
+	16.0, 8.0, 14.0, 6.0
+	);
+
 void main() {
+	float opacity = texture(material.diffuse, texCoords).a;
+
+	float threshold = thresholdMatrix[int(floor(mod(gl_FragCoord.x, 4.0)))][int(floor(mod(gl_FragCoord.y, 4.0)))] / 17.0;
+    if (threshold >= opacity) {
+        discard;
+    }
+
 	vec3 result = vec3(0.0f, 0.0f, 0.0f);
 
 	float shininess = 32.0f;
 	vec3 diffuse = texture(material.diffuse, texCoords).xyz;
-	float opacity = texture(material.diffuse, texCoords).w;
 	float specular = texture(material.specular, texCoords).r;
 	
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
@@ -94,7 +107,7 @@ void main() {
 		}
 	}
 
-	final_colour = vec4(result, opacity); //Set colour of fragment
+	final_colour = vec4(result, 1.0f); // Set colour of fragment. Since we use screen door transparency, do not use alpha value
 }
 
 // Calculates the colour when using a directional light

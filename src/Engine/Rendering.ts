@@ -7,7 +7,6 @@ class Rendering {
 	// private
 	private gl: WebGL2RenderingContext;
     private textureStore: TextureStore;
-	private texturesRequestedVsLoaded: object;
 
 	private simpleShaderProgram: SimpleShaderProgram;
 	private crtShaderProgram: CrtShaderProgram;

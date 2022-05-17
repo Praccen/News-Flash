@@ -53,6 +53,8 @@ void main()
     if (threshold >= FragColor.a) {
         discard;
     }
+
+    FragColor.a = 1.0f; // Since we use screen door transparency, do not use alpha value
 }`;
 
 class SimpleShaderProgram extends ShaderProgram {
