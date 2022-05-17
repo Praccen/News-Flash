@@ -15,7 +15,7 @@ class Framebuffer {
         this.height = height;
 
         this.fbo = this.gl.createFramebuffer();
-        this.texture = new Texture(this.gl, 0);
+        this.texture = new Texture(this.gl);
         this.rbo = this.gl.createRenderbuffer();
 
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);

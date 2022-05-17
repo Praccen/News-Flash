@@ -17,6 +17,8 @@ class Game {
         this.rendering.useCrt = false;
 
         this.testEntity = this.createTestEntity();
+        this.createTestEntity(1.0, -45.0);
+        this.createTestEntity(2.0, -80.0);
 
         this.gameOver = false;
         this.gameWon = false;
@@ -26,13 +28,18 @@ class Game {
 
         // Load all textures to avoid loading mid game
         rendering.loadTextureToStore("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+
+        this.rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
     }
 
-    createTestEntity() {
+    createTestEntity(posX:number = 0.0, rotX: number = 0.0) {
         let entity = this.ecsManager.createEntity();
         let smileyPath = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
         this.ecsManager.addComponent(entity, new GraphicsComponent(this.rendering.getNewPhongQuad(smileyPath, smileyPath)));
-        this.ecsManager.addComponent(entity, new PositionComponent());
+        let posComp = new PositionComponent(new Vec3({x: posX, y: 0.0, z: 0.0}));
+        posComp.rotation.setValues(rotX, 0.0, 0.0);
+        this.ecsManager.addComponent(entity, posComp);
+
         // let movComp = new MovementComponent();
         // movComp.constantAcceleration.y = 0.0;
         // this.ecsManager.addComponent(entity, movComp);

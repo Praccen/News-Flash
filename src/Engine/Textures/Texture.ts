@@ -2,16 +2,14 @@ class Texture {
     // Public
 	width: number;
 	height: number;
-	textureIndex: number;
     texture: WebGLTexture;
 
     // Private
     private gl: WebGL2RenderingContext;
 	private missingTextureData: Uint8Array;
 
-    constructor(gl: WebGL2RenderingContext, textureIndex: number) {
+    constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
-        this.textureIndex = textureIndex;
 
         this.missingTextureData = new Uint8Array([
             255, 255, 255, 255, 0, 0, 0, 255,
@@ -55,8 +53,8 @@ class Texture {
         return false;
     }
 
-    bind() {
-        this.gl.activeTexture(this.gl.TEXTURE0 + this.textureIndex);
+    bind(textureIndex: number = 0) {
+        this.gl.activeTexture(this.gl.TEXTURE0 + textureIndex);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
     }
 

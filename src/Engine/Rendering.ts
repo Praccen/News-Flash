@@ -116,19 +116,20 @@ class Rendering {
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
-		this.simpleShaderProgram.use();
-		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+		// this.simpleShaderProgram.use();
+		// this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
 
-		for (let quad of this.quads.values()) {
-			quad.draw();
-		}
+		// for (let quad of this.quads.values()) {
+		// 	quad.draw();
+		// }
 
 		this.phongShaderProgram.use();
 		this.camera.bindViewProjMatrix(this.phongShaderProgram.getUniformLocation("viewProjMatrix"));
+		this.gl.uniform3fv(this.phongShaderProgram.getUniformLocation("camPos"), this.camera.getPosition().elements());
 
 		this.directionalLight.bind();
 
-		this.gl.uniform1ui(this.phongShaderProgram.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
+		this.gl.uniform1i(this.phongShaderProgram.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
 		for (let pointLight of this.pointLights.values()) {
 			pointLight.bind();
 		}

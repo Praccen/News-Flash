@@ -13,7 +13,7 @@ class TextureStore {
             return tex;
         }
 
-        let newTexture = new Texture(this.gl, 0);
+        let newTexture = new Texture(this.gl);
         newTexture.loadFromFile(path);
         this.textures.set(path, newTexture);
         return newTexture;

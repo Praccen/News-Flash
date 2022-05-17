@@ -10,7 +10,6 @@ layout (location = 2) in vec2 inTexCoords;
 uniform mat4 modelMatrix;
 uniform mat4 viewProjMatrix;
 uniform mat4 textureMatrix;
-uniform mat3 normalMatrix;
 
 out vec3 fragPos;
 out vec3 fragNormal;
@@ -20,11 +19,18 @@ void main() {
     vec4 worldPos = modelMatrix * vec4(inPosition, 1.0);
 	texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
 	fragPos = worldPos.xyz;
+
+	// Calculate normal matrix, should be done on CPU but I can't be bothered with implementing inverse of a matrix and don't want to find a good lib atm
+	mat3 normalMatrix = mat3(modelMatrix);
+	normalMatrix = inverse(normalMatrix);
+	normalMatrix = transpose(normalMatrix);
+
 	fragNormal = normalize(normalMatrix * inNormal);
+	
     gl_Position = viewProjMatrix * worldPos;
 }`;
     
-let pointLightsToAllocate: number = 100;
+let pointLightsToAllocate: number = 10;
 
 const phongFragmentShaderSrc: string = 
 `#version 300 es
@@ -74,6 +80,7 @@ void main() {
 
 	float shininess = 32.0f;
 	vec3 diffuse = texture(material.diffuse, texCoords).xyz;
+	float opacity = texture(material.diffuse, texCoords).w;
 	float specular = texture(material.specular, texCoords).r;
 	
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
@@ -86,9 +93,8 @@ void main() {
 			result += CalcPointLight(pointLights[i], fragNormal, fragPos, cameraDir, diffuse, specular, shininess);
 		}
 	}
-	
 
-	final_colour = vec4(result, 1.0f); //Set colour of fragment
+	final_colour = vec4(result, opacity); //Set colour of fragment
 }
 
 // Calculates the colour when using a directional light
@@ -139,7 +145,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 
 class PhongShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, simpleVertexShaderSrc, simpleFragmentShaderSrc);
+        super(gl, phongVertexShaderSrc, phongFragmentShaderSrc);
 
         this.use();
 
