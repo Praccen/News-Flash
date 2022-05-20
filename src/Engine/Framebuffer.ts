@@ -1,6 +1,6 @@
 class Framebuffer {
     // Public
-    texture: Texture;
+    textures: Array<Texture>;
 
     // Private
     private gl: WebGL2RenderingContext;
@@ -9,21 +9,27 @@ class Framebuffer {
     private width: number;
     private height: number;
 
-    constructor(gl: WebGL2RenderingContext, width: number, height: number) {
+    constructor(gl: WebGL2RenderingContext, width: number, height: number, nrOfColourAttachments: number) {
         this.gl = gl;
         this.width = width;
         this.height = height;
 
         this.fbo = this.gl.createFramebuffer();
-        this.texture = new Texture(this.gl);
+        this.textures = new Array<Texture>(nrOfColourAttachments);
         this.rbo = this.gl.createRenderbuffer();
-
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture.texture);
-        this.texture.setTextureData(null, this.width, this.height);
-        this.texture.setTexParameters(this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-        this.texture.setTexParameters(this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.texture.texture, 0);
+
+        let attachments = new Array<any>();
+        for (let i = 0; i < nrOfColourAttachments; i++) {
+            this.textures[i] = new Texture(this.gl);
+            this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i].texture);
+            this.textures[i].setTextureData(null, this.width, this.height);
+            this.textures[i].setTexParameters(this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            this.textures[i].setTexParameters(this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+            this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0 + i, this.gl.TEXTURE_2D, this.textures[i].texture, 0);
+            attachments.push(this.gl.COLOR_ATTACHMENT0 + i);
+        }
+    	this.gl.drawBuffers(attachments);
 
         this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
         this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH24_STENCIL8, this.width, this.height); 
@@ -39,7 +45,9 @@ class Framebuffer {
     setProportions(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.texture.setTextureData(null, this.width, this.height);
+        for (let texture of this.textures) {
+            texture.setTextureData(null, this.width, this.height);
+        }
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
         this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
         this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH24_STENCIL8, width, height);

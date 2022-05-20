@@ -1,12 +1,12 @@
 
 class ScreenQuad extends GraphicsObject {
-    texture: Texture;
+    textures: Array<Texture>;
 
     // Private
     private vertices: Float32Array;
     private indices: Int32Array;
 
-    constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram, texture: Texture) {
+    constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram, textures: Array<Texture>) {
         super(gl, shaderProgram);
 
         this.vertices = new Float32Array([ 
@@ -24,16 +24,20 @@ class ScreenQuad extends GraphicsObject {
         this.setVertexData(this.vertices);
         this.setIndexData(this.indices);
 
-        this.texture = texture;
+        this.textures = textures;
         
-        this.texture.setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-        this.texture.setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        for (let texture of this.textures) {
+            texture.setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+            texture.setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        }
     }
 
     draw() {
         this.bindVAO();
 
-        this.texture.bind();
+        for (let i = 0; i < this.textures.length; i++) {
+            this.textures[i].bind(i);
+        }
 
         this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
     }

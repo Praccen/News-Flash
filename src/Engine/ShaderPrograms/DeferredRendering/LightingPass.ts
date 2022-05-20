@@ -1,52 +1,30 @@
-const phongVertexShaderSrc: string = 
+const lightingVertexShaderSrc: string = 
 `#version 300 es
-// If inputs change, also update PhongShaderProgram::setupVertexAttributePointers to match
-layout (location = 0) in vec3 inPosition;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inTexCoords;
+// If inputs change, also update LightingPass::setupVertexAttributePointers to match
+layout (location = 0) in vec2 inPos;
+layout (location = 1) in vec2 inTexCoords;
 
-// If uniforms change, also update PhongShaderProgram to match
-uniform mat4 modelMatrix;
-uniform mat4 viewProjMatrix;
-uniform mat4 textureMatrix;
-
-out vec3 fragPos;
-out vec3 fragNormal;
 out vec2 texCoords;
 
-void main() {
-    vec4 worldPos = modelMatrix * vec4(inPosition, 1.0);
-	texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
-	fragPos = worldPos.xyz;
-
-	// Calculate normal matrix, should be done on CPU but I can't be bothered with implementing inverse of a matrix and don't want to find a good lib atm
-	mat3 normalMatrix = mat3(modelMatrix);
-	normalMatrix = inverse(normalMatrix);
-	normalMatrix = transpose(normalMatrix);
-
-	fragNormal = normalize(normalMatrix * inNormal);
-	
-    gl_Position = viewProjMatrix * worldPos;
+void main()
+{
+    texCoords = inTexCoords;
+    gl_Position = vec4(inPos, 0.0, 1.0); 
 }`;
     
-// let pointLightsToAllocate: number = 100;
+let pointLightsToAllocate: number = 100;
 
-const phongFragmentShaderSrc: string = 
+const lightingFragmentShaderSrc: string = 
 `#version 300 es
 precision highp float;
 
-in vec3 fragPos;
-in vec3 fragNormal;
 in vec2 texCoords;
 
 out vec4 final_colour;
 
-struct Material {
-	sampler2D diffuse;
-	sampler2D specular;
-};
-
-uniform Material material;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gColourSpec;
 
 struct PointLight {
 	vec3 position;
@@ -74,29 +52,22 @@ uniform vec3 camPos; //Used for specular lighting
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
 
-mat4 thresholdMatrix = mat4(
-	1.0, 9.0, 3.0, 11.0,
-	13.0, 5.0, 15.0, 7.0,
-	4.0, 12.0, 2.0, 10.0,
-	16.0, 8.0, 14.0, 6.0
-	);
-
 void main() {
-	float opacity = texture(material.diffuse, texCoords).a;
-
-	float threshold = thresholdMatrix[int(floor(mod(gl_FragCoord.x, 4.0)))][int(floor(mod(gl_FragCoord.y, 4.0)))] / 17.0;
-    if (threshold >= opacity) {
-        discard;
-    }
-
-	vec3 result = vec3(0.0f, 0.0f, 0.0f);
-
+	// Discard fragment if alpha channel in positions is 0
+	if (texture(gPosition, texCoords).a == 0.0) {
+		discard;
+	}
+	
+	vec3 fragPos = texture(gPosition, texCoords).rgb;
+	vec3 fragNormal = texture(gNormal, texCoords).rgb;
 	float shininess = 32.0f;
-	vec3 diffuse = texture(material.diffuse, texCoords).xyz;
-	float specular = texture(material.specular, texCoords).r;
+	vec3 diffuse = texture(gColourSpec, texCoords).rgb;
+	float specular = texture(gColourSpec, texCoords).a;
 	
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
 	
+	// vec3 result = fragNormal;
+    vec3 result = vec3(0.0f);
 	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess);
 	
 	for (int i = 0; i < nrOfPointLights; i++) {
@@ -155,21 +126,19 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 	return lighting;
 }`;
 
-class PhongShaderProgram extends ShaderProgram {
+class LightingPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, phongVertexShaderSrc, phongFragmentShaderSrc);
+        super(gl, lightingVertexShaderSrc, lightingFragmentShaderSrc);
 
         this.use();
+        
+        this.setUniformLocation("gPosition");
+        this.setUniformLocation("gNormal");
+        this.setUniformLocation("gColourSpec");
 
-        this.setUniformLocation("modelMatrix");
-        this.setUniformLocation("viewProjMatrix");
-        this.setUniformLocation("textureMatrix");
-
-        this.setUniformLocation("material.diffuse");
-        this.setUniformLocation("material.specular");
-
-        this.gl.uniform1i(this.getUniformLocation("material.diffuse"), 0);
-        this.gl.uniform1i(this.getUniformLocation("material.specular"), 1);
+        this.gl.uniform1i(this.getUniformLocation("gPosition"), 0);
+        this.gl.uniform1i(this.getUniformLocation("gNormal"), 1);
+        this.gl.uniform1i(this.getUniformLocation("gColourSpec"), 2);
 
         for (let i = 0; i < pointLightsToAllocate; i++) {
             this.setUniformLocation("pointLights[" + i + "].position");
@@ -190,14 +159,11 @@ class PhongShaderProgram extends ShaderProgram {
 
     setupVertexAttributePointers(): void {
         // Change if input layout changes in shaders
-        const stride = 8 * 4;
-        this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
+        const stride = 4 * 4;
+        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
         this.gl.enableVertexAttribArray(0);
-
-        this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
+     
+        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
         this.gl.enableVertexAttribArray(1);
-
-        this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
-        this.gl.enableVertexAttribArray(2);
     }
 };

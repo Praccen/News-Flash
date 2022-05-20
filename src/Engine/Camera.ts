@@ -8,6 +8,7 @@ class Camera {
     private projMatrixNeedsUpdate: boolean;
     private viewMatrix: Matrix4;
     private projectionMatrix: Matrix4;
+    private viewProjMatrix: Matrix4;
 
     constructor(gl: WebGL2RenderingContext) {
         this.gl = gl;
@@ -25,6 +26,8 @@ class Camera {
         this.ratio = 16.0/9.0;
         this.fov = 85.0;
         // ------------
+
+        this.viewProjMatrix = new Matrix4(null);
 	}
 
     getViewMatrix() {
@@ -98,9 +101,11 @@ class Camera {
         }
 
         if (updateViewProj) {
-            let viewProj = new Matrix4(this.projectionMatrix);
-            viewProj = viewProj.concat(this.viewMatrix);
-            this.gl.uniformMatrix4fv(uniformLocation, false, viewProj.elements);
+            this.viewProjMatrix.set(this.projectionMatrix); 
+            this.viewProjMatrix = this.viewProjMatrix.concat(this.viewMatrix);
         }
+
+        
+        this.gl.uniformMatrix4fv(uniformLocation, false, this.viewProjMatrix.elements);
     }
 };

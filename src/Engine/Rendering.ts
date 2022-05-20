@@ -11,7 +11,13 @@ class Rendering {
 	private simpleShaderProgram: SimpleShaderProgram;
 	private crtShaderProgram: CrtShaderProgram;
 	private screenQuadShaderProgram: ScreenQuadShaderProgram;
-	private phongShaderProgram: PhongShaderProgram;
+	// private phongShaderProgram: PhongShaderProgram;
+
+	// Deferred rendering
+	private geometryPass: GeometryPass;
+	private lightingPass: LightingPass;
+	private gBuffer: Framebuffer;
+	private lightingQuad: ScreenQuad;
 
 	private quads: Array<Quad>;
 	private phongQuads: Array<PhongQuad>;
@@ -25,6 +31,8 @@ class Rendering {
 	private directionalLight: DirectionalLight;
 	private pointLights: Array<PointLight>;
 
+	private clearColour: {r:number, g:number, b:number, a:number};
+
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
         this.textureStore = new TextureStore(gl);
@@ -35,25 +43,31 @@ class Rendering {
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
-		this.phongShaderProgram = new PhongShaderProgram(this.gl);
+		// this.phongShaderProgram = new PhongShaderProgram(this.gl);
 
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height);
-		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.texture);
+		this.geometryPass = new GeometryPass(this.gl);
+		this.lightingPass = new LightingPass(this.gl);
+		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 3);
+		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, this.gBuffer.textures);
 
-		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height);
-		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.texture);
+		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
+		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
+
+		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
+		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
 
 		this.initGL();
 
 		this.quads = new Array<Quad>();
 		this.phongQuads = new Array<PhongQuad>();
 
-		this.directionalLight = new DirectionalLight(this.gl, this.phongShaderProgram);
+		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
 		this.pointLights = new Array<PointLight>();
 	}
 
 	initGL() {
-		this.gl.clearColor(0.25, 0.2, 0.6, 1.0);
+		this.clearColour = {r: 0.25, g: 0.2, b: 0.6, a: 1.0};
+		this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
 	
 		// Enable depth test
 		this.gl.enable(this.gl.DEPTH_TEST);
@@ -84,12 +98,12 @@ class Rendering {
 	}
 
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
-		const length = this.phongQuads.push(new PhongQuad(this.gl, this.phongShaderProgram, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
+		const length = this.phongQuads.push(new PhongQuad(this.gl, this.geometryPass, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
 		return this.phongQuads[length - 1];
 	}
 
 	getNewPointLight() {
-		const length = this.pointLights.push(new PointLight(this.gl, this.phongShaderProgram, this.pointLights.length));
+		const length = this.pointLights.push(new PointLight(this.gl, this.lightingPass, this.pointLights.length));
 		return this.pointLights[length - 1];
 	}
 
@@ -108,45 +122,53 @@ class Rendering {
 	}
 
 	draw() {
-        if (this.useCrt ) {
-            // Render scene to crt framebuffer
-            this.crtFramebuffer.bind(this.gl.FRAMEBUFFER);
-        }
+		// Clear the standard framebuffer
+		this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
-		// this.simpleShaderProgram.use();
-		// this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+		this.gBuffer.bind(this.gl.FRAMEBUFFER);
+		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 
-		// for (let quad of this.quads.values()) {
-		// 	quad.draw();
-		// }
-
-		this.phongShaderProgram.use();
-		this.camera.bindViewProjMatrix(this.phongShaderProgram.getUniformLocation("viewProjMatrix"));
-		this.gl.uniform3fv(this.phongShaderProgram.getUniformLocation("camPos"), this.camera.getPosition().elements());
-
-		this.directionalLight.bind();
-
-		this.gl.uniform1i(this.phongShaderProgram.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
-		for (let pointLight of this.pointLights.values()) {
-			pointLight.bind();
-		}
+		this.geometryPass.use();
+		this.camera.bindViewProjMatrix(this.geometryPass.getUniformLocation("viewProjMatrix"));
 
 		for (let phongQuad of this.phongQuads.values()) {
 			phongQuad.draw();
+		}
+		
+		if (this.useCrt) {
+			this.crtFramebuffer.bind(this.gl.FRAMEBUFFER);
+			this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
+			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
+		} else {
+			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen
+		}
+
+		this.simpleShaderProgram.use();
+		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+
+		for (const quad of this.quads.values()) {
+			quad.draw();
 		}
 
 		// Disable depth for screen quad(s) rendering
 		this.gl.disable(this.gl.DEPTH_TEST); 
 
-        // if (input.drawHud) {
-        //     this.screenQuadShaderProgram.use();
-        //     this.buttonsQuad.draw();
-        // }
+		this.lightingPass.use();
 
-        if (this.useCrt) {
-            // Crt effect
+		this.gl.uniform3fv(this.lightingPass.getUniformLocation("camPos"), this.camera.getPosition().elements());
+		this.directionalLight.bind();
+		this.gl.uniform1i(this.lightingPass.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
+		for (let pointLight of this.pointLights.values()) {
+			pointLight.bind();
+		}
+
+		this.lightingQuad.draw();
+
+		if (this.useCrt) {
+			// Crt effect
             this.screenFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER); // Set screen framebuffer as output
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
             this.crtShaderProgram.use();
@@ -158,6 +180,6 @@ class Rendering {
 
             this.screenQuadShaderProgram.use();
             this.screenQuad.draw();
-        }
+		}
 	}
 };

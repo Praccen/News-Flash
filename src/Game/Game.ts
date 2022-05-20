@@ -8,11 +8,11 @@ class Game {
         this.rendering = rendering;
         this.ecsManager = ecsManager;
 
-        this.rendering.useCrt = false;
+        this.rendering.useCrt = true;
 
         for (let i = 0; i < 100; i++) {
-            this.createPointLight(new Vec3({x: i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
-            this.createTestEntity(i * 0.1, -10.0 * i);
+            this.createPointLight(new Vec3({x: 1.0 + i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
+            this.createTestEntity(new Vec3({x: -1.0 + i * 0.1, y: 0.0, z: -2.0}), -10.0 * i);
         }
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
@@ -23,11 +23,11 @@ class Game {
         this.rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
     }
 
-    createTestEntity(posX:number = 0.0, rotX: number = 0.0) {
+    createTestEntity(pos:Vec3 , rotX: number = 0.0) {
         let entity = this.ecsManager.createEntity();
         let smileyPath = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
         this.ecsManager.addComponent(entity, new GraphicsComponent(this.rendering.getNewPhongQuad(smileyPath, smileyPath)));
-        let posComp = new PositionComponent(new Vec3({x: posX, y: 0.0, z: 0.0}));
+        let posComp = new PositionComponent(pos);
         posComp.rotation.setValues(rotX, 0.0, 0.0);
         this.ecsManager.addComponent(entity, posComp);
 
