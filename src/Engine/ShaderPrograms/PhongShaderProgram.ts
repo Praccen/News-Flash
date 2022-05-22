@@ -55,7 +55,6 @@ struct PointLight {
 	float constant;
 	float linear;
 	float quadratic;
-	float radius;
 };
 
 struct DirectionalLight {
@@ -100,10 +99,7 @@ void main() {
 	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess);
 	
 	for (int i = 0; i < nrOfPointLights; i++) {
-		float distance = length(pointLights[i].position - fragPos);
-		if (distance < pointLights[i].radius) { // Checking if fragment is within the light volume of each point light
-			result += CalcPointLight(pointLights[i], fragNormal, fragPos, cameraDir, diffuse, specular, shininess);
-		}
+		result += CalcPointLight(pointLights[i], fragNormal, fragPos, cameraDir, diffuse, specular, shininess);	
 	}
 
 	final_colour = vec4(result, 1.0f); // Set colour of fragment. Since we use screen door transparency, do not use alpha value
@@ -178,7 +174,6 @@ class PhongShaderProgram extends ShaderProgram {
             this.setUniformLocation("pointLights[" + i + "].constant");
             this.setUniformLocation("pointLights[" + i + "].linear");
             this.setUniformLocation("pointLights[" + i + "].quadratic");
-            this.setUniformLocation("pointLights[" + i + "].radius");
         }
 
         this.setUniformLocation("directionalLight.direction");
