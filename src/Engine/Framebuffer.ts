@@ -1,22 +1,21 @@
 class Framebuffer {
     // Public
     textures: Array<Texture>;
+    rbo: WebGLRenderbuffer;
 
     // Private
     private gl: WebGL2RenderingContext;
     private fbo: WebGLFramebuffer;
-    private rbo: WebGLRenderbuffer;
     private width: number;
     private height: number;
 
-    constructor(gl: WebGL2RenderingContext, width: number, height: number, nrOfColourAttachments: number) {
+    constructor(gl: WebGL2RenderingContext, width: number, height: number, nrOfColourAttachments: number, rbo?: WebGLFramebuffer) {
         this.gl = gl;
         this.width = width;
         this.height = height;
 
         this.fbo = this.gl.createFramebuffer();
         this.textures = new Array<Texture>(nrOfColourAttachments);
-        this.rbo = this.gl.createRenderbuffer();
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
 
         let attachments = new Array<any>();
@@ -31,8 +30,14 @@ class Framebuffer {
         }
     	this.gl.drawBuffers(attachments);
 
-        this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
-        this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH24_STENCIL8, this.width, this.height); 
+        if (rbo) {
+            this.rbo = rbo;
+        }
+        else {
+            this.rbo = this.gl.createRenderbuffer();
+            this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
+            this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH24_STENCIL8, this.width, this.height); 
+        }
         this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, this.rbo); 
 
         if (this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) != this.gl.FRAMEBUFFER_COMPLETE) {

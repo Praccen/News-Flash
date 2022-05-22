@@ -19,7 +19,6 @@ class Rendering {
 	private gBuffer: Framebuffer;
 	private lightingQuad: ScreenQuad;
 
-	private quads: Array<Quad>;
 	private phongQuads: Array<PhongQuad>;
 
 	private crtFramebuffer: Framebuffer;
@@ -40,25 +39,22 @@ class Rendering {
 
         this.useCrt = true;
 
-		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
-		// this.phongShaderProgram = new PhongShaderProgram(this.gl);
+		
+		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
+		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
 
 		this.geometryPass = new GeometryPass(this.gl);
 		this.lightingPass = new LightingPass(this.gl);
 		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 3);
 		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, this.gBuffer.textures);
 
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
-		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
-
 		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
 		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
 
 		this.initGL();
 
-		this.quads = new Array<Quad>();
 		this.phongQuads = new Array<PhongQuad>();
 
 		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
@@ -83,6 +79,7 @@ class Rendering {
 	}
 
     reportCanvasResize(x: number, y: number) {
+		this.gBuffer.setProportions(x, y);
         this.crtFramebuffer.setProportions(x, y);
         this.screenFramebuffer.setProportions(x, y);
         console.log("X: " + x + " px " + "Y: " + y + " px");
@@ -91,11 +88,6 @@ class Rendering {
     loadTextureToStore(texturePath: string) {
         this.textureStore.getTexture(texturePath);
     }
-
-	getNewQuad(texturePath: string): Quad {
-		const length = this.quads.push(new Quad(this.gl, this.simpleShaderProgram, this.textureStore.getTexture(texturePath)));
-		return this.quads[length - 1];
-	}
 
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
 		const length = this.phongQuads.push(new PhongQuad(this.gl, this.geometryPass, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
@@ -106,13 +98,6 @@ class Rendering {
 		const length = this.pointLights.push(new PointLight(this.gl, this.lightingPass, this.pointLights.length));
 		return this.pointLights[length - 1];
 	}
-
-    deleteQuad(quad: Quad) {
-        let index = this.quads.findIndex(q => q == quad);
-        if (index != -1) {
-            this.quads.splice(index, 1);
-        }
-    }
 
 	deletePhongQuad(quad: PhongQuad) {
 		let index = this.phongQuads.findIndex(q => q == quad);
@@ -127,17 +112,21 @@ class Rendering {
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
+		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
 		this.gBuffer.bind(this.gl.FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 
+		// ---- Geometry pass ----
 		this.geometryPass.use();
 		this.camera.bindViewProjMatrix(this.geometryPass.getUniformLocation("viewProjMatrix"));
 
 		for (let phongQuad of this.phongQuads.values()) {
 			phongQuad.draw();
 		}
-		
+		// -----------------------
+
+		// Geometry pass over, bind crt framebuffer if using crt effect, otherwise render directly to screen
 		if (this.useCrt) {
 			this.crtFramebuffer.bind(this.gl.FRAMEBUFFER);
 			this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
@@ -146,33 +135,30 @@ class Rendering {
 			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen
 		}
 
-		this.simpleShaderProgram.use();
-		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
-
-		for (const quad of this.quads.values()) {
-			quad.draw();
-		}
-
 		// Disable depth for screen quad(s) rendering
 		this.gl.disable(this.gl.DEPTH_TEST); 
 
+		// ---- Lighting pass ----
 		this.lightingPass.use();
 
 		this.gl.uniform3fv(this.lightingPass.getUniformLocation("camPos"), this.camera.getPosition().elements());
 		this.directionalLight.bind();
+		// Point lights
 		this.gl.uniform1i(this.lightingPass.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
 		for (let pointLight of this.pointLights.values()) {
 			pointLight.bind();
 		}
 
 		this.lightingQuad.draw();
+		// -----------------------
 
 		if (this.useCrt) {
-			// Crt effect
+			// ---- Crt effect ----
             this.screenFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER); // Set screen framebuffer as output
             this.gl.clear(this.gl.COLOR_BUFFER_BIT);
             this.crtShaderProgram.use();
             this.crtQuad.draw();
+			// --------------------
 
             // Render to screen quad
             this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen

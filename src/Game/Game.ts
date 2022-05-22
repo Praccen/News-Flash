@@ -8,9 +8,9 @@ class Game {
         this.rendering = rendering;
         this.ecsManager = ecsManager;
 
-        this.rendering.useCrt = true;
+        this.rendering.useCrt = false;
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 5; i++) {
             this.createPointLight(new Vec3({x: 1.0 + i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
             this.createTestEntity(new Vec3({x: -1.0 + i * 0.1, y: 0.0, z: -2.0}), -10.0 * i);
         }
@@ -19,8 +19,6 @@ class Game {
 
         // Load all textures to avoid loading mid game
         rendering.loadTextureToStore("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
-
-        this.rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
     }
 
     createTestEntity(pos:Vec3 , rotX: number = 0.0) {
