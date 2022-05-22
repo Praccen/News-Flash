@@ -11,16 +11,13 @@ class Rendering {
 	private simpleShaderProgram: SimpleShaderProgram;
 	private crtShaderProgram: CrtShaderProgram;
 	private screenQuadShaderProgram: ScreenQuadShaderProgram;
-	// private phongShaderProgram: PhongShaderProgram;
 
 	// Deferred rendering
 	private geometryPass: GeometryPass;
 	private lightingPass: LightingPass;
 	private gBuffer: Framebuffer;
 	private lightingQuad: ScreenQuad;
-
-	private phongQuads: Array<PhongQuad>;
-
+	
 	private crtFramebuffer: Framebuffer;
 	private crtQuad: ScreenQuad;
 
@@ -29,6 +26,9 @@ class Rendering {
 
 	private directionalLight: DirectionalLight;
 	private pointLights: Array<PointLight>;
+
+	private quads: Array<Quad>;
+	private phongQuads: Array<PhongQuad>;
 
 	private clearColour: {r:number, g:number, b:number, a:number};
 
@@ -39,6 +39,7 @@ class Rendering {
 
         this.useCrt = true;
 
+		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
 		
@@ -55,6 +56,7 @@ class Rendering {
 
 		this.initGL();
 
+		this.quads = new Array<Quad>();
 		this.phongQuads = new Array<PhongQuad>();
 
 		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
@@ -89,6 +91,11 @@ class Rendering {
         this.textureStore.getTexture(texturePath);
     }
 
+	getNewQuad(texturePath: string): Quad {
+		const length = this.quads.push(new Quad(this.gl, this.simpleShaderProgram, this.textureStore.getTexture(texturePath)));
+		return this.quads[length - 1];
+	}
+
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
 		const length = this.phongQuads.push(new PhongQuad(this.gl, this.geometryPass, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
 		return this.phongQuads[length - 1];
@@ -99,6 +106,13 @@ class Rendering {
 		return this.pointLights[length - 1];
 	}
 
+	deleteQuad(quad: Quad) {
+        let index = this.quads.findIndex(q => q == quad);
+        if (index != -1) {
+            this.quads.splice(index, 1);
+        }
+    }
+
 	deletePhongQuad(quad: PhongQuad) {
 		let index = this.phongQuads.findIndex(q => q == quad);
 		if (index != -1) {
@@ -107,9 +121,6 @@ class Rendering {
 	}
 
 	draw() {
-		// Clear the standard framebuffer
-		this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
-		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
@@ -128,14 +139,16 @@ class Rendering {
 
 		// Geometry pass over, bind crt framebuffer if using crt effect, otherwise render directly to screen
 		if (this.useCrt) {
-			this.crtFramebuffer.bind(this.gl.FRAMEBUFFER);
-			this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
-			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
+			this.crtFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
 		} else {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen
+			this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 		}
 
-		// Disable depth for screen quad(s) rendering
+		// Clear the output with the actual clear colour we have set
+		this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
+
+		// Disable depth testing for screen quad(s) rendering
 		this.gl.disable(this.gl.DEPTH_TEST); 
 
 		// ---- Lighting pass ----
@@ -151,19 +164,34 @@ class Rendering {
 
 		this.lightingQuad.draw();
 		// -----------------------
+		
+		// ---- Simple shaded ----
+		// Copy the depth buffer information from the gBuffer to the current depth buffer
+		this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
+		this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
+
+		// Enable depth testing again
+		this.gl.enable(this.gl.DEPTH_TEST); 
+
+		this.simpleShaderProgram.use();
+		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+
+		for (const quad of this.quads.values()) {
+			quad.draw();
+		}
+		// -----------------------
+
 
 		if (this.useCrt) {
+			this.gl.disable(this.gl.DEPTH_TEST); 
 			// ---- Crt effect ----
             this.screenFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER); // Set screen framebuffer as output
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
             this.crtShaderProgram.use();
             this.crtQuad.draw();
 			// --------------------
 
             // Render to screen quad
-            this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
+            this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
             this.screenQuadShaderProgram.use();
             this.screenQuad.draw();
 		}

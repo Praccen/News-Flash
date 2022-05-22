@@ -10,7 +10,7 @@ function initWebGL() {
 	canvas.width = 1920;
 	canvas.height = 1080;
 
-	let gl = canvas.getContext("webgl2");
+	let gl = canvas.getContext("webgl2", {antialias: false});
 
 	if (!gl) {
 		console.log("Failed to get rendering context for WebGL");

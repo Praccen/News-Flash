@@ -19,6 +19,8 @@ class Game {
 
         // Load all textures to avoid loading mid game
         rendering.loadTextureToStore("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+
+        rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
     }
 
     createTestEntity(pos:Vec3 , rotX: number = 0.0) {
