@@ -124,7 +124,7 @@ class Rendering {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
-		this.gBuffer.bind(this.gl.FRAMEBUFFER);
+		this.gBuffer.bind(this.gl.DRAW_FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 
@@ -166,18 +166,20 @@ class Rendering {
 		// -----------------------
 		
 		// ---- Simple shaded ----
-		// Copy the depth buffer information from the gBuffer to the current depth buffer
-		this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
-		this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
+		if (this.quads.length > 0) { // Only do this if there is something to simple shade
+			// Copy the depth buffer information from the gBuffer to the current depth buffer
+			this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
+			this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
 
-		// Enable depth testing again
-		this.gl.enable(this.gl.DEPTH_TEST); 
+			// Enable depth testing again
+			this.gl.enable(this.gl.DEPTH_TEST); 
 
-		this.simpleShaderProgram.use();
-		this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+			this.simpleShaderProgram.use();
+			this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
 
-		for (const quad of this.quads.values()) {
-			quad.draw();
+			for (const quad of this.quads.values()) {
+				quad.draw();
+			}
 		}
 		// -----------------------
 

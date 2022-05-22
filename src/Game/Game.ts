@@ -11,9 +11,10 @@ class Game {
         this.rendering.useCrt = false;
 
         for (let i = 0; i < 5; i++) {
-            this.createPointLight(new Vec3({x: 1.0 + i * 0.1, y: 0.0, z: 1.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
-            this.createTestEntity(new Vec3({x: -1.0 + i * 0.1, y: 0.0, z: -2.0}), -10.0 * i);
+            this.createTestEntity(new Vec3({x: -1.25 + i * 0.5, y: 0.0, z: -2.0}), -10.0 * i);
         }
+
+        this.createPointLight(new Vec3({x: 0.0, y: 3.0, z: 0.0}), new Vec3({x: 1.0, y: 0.0, z: 0.2}));
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 

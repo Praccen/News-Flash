@@ -12,7 +12,7 @@ class DirectionalLight {
 
         this.direction = new Vec3({x: 0.0, y: -1.0, z: -0.5});
         this.colour = new Vec3({x: 0.5, y: 0.5, z: 0.5});
-        this.ambientMultiplier = 0.3;
+        this.ambientMultiplier = 0.1;
     }
 
     bind() {
