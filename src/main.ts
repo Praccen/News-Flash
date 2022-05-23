@@ -11,6 +11,12 @@ function initWebGL() {
 	canvas.height = 1080;
 
 	let gl = canvas.getContext("webgl2", {antialias: false});
+    if (!gl.getExtension('EXT_color_buffer_float')) {
+        alert('Rendering to floating point textures is not supported on this platform');
+    }
+    if (!gl.getExtension('OES_texture_float_linear')) {
+        alert('Floating point rendering to FBO textures not supported');
+    }
 
 	if (!gl) {
 		console.log("Failed to get rendering context for WebGL");

@@ -52,13 +52,14 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, v
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
 
 void main() {
-	// Discard fragment if alpha channel in positions is 0
-	if (texture(gPosition, texCoords).a == 0.0) {
+	// Discard fragment if normal alpha is 0
+	vec4 fragNormalWithAlpha = texture(gNormal, texCoords);
+	if (fragNormalWithAlpha.a <= 0.0001) {
 		discard;
 	}
 	
 	vec3 fragPos = texture(gPosition, texCoords).rgb;
-	vec3 fragNormal = texture(gNormal, texCoords).rgb;
+	vec3 fragNormal = fragNormalWithAlpha.rgb;
 	float shininess = 32.0f;
 	vec3 diffuse = texture(gColourSpec, texCoords).rgb;
 	float specular = texture(gColourSpec, texCoords).a;
@@ -66,6 +67,7 @@ void main() {
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
 	
 	// vec3 result = fragNormal;
+	// vec3 result = vec3(specular, specular, specular);
     vec3 result = vec3(0.0f);
 	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess);
 	
@@ -78,7 +80,6 @@ void main() {
 
 // Calculates the colour when using a directional light
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess) {
-	vec3 ambient = diffuse * light.ambientMultiplier; //Ambient lighting
 	vec3 lightDir = normalize(-light.direction); //light direction from the fragment position
 
 	// Diffuse shading
@@ -88,7 +89,8 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, v
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0), shininess);
 
-	// Combine results
+	// Combine results	
+	vec3 ambient = diffuse * light.ambientMultiplier; //Ambient lighting
 	vec3 finalDiffuse = light.colour * diff * diffuse;
 	vec3 finalSpecular = light.colour * spec * specular;
 	

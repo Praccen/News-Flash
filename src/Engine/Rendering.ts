@@ -43,15 +43,19 @@ class Rendering {
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
 		
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
+		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
 
 		this.geometryPass = new GeometryPass(this.gl);
 		this.lightingPass = new LightingPass(this.gl);
-		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 3);
+		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [
+			{channels: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
+			{channels: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
+			{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}
+		]);
 		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, this.gBuffer.textures);
 
-		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, 1);
+		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
 
 		this.initGL();
@@ -124,7 +128,7 @@ class Rendering {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
-		this.gBuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+		this.gBuffer.bind(this.gl.FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT | this.gl.STENCIL_BUFFER_BIT);
 

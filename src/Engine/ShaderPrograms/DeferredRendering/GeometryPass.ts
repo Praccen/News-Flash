@@ -17,7 +17,6 @@ out vec2 texCoords;
 void main() {
     vec4 worldPos = modelMatrix * vec4(inPosition, 1.0);
 	texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
-	fragPos = worldPos.xyz;
 
 	// Calculate normal matrix, should be done on CPU but I can't be bothered with implementing inverse of a matrix and don't want to find a good lib atm
 	mat3 normalMatrix = mat3(modelMatrix);
@@ -25,7 +24,8 @@ void main() {
 	normalMatrix = transpose(normalMatrix);
 
 	fragNormal = normalize(normalMatrix * inNormal);
-	
+	fragPos = worldPos.xyz;
+
     gl_Position = viewProjMatrix * worldPos;
 }`;
 

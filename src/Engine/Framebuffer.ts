@@ -9,18 +9,18 @@ class Framebuffer {
     private width: number;
     private height: number;
 
-    constructor(gl: WebGL2RenderingContext, width: number, height: number, nrOfColourAttachments: number, rbo?: WebGLFramebuffer) {
+    constructor(gl: WebGL2RenderingContext, width: number, height: number, colourAttachments: Array<{channels: number, dataStorageType: number}>, rbo?: WebGLFramebuffer) {
         this.gl = gl;
         this.width = width;
         this.height = height;
 
         this.fbo = this.gl.createFramebuffer();
-        this.textures = new Array<Texture>(nrOfColourAttachments);
+        this.textures = new Array<Texture>(colourAttachments.length);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
 
         let attachments = new Array<any>();
-        for (let i = 0; i < nrOfColourAttachments; i++) {
-            this.textures[i] = new Texture(this.gl);
+        for (let i = 0; i < colourAttachments.length; i++) {
+            this.textures[i] = new Texture(this.gl, colourAttachments[i].channels, colourAttachments[i].dataStorageType);
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i].texture);
             this.textures[i].setTextureData(null, this.width, this.height);
             this.textures[i].setTexParameters(this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);

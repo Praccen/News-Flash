@@ -8,13 +8,19 @@ class Texture {
     private gl: WebGL2RenderingContext;
 	private missingTextureData: Uint8Array;
 
-    constructor(gl: WebGL2RenderingContext) {
+    private channels: number;
+    private dataStorageType: number;
+
+    constructor(gl: WebGL2RenderingContext, channels:number = gl.RGBA, dataStorageType: number = gl.UNSIGNED_BYTE) {
         this.gl = gl;
 
         this.missingTextureData = new Uint8Array([
             255, 255, 255, 255, 0, 0, 0, 255,
             0, 0, 0, 255, 255, 255, 255, 255
         ]);
+
+        this.channels = channels;
+        this.dataStorageType = dataStorageType;
 
         // Generate texture
         this.texture = this.gl.createTexture();
@@ -26,9 +32,9 @@ class Texture {
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
         this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
     
-        this.width = 2;
-        this.height = 2;
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.missingTextureData);
+        this.width = 1;
+        this.height = 1;
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.channels, this.width, this.height, 0, this.gl.RGBA, this.dataStorageType, null);
     
         this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
@@ -37,14 +43,14 @@ class Texture {
         this.width = width;
         this.height = height;
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.channels, width, height, 0, this.gl.RGBA, this.dataStorageType, data);
         this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
 
     updateTextureSubData(data: Uint8Array, xOffset: number, yOffset: number, width: number, height: number): boolean {
         if (xOffset + width <= this.width && yOffset + height <= this.height) {
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-            this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, xOffset, yOffset, width, height, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+            this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, xOffset, yOffset, width, height, this.channels, this.dataStorageType, data);
             this.gl.bindTexture(this.gl.TEXTURE_2D, null);
             return true;
         }
@@ -69,7 +75,7 @@ class Texture {
             self.width = image.width;
             self.height = image.height;
             self.gl.bindTexture(self.gl.TEXTURE_2D, self.texture);
-            self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.RGBA, self.gl.UNSIGNED_BYTE, image);
+            self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.channels, self.gl.RGBA, self.dataStorageType, image);
             self.gl.generateMipmap(self.gl.TEXTURE_2D);
             texturesRequestedVsLoaded.loaded++;
         });
