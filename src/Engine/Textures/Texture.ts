@@ -7,17 +7,20 @@ class Texture {
     // Private
     private gl: WebGL2RenderingContext;
 	private missingTextureData: Uint8Array;
+    private useMipMap: boolean;
 
     private channels: number;
     private dataStorageType: number;
 
-    constructor(gl: WebGL2RenderingContext, channels:number = gl.RGBA, dataStorageType: number = gl.UNSIGNED_BYTE) {
+    constructor(gl: WebGL2RenderingContext, useMipMap: boolean = true, channels:number = gl.RGBA, dataStorageType: number = gl.UNSIGNED_BYTE) {
         this.gl = gl;
 
         this.missingTextureData = new Uint8Array([
             255, 255, 255, 255, 0, 0, 0, 255,
             0, 0, 0, 255, 255, 255, 255, 255
         ]);
+
+        this.useMipMap = useMipMap;
 
         this.channels = channels;
         this.dataStorageType = dataStorageType;
@@ -44,6 +47,10 @@ class Texture {
         this.height = height;
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.channels, width, height, 0, this.gl.RGBA, this.dataStorageType, data);
+        if (this.useMipMap) {
+            this.gl.generateMipmap(this.gl.TEXTURE_2D);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+        }
         this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     }
 
@@ -51,6 +58,10 @@ class Texture {
         if (xOffset + width <= this.width && yOffset + height <= this.height) {
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
             this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, xOffset, yOffset, width, height, this.channels, this.dataStorageType, data);
+            if (this.useMipMap) {
+                this.gl.generateMipmap(this.gl.TEXTURE_2D);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+            }
             this.gl.bindTexture(this.gl.TEXTURE_2D, null);
             return true;
         }
@@ -76,7 +87,10 @@ class Texture {
             self.height = image.height;
             self.gl.bindTexture(self.gl.TEXTURE_2D, self.texture);
             self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.channels, self.gl.RGBA, self.dataStorageType, image);
-            self.gl.generateMipmap(self.gl.TEXTURE_2D);
+            if (self.useMipMap) {
+                self.gl.generateMipmap(self.gl.TEXTURE_2D);
+                self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MIN_FILTER, self.gl.LINEAR_MIPMAP_LINEAR);
+            }
             texturesRequestedVsLoaded.loaded++;
         });
 

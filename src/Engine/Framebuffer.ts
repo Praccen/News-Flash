@@ -20,7 +20,7 @@ class Framebuffer {
 
         let attachments = new Array<any>();
         for (let i = 0; i < colourAttachments.length; i++) {
-            this.textures[i] = new Texture(this.gl, colourAttachments[i].channels, colourAttachments[i].dataStorageType);
+            this.textures[i] = new Texture(this.gl, false, colourAttachments[i].channels, colourAttachments[i].dataStorageType);
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i].texture);
             this.textures[i].setTextureData(null, this.width, this.height);
             this.textures[i].setTexParameters(this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
