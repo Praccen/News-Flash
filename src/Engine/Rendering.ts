@@ -32,6 +32,8 @@ class Rendering {
 
 	private clearColour: {r:number, g:number, b:number, a:number};
 
+	private shadowBuffer: Framebuffer;
+
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
         this.textureStore = new TextureStore(gl);
@@ -65,6 +67,8 @@ class Rendering {
 
 		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
 		this.pointLights = new Array<PointLight>();
+
+		this.shadowBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, []);
 	}
 
 	initGL() {
@@ -127,6 +131,10 @@ class Rendering {
 	draw() {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
+		// ---- Shadow pass ----
+		
+		// ---------------------
+
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
 		this.gBuffer.bind(this.gl.FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);

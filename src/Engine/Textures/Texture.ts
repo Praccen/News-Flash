@@ -6,7 +6,7 @@ class Texture {
 
     // Private
     private gl: WebGL2RenderingContext;
-	private missingTextureData: Uint8Array;
+	// private missingTextureData: Uint8Array;
     private useMipMap: boolean;
 
     private channels: number;
@@ -15,10 +15,10 @@ class Texture {
     constructor(gl: WebGL2RenderingContext, useMipMap: boolean = true, channels:number = gl.RGBA, dataStorageType: number = gl.UNSIGNED_BYTE) {
         this.gl = gl;
 
-        this.missingTextureData = new Uint8Array([
-            255, 255, 255, 255, 0, 0, 0, 255,
-            0, 0, 0, 255, 255, 255, 255, 255
-        ]);
+        // this.missingTextureData = new Uint8Array([
+        //     255, 255, 255, 255, 0, 0, 0, 255,
+        //     0, 0, 0, 255, 255, 255, 255, 255
+        // ]);
 
         this.useMipMap = useMipMap;
 

@@ -29,6 +29,9 @@ class Framebuffer {
             attachments.push(this.gl.COLOR_ATTACHMENT0 + i);
         }
     	this.gl.drawBuffers(attachments);
+        if (colourAttachments.length == 0) {
+            this.gl.readBuffer(this.gl.NONE);
+        }
 
         if (rbo) {
             this.rbo = rbo;
