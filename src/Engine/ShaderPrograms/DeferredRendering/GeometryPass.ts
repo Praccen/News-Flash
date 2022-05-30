@@ -72,7 +72,7 @@ void main() {
 
 class GeometryPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, geometryVertexShaderSrc, geometryFragmentShaderSrc);
+        super(gl, "GeometryPass", geometryVertexShaderSrc, geometryFragmentShaderSrc);
 
         this.use();
 
@@ -83,8 +83,8 @@ class GeometryPass extends ShaderProgram {
         this.setUniformLocation("material.diffuse");
         this.setUniformLocation("material.specular");
 
-        this.gl.uniform1i(this.getUniformLocation("material.diffuse"), 0);
-        this.gl.uniform1i(this.getUniformLocation("material.specular"), 1);
+        this.gl.uniform1i(this.getUniformLocation("material.diffuse")[0], 0);
+        this.gl.uniform1i(this.getUniformLocation("material.specular")[0], 1);
     }
 
     setupVertexAttributePointers(): void {

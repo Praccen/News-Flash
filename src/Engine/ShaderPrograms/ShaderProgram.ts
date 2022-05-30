@@ -4,19 +4,21 @@ class ShaderProgram {
     protected shaderProgram: WebGLProgram;
     protected uniformBindings: Map<string, WebGLUniformLocation>;
 
-    constructor(gl: WebGL2RenderingContext, vertexShaderName: string, fragmentShaderName: string) {
+    constructor(gl: WebGL2RenderingContext, shaderProgramName: string, vertexShaderName: string, fragmentShaderName: string) {
         this.gl = gl;
         this.shaderProgram = null;
-        this.loadShaders(vertexShaderName, fragmentShaderName);
+        this.loadShaders(shaderProgramName, vertexShaderName, fragmentShaderName);
         this.uniformBindings = new Map<string, WebGLUniformLocation>();
     }
 
 
-    loadShaders(vertexShaderString: string, fragmentShaderString: string) {
+    loadShaders(shaderProgramName: string, vertexShaderString: string, fragmentShaderString: string) {
         // link shaders
         if (this.shaderProgram != null) {
             this.gl.deleteProgram(this.shaderProgram); // Delete in case this is not the first time this shader is created.
         }
+
+        console.log('Compiling shader program: ' + shaderProgramName);
 
         // vertex shader
         const vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
@@ -68,14 +70,13 @@ class ShaderProgram {
         this.uniformBindings.set(uniformName, this.gl.getUniformLocation(this.shaderProgram, uniformName));
     }
 
-    getUniformLocation(uniformName: string): WebGLUniformLocation {
-        if (!(this.uniformBindings.has(uniformName))) {
-            console.log("No uniform with name " + uniformName + "\n");
+    getUniformLocation(uniformName: string): [WebGLUniformLocation, boolean] {
+        if (this.uniformBindings.has(uniformName)) {
+            return [this.uniformBindings.get(uniformName), true];
         }
-        else {
-            return this.uniformBindings.get(uniformName);
-        }
-        return 0;
+        
+        // console.log("No uniform with name " + uniformName + "\n");
+        return [0, false];
     }
 };
 

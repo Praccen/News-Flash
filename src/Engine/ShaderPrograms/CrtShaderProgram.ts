@@ -168,7 +168,7 @@ void main() {
 
 class CrtShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, crtVertexShaderSrc, crtFragmentShaderSrc);
+        super(gl, "CrtShaderProgram", crtVertexShaderSrc, crtFragmentShaderSrc);
         
 	    this.setUniformLocation("screenTexture");
     }

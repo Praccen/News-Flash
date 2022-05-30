@@ -26,11 +26,26 @@ class PointLight {
     }
 
     bind() {
-        this.gl.uniform3fv(this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].position"), this.position.elements());
-        this.gl.uniform3fv(this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].colour"), this.colour.elements());
+        let ul = this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].position");
+        if (ul[1]) {
+            this.gl.uniform3fv(ul[0], this.position.elements());
+        }
+        ul = this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].colour");
+        if (ul[1]) {
+            this.gl.uniform3fv(ul[0], this.colour.elements());
+        }
 
-        this.gl.uniform1f(this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].constant"), this.constant);
-        this.gl.uniform1f(this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].linear"), this.linear);
-        this.gl.uniform1f(this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].quadratic"), this.quadratic);
+        ul = this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].constant");
+        if (ul[1]) {
+            this.gl.uniform1f(ul[0], this.constant);
+        }
+        ul = this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].linear");
+        if (ul[1]) {
+            this.gl.uniform1f(ul[0], this.linear);
+        }
+        ul = this.shaderProgram.getUniformLocation("pointLights[" + this.lightIndex + "].quadratic");
+        if (ul[1]) {
+            this.gl.uniform1f(ul[0], this.quadratic);
+        }
     }
 }

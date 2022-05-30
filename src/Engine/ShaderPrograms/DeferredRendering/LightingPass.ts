@@ -126,7 +126,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 
 class LightingPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, lightingVertexShaderSrc, lightingFragmentShaderSrc);
+        super(gl, "LightingPass", lightingVertexShaderSrc, lightingFragmentShaderSrc);
 
         this.use();
         
@@ -134,9 +134,9 @@ class LightingPass extends ShaderProgram {
         this.setUniformLocation("gNormal");
         this.setUniformLocation("gColourSpec");
 
-        this.gl.uniform1i(this.getUniformLocation("gPosition"), 0);
-        this.gl.uniform1i(this.getUniformLocation("gNormal"), 1);
-        this.gl.uniform1i(this.getUniformLocation("gColourSpec"), 2);
+        this.gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
+        this.gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
+        this.gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
 
         for (let i = 0; i < pointLightsToAllocate; i++) {
             this.setUniformLocation("pointLights[" + i + "].position");

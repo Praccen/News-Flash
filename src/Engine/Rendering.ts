@@ -32,7 +32,10 @@ class Rendering {
 
 	private clearColour: {r:number, g:number, b:number, a:number};
 
+	private shadowResolution: number;
+	private shadowPass: ShadowPass;
 	private shadowBuffer: Framebuffer;
+	// private shadowDepthMap: Texture;
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
@@ -45,20 +48,20 @@ class Rendering {
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
 		
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
 
 		this.geometryPass = new GeometryPass(this.gl);
 		this.lightingPass = new LightingPass(this.gl);
-		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [
-			{channels: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
-			{channels: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
-			{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}
+		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [
+			{internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
+			{internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
+			{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}
 		]);
 		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, this.gBuffer.textures);
 
-		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, [{channels: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
-		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
+		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		// this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
 
 		this.initGL();
 
@@ -68,7 +71,10 @@ class Rendering {
 		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
 		this.pointLights = new Array<PointLight>();
 
-		this.shadowBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, []);
+		this.shadowResolution = 4096;
+		this.shadowPass = new ShadowPass(this.gl);
+		this.shadowBuffer = new Framebuffer(this.gl, this.shadowResolution, this.shadowResolution, true, []); // [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]
+		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, [this.shadowBuffer.depthTexture]); //this.shadowBuffer.textures
 	}
 
 	initGL() {
@@ -132,9 +138,32 @@ class Rendering {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		// ---- Shadow pass ----
+		this.shadowPass.use();
+		this.gl.viewport(0, 0, this.shadowResolution, this.shadowResolution);
+		this.shadowBuffer.bind(this.gl.FRAMEBUFFER);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+	
+		//Set uniforms
+		this.directionalLight.calcAndSendLightSpaceMatrix(this.camera.getPosition(), 5.0, this.shadowPass.getUniformLocation("lightSpaceMatrix")[0]);
 		
+		//Render shadow pass
+		for (let phongQuad of this.phongQuads.values()) {
+			phongQuad.changeShaderProgram(this.shadowPass);
+			phongQuad.draw(false);
+		}
+
+		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+
+		this.gl.disable(this.gl.DEPTH_TEST);
+
+		// Render to screen quad
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null); // Render directly to screen
+		this.screenQuadShaderProgram.use();
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+		this.screenQuad.draw();
 		// ---------------------
 
+		/*
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
 		this.gBuffer.bind(this.gl.FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -142,9 +171,10 @@ class Rendering {
 
 		// ---- Geometry pass ----
 		this.geometryPass.use();
-		this.camera.bindViewProjMatrix(this.geometryPass.getUniformLocation("viewProjMatrix"));
+		this.camera.bindViewProjMatrix(this.geometryPass.getUniformLocation("viewProjMatrix")[0]);
 
 		for (let phongQuad of this.phongQuads.values()) {
+			phongQuad.changeShaderProgram(this.geometryPass);
 			phongQuad.draw();
 		}
 		// -----------------------
@@ -166,10 +196,10 @@ class Rendering {
 		// ---- Lighting pass ----
 		this.lightingPass.use();
 
-		this.gl.uniform3fv(this.lightingPass.getUniformLocation("camPos"), this.camera.getPosition().elements());
+		this.gl.uniform3fv(this.lightingPass.getUniformLocation("camPos")[0], this.camera.getPosition().elements());
 		this.directionalLight.bind();
 		// Point lights
-		this.gl.uniform1i(this.lightingPass.getUniformLocation("nrOfPointLights"),  this.pointLights.length);
+		this.gl.uniform1i(this.lightingPass.getUniformLocation("nrOfPointLights")[0],  this.pointLights.length);
 		for (let pointLight of this.pointLights.values()) {
 			pointLight.bind();
 		}
@@ -187,7 +217,7 @@ class Rendering {
 			this.gl.enable(this.gl.DEPTH_TEST); 
 
 			this.simpleShaderProgram.use();
-			this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix"));
+			this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix")[0]);
 
 			for (const quad of this.quads.values()) {
 				quad.draw();
@@ -209,5 +239,6 @@ class Rendering {
             this.screenQuadShaderProgram.use();
             this.screenQuad.draw();
 		}
+		*/
 	}
 };

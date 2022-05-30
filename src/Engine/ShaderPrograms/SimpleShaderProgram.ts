@@ -59,7 +59,7 @@ void main()
 
 class SimpleShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, simpleVertexShaderSrc, simpleFragmentShaderSrc);
+        super(gl, "SimpleShaderProgram", simpleVertexShaderSrc, simpleFragmentShaderSrc);
 
         this.use();
 

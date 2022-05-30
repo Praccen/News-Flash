@@ -23,15 +23,14 @@ in vec2 texCoords;
 uniform sampler2D screenTexture;
 
 void main() {
-    vec4 col = texture(screenTexture, texCoords).rgba;
-    FragColor = col;
+    FragColor = texture(screenTexture, texCoords).rgba;
 }
 `;
 
 class ScreenQuadShaderProgram extends ShaderProgram {
 
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, screenQuadVertexSrc, screenQuadFragmentSrc);
+        super(gl, "ScreenQuadShaderProgram", screenQuadVertexSrc, screenQuadFragmentSrc);
 
 	    this.setUniformLocation("screenTexture");
         

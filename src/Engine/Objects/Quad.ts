@@ -36,9 +36,18 @@ class Quad extends GraphicsObject {
         this.bindVAO();
 
         this.texture.bind();
-        this.gl.uniform1i(this.shaderProgram.getUniformLocation("useTexture"), 1);
-        this.gl.uniformMatrix4fv(this.shaderProgram.getUniformLocation("modelMatrix"), false, this.modelMatrix.elements);
-        this.gl.uniformMatrix4fv(this.shaderProgram.getUniformLocation("textureMatrix"), false, this.textureMatrix.elements);
+        let ul = this.shaderProgram.getUniformLocation("useTexture");
+        if (ul[1]) {
+            this.gl.uniform1i(ul[0], 1);
+        }
+        ul = this.shaderProgram.getUniformLocation("modelMatrix");
+        if (ul[1]) {
+            this.gl.uniformMatrix4fv(ul[0], false, this.modelMatrix.elements);
+        }
+        ul = this.shaderProgram.getUniformLocation("textureMatrix");
+        if (ul[1]) {
+            this.gl.uniformMatrix4fv(ul[0], false, this.textureMatrix.elements);
+        }
 
         this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
     }

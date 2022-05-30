@@ -153,7 +153,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 
 class PhongShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, phongVertexShaderSrc, phongFragmentShaderSrc);
+        super(gl, "PhongShaderProgram", phongVertexShaderSrc, phongFragmentShaderSrc);
 
         this.use();
 
