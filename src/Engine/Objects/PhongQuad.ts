@@ -37,14 +37,17 @@ class PhongQuad extends GraphicsObject {
         this.textureMatrix = new Matrix4(null);
     }
 
-    draw(bindTexture: boolean = true) {
+    draw(bindDiffuse: boolean = true, bindBoth: boolean = true) {
         this.bindVAO();
 
-        if (bindTexture) {
+        if (bindDiffuse || bindBoth) {
             this.diffuse.bind(0);
+        }
+        
+        if (bindBoth) {
             this.specular.bind(1);
         }
-
+        
         let modelReturn: [WebGLUniformLocation, boolean] = this.shaderProgram.getUniformLocation("modelMatrix");
         if (modelReturn[1]) {
             this.gl.uniformMatrix4fv(modelReturn[0], false, this.modelMatrix.elements);

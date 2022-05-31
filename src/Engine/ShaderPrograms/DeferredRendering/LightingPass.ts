@@ -25,6 +25,7 @@ out vec4 final_colour;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gColourSpec;
+uniform sampler2D depthMap;
 
 struct PointLight {
 	vec3 position;
@@ -47,9 +48,11 @@ uniform DirectionalLight directionalLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform int nrOfPointLights;
 uniform vec3 camPos; //Used for specular lighting
+uniform mat4 lightSpaceMatrix; // Used for shadow fragment position
 
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess, vec4 lightSpaceFragPos);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir, vec3 diffuse, float specular, float shininess);
+float CalcShadow(vec4 lightSpaceFragPos, vec3 normal);
 
 void main() {
 	// Discard fragment if normal alpha is 0
@@ -63,13 +66,14 @@ void main() {
 	float shininess = 32.0f;
 	vec3 diffuse = texture(gColourSpec, texCoords).rgb;
 	float specular = texture(gColourSpec, texCoords).a;
+	vec4 lightSpaceFragPos = (lightSpaceMatrix * vec4(fragPos, 1.0f));
 	
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
 	
 	// vec3 result = fragNormal;
 	// vec3 result = vec3(specular, specular, specular);
     vec3 result = vec3(0.0f);
-	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess);
+	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess, lightSpaceFragPos);
 	
 	for (int i = 0; i < nrOfPointLights; i++) {
 		result += CalcPointLight(pointLights[i], fragNormal, fragPos, cameraDir, diffuse, specular, shininess);
@@ -79,7 +83,7 @@ void main() {
 }
 
 // Calculates the colour when using a directional light
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess) {
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, vec3 diffuse, float specular, float shininess, vec4 lightSpaceFragPos) {
 	vec3 lightDir = normalize(-light.direction); //light direction from the fragment position
 
 	// Diffuse shading
@@ -94,7 +98,8 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 cameraDir, v
 	vec3 finalDiffuse = light.colour * diff * diffuse;
 	vec3 finalSpecular = light.colour * spec * specular;
 	
-	vec3 lighting = (ambient + finalDiffuse + finalSpecular);
+	float shadow = CalcShadow(lightSpaceFragPos, normal);
+	vec3 lighting = (ambient + (1.0f - shadow) * (finalDiffuse + finalSpecular));
 	return lighting;
 }
 
@@ -122,6 +127,31 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 	lighting = finalDiffuse + finalSpecular;
 	//lighting = finalSpecular;
 	return lighting;
+}
+
+float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
+	// perform perspective divide
+    vec3 projCoords = lightSpaceFragPos.xyz / lightSpaceFragPos.w;
+
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+	if (projCoords.z > 1.0) {
+		return 0.0;
+	}
+
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(depthMap, projCoords.xy).r; 
+
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    // check whether current frag pos is in shadow
+	float bias = 0.001;
+	// float bias = max(0.005 * (1.0 - dot(normal, directionalLight.direction)), 0.005);
+	float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
 }`;
 
 class LightingPass extends ShaderProgram {
@@ -133,10 +163,12 @@ class LightingPass extends ShaderProgram {
         this.setUniformLocation("gPosition");
         this.setUniformLocation("gNormal");
         this.setUniformLocation("gColourSpec");
+        this.setUniformLocation("depthMap");
 
         this.gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
         this.gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
         this.gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
+        this.gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
 
         for (let i = 0; i < pointLightsToAllocate; i++) {
             this.setUniformLocation("pointLights[" + i + "].position");
@@ -152,6 +184,7 @@ class LightingPass extends ShaderProgram {
         this.setUniformLocation("directionalLight.ambientMultiplier");
         this.setUniformLocation("nrOfPointLights");
         this.setUniformLocation("camPos");
+		this.setUniformLocation("lightSpaceMatrix");
     }
 
     setupVertexAttributePointers(): void {

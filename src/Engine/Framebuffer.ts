@@ -37,7 +37,6 @@ class Framebuffer {
             this.depthTexture = new Texture(this.gl, false, this.gl.DEPTH_COMPONENT32F, this.gl.DEPTH_COMPONENT, this.gl.FLOAT);
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.depthTexture.texture);
             this.depthTexture.setTextureData(null, this.width, this.height);
-            this.depthTexture.setTexParameters(this.gl.TEXTURE_COMPARE_MODE, this.gl.NONE);
             this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.TEXTURE_2D, this.depthTexture.texture, 0);
         } else {
             this.rbo = this.gl.createRenderbuffer();
