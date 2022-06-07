@@ -1,17 +1,3 @@
-const lightingVertexShaderSrc: string = 
-`#version 300 es
-// If inputs change, also update LightingPass::setupVertexAttributePointers to match
-layout (location = 0) in vec2 inPos;
-layout (location = 1) in vec2 inTexCoords;
-
-out vec2 texCoords;
-
-void main()
-{
-    texCoords = inTexCoords;
-    gl_Position = vec4(inPos, 0.0, 1.0); 
-}`;
-    
 let pointLightsToAllocate: number = 100;
 
 const lightingFragmentShaderSrc: string = 
@@ -168,7 +154,7 @@ float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
 
 class LightingPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, "LightingPass", lightingVertexShaderSrc, lightingFragmentShaderSrc);
+        super(gl, "LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
 
         this.use();
         

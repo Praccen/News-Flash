@@ -1,16 +1,3 @@
-const bloomBlendingVertexSrc: string = 
-`#version 300 es
-layout (location = 0) in vec2 inPos;
-layout (location = 1) in vec2 inTexCoords;
-
-out vec2 texCoords;
-
-void main()
-{
-    texCoords = inTexCoords;
-    gl_Position = vec4(inPos, 0.0, 1.0); 
-}`;
-
 const bloomBlendingFragmentSrc: string = 
 `#version 300 es
 precision highp float;
@@ -43,7 +30,7 @@ void main()
 
 class BloomBlending extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, "BloomBlending", bloomBlendingVertexSrc, bloomBlendingFragmentSrc);
+        super(gl, "BloomBlending", screenQuadVertexSrc, bloomBlendingFragmentSrc);
 
         this.use();
 
