@@ -8,6 +8,7 @@ class Game {
         this.rendering = rendering;
         this.ecsManager = ecsManager;
 
+        this.rendering.useBloom = true;
         this.rendering.useCrt = false;
 
         // Load all textures to avoid loading mid game
@@ -25,7 +26,7 @@ class Game {
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
-        rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+        let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
     }
 
     createFloorEntity(texturePath: string) {

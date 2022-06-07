@@ -32,11 +32,13 @@ class ScreenQuad extends GraphicsObject {
         }
     }
 
-    draw() {
+    draw(bindTextures: boolean = true) {
         this.bindVAO();
 
-        for (let i = 0; i < this.textures.length; i++) {
-            this.textures[i].bind(i);
+        if (bindTextures) {
+            for (let i = 0; i < this.textures.length; i++) {
+                this.textures[i].bind(i);
+            }
         }
 
         this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);

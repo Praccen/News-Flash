@@ -2,61 +2,80 @@ class Rendering {
 	// public
 	camera: Camera;
 
+	// ---- Post processing toggles ----
     useCrt: boolean;
+	useBloom: boolean;
+	// ---------------------------------
 
 	// private
 	private gl: WebGL2RenderingContext;
     private textureStore: TextureStore;
+	private clearColour: {r:number, g:number, b:number, a:number};
 
+	// ---- Simple shading ----
 	private simpleShaderProgram: SimpleShaderProgram;
-	private crtShaderProgram: CrtShaderProgram;
-	private screenQuadShaderProgram: ScreenQuadShaderProgram;
+	// ------------------------
 
-	// Deferred rendering
+	// ---- Deferred rendering ----
 	private geometryPass: GeometryPass;
 	private lightingPass: LightingPass;
 	private gBuffer: Framebuffer;
 	private lightingQuad: ScreenQuad;
-	
-	private crtFramebuffer: Framebuffer;
-	private crtQuad: ScreenQuad;
+	// ----------------------------
 
+	// ---- Post processing ----
+	// Crt effect
+	private crtShaderProgram: CrtShaderProgram;
+	private crtFramebuffer: Framebuffer;
+	
+	// Bloom
+	private bloomExtraction: BloomExtraction;
+	private bloomExtractionInputFramebuffer: Framebuffer;
+	private bloomExtractionOutputFramebuffer: Framebuffer;
+	private gaussianBlur: GaussianBlur;
+	private pingPongFramebuffers: Array<Framebuffer>; // 2 frambuffers to go back and fourth between
+	private bloomBlending: BloomBlending;
+
+	// Screen quad to output the finished image on
+	private screenQuadShaderProgram: ScreenQuadShaderProgram;
 	private screenFramebuffer: Framebuffer;
 	private screenQuad: ScreenQuad;
+	// -------------------------
 
-	private directionalLight: DirectionalLight;
-	private pointLights: Array<PointLight>;
-
+	// ---- Graphics objects ----
 	private quads: Array<Quad>;
 	private phongQuads: Array<PhongQuad>;
+	// --------------------------
 
-	private clearColour: {r:number, g:number, b:number, a:number};
+	// ---- Lights ----
+	private directionalLight: DirectionalLight;
+	private pointLights: Array<PointLight>;
+	// ----------------
 
+	// ---- Shadow mapping ----
 	private shadowResolution: number;
 	private shadowOffset: number;
 	private shadowPass: ShadowPass;
 	private shadowBuffer: Framebuffer;
-	// private shadowDepthMap: Texture;
+	// ------------------------
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
         this.textureStore = new TextureStore(gl);
 		this.camera = new Camera(gl);
 
-        this.useCrt = true;
-
+		// ---- Simple shading ----
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
-		this.crtShaderProgram = new CrtShaderProgram(this.gl);
-		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
-		
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
-		this.crtQuad = new ScreenQuad(this.gl, this.crtShaderProgram, this.crtFramebuffer.textures);
+		// ------------------------
 
+		// ---- Shadow mapping ----
 		this.shadowResolution = 4096;
 		this.shadowOffset = 20.0;
 		this.shadowPass = new ShadowPass(this.gl);
 		this.shadowBuffer = new Framebuffer(this.gl, this.shadowResolution, this.shadowResolution, true, []); // [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]
+		// ------------------------
 
+		// ---- Deferred rendering ----
 		this.geometryPass = new GeometryPass(this.gl);
 		this.lightingPass = new LightingPass(this.gl);
 		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [
@@ -64,24 +83,50 @@ class Rendering {
 			{internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
 			{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}
 		]);
-
+		
 		let textureArray = this.gBuffer.textures;
 		textureArray.push(this.shadowBuffer.depthTexture);
 		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, textureArray);
+		// ----------------------------
 
+		// ---- Post processing ----
+		// Crt effect
+        this.useCrt = true;
+		this.crtShaderProgram = new CrtShaderProgram(this.gl);
+		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+
+		// Bloom
+		this.useBloom = true;
+		this.bloomExtraction = new BloomExtraction(this.gl);
+		this.bloomExtractionInputFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.bloomExtractionOutputFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, 
+			[{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE},
+			{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.gaussianBlur = new GaussianBlur(this.gl);
+		this.pingPongFramebuffers = new Array<Framebuffer>(2);
+		for (let i = 0; i < 2; i++) {
+			this.pingPongFramebuffers[i] = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, 
+				[{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		}
+		this.bloomBlending = new BloomBlending(this.gl);
+
+		// Screen quad to output the finished image on
+		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
 		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
-		// this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
-
-		this.initGL();
-
+		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
+		// -------------------------
+		
+		// ---- Graphics objects ----
 		this.quads = new Array<Quad>();
 		this.phongQuads = new Array<PhongQuad>();
-
+		// --------------------------
+		
+		// ---- Lights ----
 		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
 		this.pointLights = new Array<PointLight>();
+		// ----------------
 
-		
-		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, [this.shadowBuffer.depthTexture]);//this.screenFramebuffer.textures); // [this.shadowBuffer.depthTexture]);
+		this.initGL();
 	}
 
 	initGL() {
@@ -178,10 +223,13 @@ class Rendering {
 		}
 		// -----------------------
 
-		// Geometry pass over, bind crt framebuffer if using crt effect, otherwise render directly to screen
-		if (this.useCrt) {
+		// Geometry pass over, appropriate framebuffer for post processing or render directly to screen.
+		if (this.useBloom) {
+			this.bloomExtractionInputFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+		} else if (this.useCrt) {
 			this.crtFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
-		} else {
+		}
+		else {
 			this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 		}
 
@@ -225,19 +273,66 @@ class Rendering {
 		}
 		// -----------------------
 
+		// ---- Post processing ----
+		this.gl.disable(this.gl.DEPTH_TEST); 
+		if (this.useBloom) {
+			this.bloomExtractionOutputFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+			this.bloomExtraction.use();
+			for (let i = 0; i < 2; i++) {
+				this.bloomExtractionInputFramebuffer.textures[0].bind(0);
+			}
+			this.screenQuad.draw(false);
+
+			// Blur the bright image (second of the two in bloomExtractionOutputFramebuffer)
+			let horizontal = true, firstIteration = true;
+			let amount = 10;
+			this.gaussianBlur.use();
+			for (let i = 0; i < amount; i++)
+			{
+				this.pingPongFramebuffers[Number(horizontal)].bind(this.gl.DRAW_FRAMEBUFFER);
+				this.gl.uniform1ui(this.gaussianBlur.getUniformLocation("horizontal")[0], Number(horizontal));
+				if (firstIteration) {
+					this.bloomExtractionOutputFramebuffer.textures[1].bind();
+				}
+				else {
+					this.pingPongFramebuffers[Number(!horizontal)].textures[0].bind();
+				}
+				
+				this.screenQuad.draw(false);
+				horizontal = !horizontal;
+				firstIteration = false;
+			}
+
+			// Combine the normal image with the blured bright image
+			this.bloomBlending.use()
+			this.bloomExtractionOutputFramebuffer.textures[0].bind(0); // Normal scene
+			this.pingPongFramebuffers[Number(horizontal)].textures[0].bind(1); // Blurred bright image
+
+			// Render result to screen or to crt framebuffer if doing crt effect after this.
+			if (this.useCrt) {
+				this.crtFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+			} else {
+				this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+			}
+			this.screenQuad.draw(false);
+		}
+	
 
 		if (this.useCrt) {
-			this.gl.disable(this.gl.DEPTH_TEST); 
 			// ---- Crt effect ----
-            this.screenFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER); // Set screen framebuffer as output
+			this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
             this.crtShaderProgram.use();
-            this.crtQuad.draw();
+			this.crtFramebuffer.textures[0].bind(0);
+            this.screenQuad.draw(false);
 			// --------------------
-
-            // Render to screen quad
-            this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
-            this.screenQuadShaderProgram.use();
-            this.screenQuad.draw();
 		}
+		// -------------------------
+	}
+
+	private renderTextureToScreen(texture: Texture) {
+		this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+		this.screenQuadShaderProgram.use();
+		texture.bind();
+		this.screenQuad.draw(false);
 	}
 };
