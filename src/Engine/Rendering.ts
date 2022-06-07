@@ -278,9 +278,7 @@ class Rendering {
 		if (this.useBloom) {
 			this.bloomExtractionOutputFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
 			this.bloomExtraction.use();
-			for (let i = 0; i < 2; i++) {
-				this.bloomExtractionInputFramebuffer.textures[0].bind(0);
-			}
+			this.bloomExtractionInputFramebuffer.textures[0].bind(0);
 			this.screenQuad.draw(false);
 
 			// Blur the bright image (second of the two in bloomExtractionOutputFramebuffer)
