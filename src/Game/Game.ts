@@ -27,6 +27,11 @@ class Game {
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
         let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+
+        let tempText = this.rendering.getNewText();
+        tempText.textString = "HejHej";
+        tempText.position.x = 0.9;
+        tempText.position.y = 0.9;
     }
 
     createFloorEntity(texturePath: string) {

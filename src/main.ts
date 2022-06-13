@@ -1,5 +1,6 @@
 // Globals
 let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
+let guicontainer = <HTMLElement>document.getElementById("guicontainer");
 let input = new Input();
 let texturesRequestedVsLoaded = {
     req: 0,
@@ -50,10 +51,14 @@ function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 
 	// Center the game by setting the padding of the game
 	gl.canvas.style.padding = newGameY + "px " + newGameX + "px";
+    guicontainer.style.padding = newGameY + "px " + newGameX + "px";
 
 	// Resize game
 	gl.canvas.style.width = newGameWidth + "px";
 	gl.canvas.style.height = newGameHeight + "px";
+
+    guicontainer.style.width = newGameWidth + "px";
+    guicontainer.style.height = newGameHeight + "px";
 
 	//gl.viewport(newGameX, newGameY, newGameWidth, newGameHeight);
     // rendering.reportCanvasResize(newGameWidth, newGameHeight);
@@ -80,9 +85,13 @@ window.onload = () => {
     let fpsUpdateTimer = 0.0;
     let frameCounter = 0;
 
-    let gameOverTextEnabled = false;
-    
-    let intro = true;
+    let fpsDisplay = rendering.getNewText();
+    fpsDisplay.position.x = 0.01;
+    fpsDisplay.position.y = 0.01;
+    fpsDisplay.size = 18;
+    fpsDisplay.scaleFontWithWindow = false;
+    fpsDisplay.getElement().style.color = "lime";
+
 
 	/* Gameloop */
 	function gameLoop() {
@@ -97,7 +106,7 @@ window.onload = () => {
             let fps = frameCounter / fpsUpdateTimer;
             fpsUpdateTimer -= 0.5;
             frameCounter = 0;
-            // console.log(fps); // Uncomment to log fps every half second
+            fpsDisplay.textString = "" + Math.floor(fps);
         }
 
         // Constant update rate

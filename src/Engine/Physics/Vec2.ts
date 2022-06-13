@@ -7,6 +7,10 @@ class Vec2 {
             this.x = base.x;
             this.y = base.y;
         }
+        else {
+            this.x = 0.0;
+            this.y = 0.0;
+        }
     }
 
     length(): number {

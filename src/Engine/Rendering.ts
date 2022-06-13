@@ -16,6 +16,13 @@ class Rendering {
 	private simpleShaderProgram: SimpleShaderProgram;
 	// ------------------------
 
+	// ---- Shadow mapping ----
+	private shadowResolution: number;
+	private shadowOffset: number;
+	private shadowPass: ShadowPass;
+	private shadowBuffer: Framebuffer;
+	// ------------------------
+
 	// ---- Deferred rendering ----
 	private geometryPass: GeometryPass;
 	private lightingPass: LightingPass;
@@ -52,11 +59,8 @@ class Rendering {
 	private pointLights: Array<PointLight>;
 	// ----------------
 
-	// ---- Shadow mapping ----
-	private shadowResolution: number;
-	private shadowOffset: number;
-	private shadowPass: ShadowPass;
-	private shadowBuffer: Framebuffer;
+	// ---- Text rendering ----
+	private textObjects: Array<TextObject>;
 	// ------------------------
 
 	constructor(gl: WebGL2RenderingContext) {
@@ -126,6 +130,10 @@ class Rendering {
 		this.pointLights = new Array<PointLight>();
 		// ----------------
 
+		// ---- Text rendering ----
+		this.textObjects = new Array<TextObject>();
+		// ------------------------
+
 		this.initGL();
 	}
 
@@ -170,6 +178,11 @@ class Rendering {
 	getNewPointLight() {
 		const length = this.pointLights.push(new PointLight(this.gl, this.lightingPass, this.pointLights.length));
 		return this.pointLights[length - 1];
+	}
+
+	getNewText() {
+		const length = this.textObjects.push(new TextObject());
+		return this.textObjects[length - 1];
 	}
 
 	deleteQuad(quad: Quad) {
@@ -325,6 +338,12 @@ class Rendering {
 			// --------------------
 		}
 		// -------------------------
+
+		// ---- Text rendering ----
+		for (let text of this.textObjects) {
+			text.updatePositionAndString();
+		}
+		// ------------------------
 	}
 
 	private renderTextureToScreen(texture: Texture) {
