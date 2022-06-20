@@ -3,9 +3,6 @@ class Game {
     private rendering: Rendering;
     private ecsManager: ECSManager;
 
-    private particleSpawner: ParticleSpawner;
-    private particleResetTimer: number;
-    private particleLifeTime: number;
     private particleText: TextObject;
 
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
@@ -30,7 +27,10 @@ class Game {
             this.createTestEntity(new Vec3({x: -1.25 + i * 0.5, y: 0.0, z: -2.0}), -10.0 * i);
         }
 
-        this.createPointLight(new Vec3({x: 0.0, y: 1.0, z: 0.0}), new Vec3({x: 0.6, y: 0.0, z: 0.0}));
+        this.createPointLight(new Vec3({x: 0.0, y: 0.2, z: 0.0}), new Vec3({x: 5.0, y: 0.0, z: 0.0}));
+        this.createPointLight(new Vec3({x: -4.0, y: 0.2, z: -10.0}), new Vec3({x: 2.7, y: 0.0, z: 4.0}));
+
+        this.createParticleSpawner(new Vec3({x: -2.0, y: 1.0, z: 0.0}), 1000, 1.3, smileyTexture);
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
@@ -41,22 +41,9 @@ class Game {
         tempText.position.x = 0.9;
         tempText.position.y = 0.9;
 
-        this.particleSpawner = this.rendering.getNewParticleSpawner(smileyTexture, 1000);
-        for (let i = 0; i < this.particleSpawner.getNumberOfParticles(); i++) {
-            let rand = Math.random() * 2.0 * Math.PI;
-
-            this.particleSpawner.setParticleData(i, 
-                new Vec3({x: -2.0, y: 1.0, z: 0.0}),
-                0.1,
-                new Vec3({x: Math.cos(rand), y: 1.0 + Math.random() * 20.0, z: Math.sin(rand)}).normalize().multiply(8.0 + Math.random() * 3.0),
-                new Vec3({x: 0.0, y: -9.8, z: 0.0})
-                );
-        }
-        this.particleResetTimer = 0.0;
-        this.particleLifeTime = 1.3;
-
         this.particleText = this.rendering.getNewText();
         this.particleText.textString = "This is a smiley fountain";
+        this.particleText.getElement().style.color = "red";
         this.particleText.size = 24;
     }
 
@@ -96,6 +83,26 @@ class Game {
         pl.colour = colour;
 
         return pl;
+    }
+
+    createParticleSpawner(position: Vec3, numParticles: number, lifetime: number, texturePath: string) {
+        let particleSpawner = this.rendering.getNewParticleSpawner(texturePath, numParticles);
+        for (let i = 0; i < particleSpawner.getNumberOfParticles(); i++) {
+            let rand = Math.random() * 2.0 * Math.PI;
+
+            particleSpawner.setParticleData(i, 
+                new Vec3(position),
+                0.1,
+                new Vec3({x: Math.cos(rand), y: 5.0 + Math.random() * 20.0, z: Math.sin(rand)}).normalize().multiply(8.0 + Math.random() * 3.0),
+                new Vec3({x: 0.0, y: -4.0, z: 0.0})
+                );
+        }
+
+        let entity = this.ecsManager.createEntity();
+        this.ecsManager.addComponent(entity, new PositionComponent(position));
+        let particleComp = new ParticleSpawnerComponent(particleSpawner);
+        particleComp.lifetime = lifetime;
+        this.ecsManager.addComponent(entity, particleComp);
     }
 
     update(dt: number) {
@@ -176,23 +183,14 @@ class Game {
             this.rendering.camera.setDir(newDir.elements[0], newDir.elements[1], newDir.elements[2]);
         }
 
-        let currentParticle = Math.floor(this.particleResetTimer / Math.max(this.particleLifeTime, 0.00001) * this.particleSpawner.getNumberOfParticles());
-        this.particleResetTimer += dt;
-        let endParticle = Math.floor(this.particleResetTimer / Math.max(this.particleLifeTime, 0.00001) * this.particleSpawner.getNumberOfParticles())
-        for (currentParticle; currentParticle < endParticle; currentParticle++) {
-            this.particleSpawner.resetParticleStartTime(currentParticle % this.particleSpawner.getNumberOfParticles());
-        }
-        if (this.particleResetTimer > this.particleLifeTime) {
-            this.particleResetTimer -= this.particleLifeTime;
-        }
-
         let viewProj = this.rendering.camera.getViewProjMatrix();
         let spawnerPos = new Vector4([-2.0, 1.0, 0.0, 1.0]);
         let screenCoords = viewProj.multiplyVector4(spawnerPos);
         screenCoords.elements[0] = (screenCoords.elements[0] / screenCoords.elements[3] + 1.0) / 2.0;
         screenCoords.elements[1] = 1.0 - ((screenCoords.elements[1] / screenCoords.elements[3] + 1.0) / 2.0);
+        this.particleText.size = 50.0 / screenCoords.elements[2];
         if (screenCoords.elements[2] > 0.0) {
-            this.particleText.position.x = screenCoords.elements[0];
+            this.particleText.position.x = screenCoords.elements[0] - this.particleText.size * 0.004;
             this.particleText.position.y = screenCoords.elements[1];
             this.particleText.getElement().hidden = false;
         }
@@ -200,7 +198,6 @@ class Game {
             this.particleText.getElement().hidden = true;
         }
 
-        this.particleText.size = 50.0 / screenCoords.elements[2];
 
     }
 }

@@ -3,6 +3,7 @@ enum ComponentTypeEnum {
     COLLISION,
     GRAPHICS,
     MOVEMENT,
+    PARTICLESPAWNER,
     POSITION,
 }
 

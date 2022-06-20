@@ -148,7 +148,7 @@ class Rendering {
 	}
 
 	initGL() {
-		this.clearColour = {r: 0.25, g: 0.2, b: 0.6, a: 1.0};
+		this.clearColour = {r: 0.15, g: 0.1, b: 0.1, a: 1.0};
 		this.gl.clearColor(this.clearColour.r, this.clearColour.g, this.clearColour.b, this.clearColour.a);
 	
 		// Enable depth test

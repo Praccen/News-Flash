@@ -30,6 +30,7 @@ class ECSManager {
         this.systems.set("COLLISION", new CollisionSystem());
         this.systems.set("MOVEMENT", new MovementSystem());
         this.systems.set("GRAPHICS", new GraphicsSystem(this.rendering));
+        this.systems.set("PARTICLE", new ParticleSpawnerSystem());
     }
 
 
@@ -50,6 +51,7 @@ class ECSManager {
 
     updateRenderingSystems(dt: number) {
         this.systems.get("ANIMATION").update(dt);
+        this.systems.get("PARTICLE").update(dt);
     }
 
     createEntity(): Entity {
