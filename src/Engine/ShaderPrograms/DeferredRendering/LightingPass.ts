@@ -57,6 +57,7 @@ void main() {
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
 	
 	// vec3 result = fragNormal;
+	// vec3 result = diffuse;
 	// vec3 result = vec3(specular, specular, specular);
     vec3 result = vec3(0.0f);
 	result += CalcDirectionalLight(directionalLight, fragNormal, cameraDir, diffuse, specular, shininess, lightSpaceFragPos);

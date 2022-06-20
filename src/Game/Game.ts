@@ -27,19 +27,19 @@ class Game {
             this.createTestEntity(new Vec3({x: -1.25 + i * 0.5, y: 0.0, z: -2.0}), -10.0 * i);
         }
 
-        this.createPointLight(new Vec3({x: 0.0, y: 0.2, z: 0.0}), new Vec3({x: 5.0, y: 0.0, z: 0.0}));
-        this.createPointLight(new Vec3({x: -4.0, y: 0.2, z: -10.0}), new Vec3({x: 2.7, y: 0.0, z: 4.0}));
+        this.createPointLight(new Vec3({x: 0.0, y: 0.2, z: 0.0}), new Vec3({x: 0.7, y: 0.0, z: 0.0}));
+        this.createPointLight(new Vec3({x: 4.0, y: 0.2, z: 2.0}), new Vec3({x: 0.7, y: 0.0, z: 1.0}));
 
-        this.createParticleSpawner(new Vec3({x: -2.0, y: 1.0, z: 0.0}), 1000, 1.3, smileyTexture);
+        this.createParticleSpawner(new Vec3({x: -2.0, y: 1.0, z: 0.0}), 10000, 1.3, smileyTexture);
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
         let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
 
-        let tempText = this.rendering.getNewText();
-        tempText.textString = "HejHej";
-        tempText.position.x = 0.9;
-        tempText.position.y = 0.9;
+        // let tempText = this.rendering.getNewText();
+        // tempText.textString = "HejHej";
+        // tempText.position.x = 0.9;
+        // tempText.position.y = 0.9;
 
         this.particleText = this.rendering.getNewText();
         this.particleText.textString = "This is a smiley fountain";

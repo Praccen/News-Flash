@@ -155,8 +155,9 @@ class Rendering {
 		this.gl.enable(this.gl.DEPTH_TEST);
 		
 		//Enable alpha blending
-		this.gl.enable(this.gl.BLEND);
-		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+		// this.gl.enable(this.gl.BLEND);
+		// this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+		this.gl.disable(this.gl.BLEND);
 		
 		// Disable faceculling
 		this.gl.disable(this.gl.CULL_FACE);
