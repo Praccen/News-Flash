@@ -7,6 +7,8 @@ let texturesRequestedVsLoaded = {
     loaded: 0,
 };
 
+let applicationStartTime = Date.now();
+
 function initWebGL() {
 	canvas.width = 1920;
 	canvas.height = 1080;
@@ -106,7 +108,7 @@ window.onload = () => {
             let fps = frameCounter / fpsUpdateTimer;
             fpsUpdateTimer -= 0.5;
             frameCounter = 0;
-            fpsDisplay.textString = "" + Math.floor(fps);
+            fpsDisplay.textString = "" + Math.round(fps);
         }
 
         // Constant update rate

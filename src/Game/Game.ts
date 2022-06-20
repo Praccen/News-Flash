@@ -3,6 +3,11 @@ class Game {
     private rendering: Rendering;
     private ecsManager: ECSManager;
 
+    private particleSpawner: ParticleSpawner;
+    private particleResetTimer: number;
+    private particleLifeTime: number;
+    private particleText: TextObject;
+
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
         this.rendering = rendering;
@@ -12,9 +17,12 @@ class Game {
         this.rendering.useCrt = false;
 
         // Load all textures to avoid loading mid game
-        rendering.loadTextureToStore("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+        let smileyTexture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
+        rendering.loadTextureToStore(smileyTexture);
         let floorTexture = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/371b6fdf-69a3-4fa2-9ff0-bd04d50f4b98/de8synv-6aad06ab-ed16-47fd-8898-d21028c571c4.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzM3MWI2ZmRmLTY5YTMtNGZhMi05ZmYwLWJkMDRkNTBmNGI5OFwvZGU4c3ludi02YWFkMDZhYi1lZDE2LTQ3ZmQtODg5OC1kMjEwMjhjNTcxYzQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.wa-oSVpeXEpWqfc_bexczFs33hDFvEGGAQD969J7Ugw";
         rendering.loadTextureToStore(floorTexture);
+        let laserTexture = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f04b32b4-58c3-4e24-a642-67320f0a66bb/ddwzap4-c0ad82e3-b949-479c-973c-11daaa55a554.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2YwNGIzMmI0LTU4YzMtNGUyNC1hNjQyLTY3MzIwZjBhNjZiYlwvZGR3emFwNC1jMGFkODJlMy1iOTQ5LTQ3OWMtOTczYy0xMWRhYWE1NWE1NTQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.vSK6b4_DsskmHsiVKQtXQAospMA6_WZ2BoFYrODpFKQ";
+        rendering.loadTextureToStore(laserTexture);
 
         this.createFloorEntity(floorTexture);
 
@@ -32,6 +40,24 @@ class Game {
         tempText.textString = "HejHej";
         tempText.position.x = 0.9;
         tempText.position.y = 0.9;
+
+        this.particleSpawner = this.rendering.getNewParticleSpawner(smileyTexture, 1000);
+        for (let i = 0; i < this.particleSpawner.getNumberOfParticles(); i++) {
+            let rand = Math.random() * 2.0 * Math.PI;
+
+            this.particleSpawner.setParticleData(i, 
+                new Vec3({x: -2.0, y: 1.0, z: 0.0}),
+                0.1,
+                new Vec3({x: Math.cos(rand), y: 1.0 + Math.random() * 20.0, z: Math.sin(rand)}).normalize().multiply(8.0 + Math.random() * 3.0),
+                new Vec3({x: 0.0, y: -9.8, z: 0.0})
+                );
+        }
+        this.particleResetTimer = 0.0;
+        this.particleLifeTime = 1.3;
+
+        this.particleText = this.rendering.getNewText();
+        this.particleText.textString = "This is a smiley fountain";
+        this.particleText.size = 24;
     }
 
     createFloorEntity(texturePath: string) {
@@ -149,5 +175,32 @@ class Game {
             let newDir = rotMatrix.multiplyVector3(oldDir);
             this.rendering.camera.setDir(newDir.elements[0], newDir.elements[1], newDir.elements[2]);
         }
+
+        let currentParticle = Math.floor(this.particleResetTimer / Math.max(this.particleLifeTime, 0.00001) * this.particleSpawner.getNumberOfParticles());
+        this.particleResetTimer += dt;
+        let endParticle = Math.floor(this.particleResetTimer / Math.max(this.particleLifeTime, 0.00001) * this.particleSpawner.getNumberOfParticles())
+        for (currentParticle; currentParticle < endParticle; currentParticle++) {
+            this.particleSpawner.resetParticleStartTime(currentParticle % this.particleSpawner.getNumberOfParticles());
+        }
+        if (this.particleResetTimer > this.particleLifeTime) {
+            this.particleResetTimer -= this.particleLifeTime;
+        }
+
+        let viewProj = this.rendering.camera.getViewProjMatrix();
+        let spawnerPos = new Vector4([-2.0, 1.0, 0.0, 1.0]);
+        let screenCoords = viewProj.multiplyVector4(spawnerPos);
+        screenCoords.elements[0] = (screenCoords.elements[0] / screenCoords.elements[3] + 1.0) / 2.0;
+        screenCoords.elements[1] = 1.0 - ((screenCoords.elements[1] / screenCoords.elements[3] + 1.0) / 2.0);
+        if (screenCoords.elements[2] > 0.0) {
+            this.particleText.position.x = screenCoords.elements[0];
+            this.particleText.position.y = screenCoords.elements[1];
+            this.particleText.getElement().hidden = false;
+        }
+        else {
+            this.particleText.getElement().hidden = true;
+        }
+
+        this.particleText.size = 50.0 / screenCoords.elements[2];
+
     }
 }

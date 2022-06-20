@@ -30,8 +30,9 @@ class Camera {
         this.viewProjMatrix = new Matrix4(null);
 	}
 
-    getViewMatrix() {
-        return this.viewMatrix;
+    getViewProjMatrix() {
+        this.updateViewProjMatrix();
+        return this.viewProjMatrix;
     }
 
     getPosition(): Vec3 {
@@ -84,7 +85,7 @@ class Camera {
         this.projMatrixNeedsUpdate = true;
     }
 
-    bindViewProjMatrix(uniformLocation: WebGLUniformLocation) {
+    private updateViewProjMatrix() {
         let updateViewProj = false;
         if (this.viewMatrixNeedsUpdate) {
             this.viewMatrix.setLookAt(this.pos.x, this.pos.y, this.pos.z,
@@ -104,7 +105,10 @@ class Camera {
             this.viewProjMatrix.set(this.projectionMatrix); 
             this.viewProjMatrix = this.viewProjMatrix.concat(this.viewMatrix);
         }
+    }
 
+    bindViewProjMatrix(uniformLocation: WebGLUniformLocation) {
+        this.updateViewProjMatrix();
         
         this.gl.uniformMatrix4fv(uniformLocation, false, this.viewProjMatrix.elements);
     }

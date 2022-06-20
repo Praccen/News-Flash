@@ -1,5 +1,3 @@
-//import {mat3} from "../../../libs/gl-matrix/gl-matrix";
-
 class PhongQuad extends GraphicsObject {
     // Public
     modelMatrix: Matrix4; 

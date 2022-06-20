@@ -16,6 +16,11 @@ class Rendering {
 	private simpleShaderProgram: SimpleShaderProgram;
 	// ------------------------
 
+	// ---- Particles ----
+	private particleShaderProgram: ParticleShaderProgram;
+	private particleSpawners: Array<ParticleSpawner>;
+	// -------------------
+
 	// ---- Shadow mapping ----
 	private shadowResolution: number;
 	private shadowOffset: number;
@@ -71,6 +76,11 @@ class Rendering {
 		// ---- Simple shading ----
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
 		// ------------------------
+
+		// ---- Particles ----
+		this.particleShaderProgram = new ParticleShaderProgram(this.gl);
+		this.particleSpawners = new Array<ParticleSpawner>();
+		// -------------------
 
 		// ---- Shadow mapping ----
 		this.shadowResolution = 4096;
@@ -185,6 +195,11 @@ class Rendering {
 		return this.textObjects[length - 1];
 	}
 
+	getNewParticleSpawner(texturePath: string, numberOfStartingParticles: number = 0): ParticleSpawner {
+		let length = this.particleSpawners.push(new ParticleSpawner(this.gl, this.particleShaderProgram, this.textureStore.getTexture(texturePath), numberOfStartingParticles));
+		return this.particleSpawners[length - 1];
+	}
+
 	deleteQuad(quad: Quad) {
         let index = this.quads.findIndex(q => q == quad);
         if (index != -1) {
@@ -269,14 +284,15 @@ class Rendering {
 		// -----------------------
 		
 		// ---- Simple shaded ----
+		// Copy the depth buffer information from the gBuffer to the current depth buffer
+		this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
+		this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
+
+		// Enable depth testing again
+		this.gl.enable(this.gl.DEPTH_TEST); 
+
 		if (this.quads.length > 0) { // Only do this if there is something to simple shade
-			// Copy the depth buffer information from the gBuffer to the current depth buffer
-			this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
-			this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
-
-			// Enable depth testing again
-			this.gl.enable(this.gl.DEPTH_TEST); 
-
+		
 			this.simpleShaderProgram.use();
 			this.camera.bindViewProjMatrix(this.simpleShaderProgram.getUniformLocation("viewProjMatrix")[0]);
 
@@ -285,6 +301,17 @@ class Rendering {
 			}
 		}
 		// -----------------------
+
+		// ---- Particles ----
+		this.gl.enable(this.gl.DEPTH_TEST); 
+		this.particleShaderProgram.use();
+		this.camera.bindViewProjMatrix(this.particleShaderProgram.getUniformLocation("viewProjMatrix")[0]);
+		this.gl.uniform3fv(this.particleShaderProgram.getUniformLocation("cameraPos")[0], this.camera.getPosition().elements());
+		this.gl.uniform1f(this.particleShaderProgram.getUniformLocation("currentTime")[0], (Date.now() - applicationStartTime) * 0.001);
+		for (const particleSpawner of this.particleSpawners.values()) {
+			particleSpawner.draw();
+		}
+		// -------------------
 
 		// ---- Post processing ----
 		this.gl.disable(this.gl.DEPTH_TEST); 
@@ -296,7 +323,7 @@ class Rendering {
 
 			// Blur the bright image (second of the two in bloomExtractionOutputFramebuffer)
 			let horizontal = true, firstIteration = true;
-			let amount = 10;
+			let amount = 5;
 			this.gaussianBlur.use();
 			for (let i = 0; i < amount; i++)
 			{
@@ -340,7 +367,7 @@ class Rendering {
 		// -------------------------
 
 		// ---- Text rendering ----
-		for (let text of this.textObjects) {
+		for (const text of this.textObjects) {
 			text.updatePositionAndString();
 		}
 		// ------------------------

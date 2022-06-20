@@ -43,11 +43,12 @@ class GraphicsObject {
     }
 
     unbindVAO() {
-        this.gl.bindVertexArray(0);
+        this.gl.bindVertexArray(null);
     }
 
     setVertexData(data: Float32Array) {
         this.gl.bindVertexArray(this.VAO);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
         this.gl.bindVertexArray(null);
     }
