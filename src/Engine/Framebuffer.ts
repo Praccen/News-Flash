@@ -26,6 +26,8 @@ class Framebuffer {
             this.textures[i].setTextureData(null, this.width, this.height);
             this.textures[i].setTexParameters(this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
             this.textures[i].setTexParameters(this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+			this.textures[i].setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+			this.textures[i].setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
             this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0 + i, this.gl.TEXTURE_2D, this.textures[i].texture, 0);
             attachments.push(this.gl.COLOR_ATTACHMENT0 + i);
         }
