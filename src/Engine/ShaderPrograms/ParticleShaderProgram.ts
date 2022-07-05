@@ -69,7 +69,7 @@ void main()
 
 class ParticleShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
-        super(gl, "ParticleShaderProgram", particleVertexShaderSrc, particleFragmentShaderSrc, true);
+        super(gl, "ParticleShaderProgram", particleVertexShaderSrc, particleFragmentShaderSrc, false);
 
         this.use();
 

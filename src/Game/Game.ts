@@ -3,14 +3,15 @@ class Game {
     private rendering: Rendering;
     private ecsManager: ECSManager;
 
-    private particleText: TextObject;
+    private crtCheckbox: Checkbox;
+    private bloomCheckbox: Checkbox;
 
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
         this.rendering = rendering;
         this.ecsManager = ecsManager;
 
-        this.rendering.useBloom = true;
+        this.rendering.useBloom = false;
         this.rendering.useCrt = false;
 
         // Load all textures to avoid loading mid game
@@ -30,21 +31,38 @@ class Game {
         this.createPointLight(new Vec3({x: 0.0, y: 0.2, z: 0.0}), new Vec3({x: 0.7, y: 0.0, z: 0.0}));
         this.createPointLight(new Vec3({x: 4.0, y: 0.2, z: 2.0}), new Vec3({x: 0.7, y: 0.0, z: 1.0}));
 
-        this.createParticleSpawner(new Vec3({x: -2.0, y: 1.0, z: 0.0}), 10000, 1.3, smileyTexture);
+        let particleSpawnerPos = new Vec3({x: -2.0, y: 1.0, z: 0.0});
+        this.createParticleSpawner(particleSpawnerPos, 10000, 1.3, smileyTexture);
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
         let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
 
-        // let tempText = this.rendering.getNewText();
-        // tempText.textString = "HejHej";
+        // let tempText = this.rendering.getNew2DText();
+        // tempText.textString = "Hej hej";
         // tempText.position.x = 0.9;
         // tempText.position.y = 0.9;
 
-        this.particleText = this.rendering.getNewText();
-        this.particleText.textString = "This is a smiley fountain";
-        this.particleText.getElement().style.color = "red";
-        this.particleText.size = 24;
+        let particleText = this.rendering.getNew3DText();
+        particleText.textString = "This is a smiley fountain";
+        particleText.getElement().style.color = "lime";
+        particleText.size = 100;
+        particleText.position = particleSpawnerPos;
+        particleText.centerText = true;
+
+        this.crtCheckbox = this.rendering.getNewCheckbox();
+		this.crtCheckbox.position.x = 0.8;
+		this.crtCheckbox.position.y = 0.1;
+		this.crtCheckbox.textString = "CRT-effect ";
+		this.crtCheckbox.getElement().style.color = "cyan"
+		this.crtCheckbox.getInputElement().style.accentColor = "cyan";
+
+        this.bloomCheckbox = this.rendering.getNewCheckbox();
+		this.bloomCheckbox.position.x = 0.8;
+		this.bloomCheckbox.position.y = 0.15;
+		this.bloomCheckbox.textString = "Bloom-effect ";
+		this.bloomCheckbox.getElement().style.color = "cyan"
+		this.bloomCheckbox.getInputElement().style.accentColor = "cyan";
     }
 
     createFloorEntity(texturePath: string) {
@@ -183,21 +201,7 @@ class Game {
             this.rendering.camera.setDir(newDir.elements[0], newDir.elements[1], newDir.elements[2]);
         }
 
-        let viewProj = this.rendering.camera.getViewProjMatrix();
-        let spawnerPos = new Vector4([-2.0, 1.0, 0.0, 1.0]);
-        let screenCoords = viewProj.multiplyVector4(spawnerPos);
-        screenCoords.elements[0] = (screenCoords.elements[0] / screenCoords.elements[3] + 1.0) / 2.0;
-        screenCoords.elements[1] = 1.0 - ((screenCoords.elements[1] / screenCoords.elements[3] + 1.0) / 2.0);
-        this.particleText.size = 50.0 / screenCoords.elements[2];
-        if (screenCoords.elements[2] > 0.0) {
-            this.particleText.position.x = screenCoords.elements[0] - this.particleText.size * 0.004;
-            this.particleText.position.y = screenCoords.elements[1];
-            this.particleText.getElement().hidden = false;
-        }
-        else {
-            this.particleText.getElement().hidden = true;
-        }
-
-
+        this.rendering.useCrt = this.crtCheckbox.getChecked();
+        this.rendering.useBloom = this.bloomCheckbox.getChecked();
     }
 }

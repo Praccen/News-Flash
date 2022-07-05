@@ -64,9 +64,11 @@ class Rendering {
 	private pointLights: Array<PointLight>;
 	// ----------------
 
-	// ---- Text rendering ----
-	private textObjects: Array<TextObject>;
-	// ------------------------
+	// ---- GUI rendering ----
+	private textObjects2D: Array<TextObject2D>;
+	private textObjects3D: Array<TextObject3D>;
+	private checkboxes: Array<Checkbox>;
+	// -----------------------
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
@@ -140,9 +142,11 @@ class Rendering {
 		this.pointLights = new Array<PointLight>();
 		// ----------------
 
-		// ---- Text rendering ----
-		this.textObjects = new Array<TextObject>();
-		// ------------------------
+		// ---- GUI rendering ----
+		this.textObjects2D = new Array<TextObject2D>();
+		this.textObjects3D = new Array<TextObject3D>();
+		this.checkboxes = new Array<Checkbox>();
+		// -----------------------
 
 		this.initGL();
 	}
@@ -186,14 +190,24 @@ class Rendering {
 		return this.phongQuads[length - 1];
 	}
 
-	getNewPointLight() {
+	getNewPointLight(): PointLight {
 		const length = this.pointLights.push(new PointLight(this.gl, this.lightingPass, this.pointLights.length));
 		return this.pointLights[length - 1];
 	}
 
-	getNewText() {
-		const length = this.textObjects.push(new TextObject());
-		return this.textObjects[length - 1];
+	getNew2DText(): TextObject2D {
+		const length = this.textObjects2D.push(new TextObject2D());
+		return this.textObjects2D[length - 1];
+	}
+
+	getNew3DText(): TextObject3D {
+		const length = this.textObjects3D.push(new TextObject3D());
+		return this.textObjects3D[length - 1];
+	}
+
+	getNewCheckbox(): Checkbox{
+		const length = this.checkboxes.push(new Checkbox());
+		return this.checkboxes[length - 1];
 	}
 
 	getNewParticleSpawner(texturePath: string, numberOfStartingParticles: number = 0): ParticleSpawner {
@@ -368,10 +382,19 @@ class Rendering {
 		// -------------------------
 
 		// ---- Text rendering ----
-		for (const text of this.textObjects) {
-			text.updatePositionAndString();
+		for (const text of this.textObjects3D) {
+			text.draw(this.camera.getViewProjMatrix());
+		}
+
+		for (const text of this.textObjects2D) {
+			text.draw();
+		}
+
+		for (const checkbox of this.checkboxes) {
+			checkbox.draw();
 		}
 		// ------------------------
+
 	}
 
 	private renderTextureToScreen(texture: Texture) {

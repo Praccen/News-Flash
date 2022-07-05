@@ -87,7 +87,7 @@ window.onload = () => {
     let fpsUpdateTimer = 0.0;
     let frameCounter = 0;
 
-    let fpsDisplay = rendering.getNewText();
+    let fpsDisplay = rendering.getNew2DText();
     fpsDisplay.position.x = 0.01;
     fpsDisplay.position.y = 0.01;
     fpsDisplay.size = 18;
