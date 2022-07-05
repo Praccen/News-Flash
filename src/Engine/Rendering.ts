@@ -68,6 +68,7 @@ class Rendering {
 	private textObjects2D: Array<TextObject2D>;
 	private textObjects3D: Array<TextObject3D>;
 	private checkboxes: Array<Checkbox>;
+	private buttons: Array<Button>;
 	// -----------------------
 
 	constructor(gl: WebGL2RenderingContext) {
@@ -146,6 +147,7 @@ class Rendering {
 		this.textObjects2D = new Array<TextObject2D>();
 		this.textObjects3D = new Array<TextObject3D>();
 		this.checkboxes = new Array<Checkbox>();
+		this.buttons = new Array<Button>();
 		// -----------------------
 
 		this.initGL();
@@ -208,6 +210,11 @@ class Rendering {
 	getNewCheckbox(): Checkbox{
 		const length = this.checkboxes.push(new Checkbox());
 		return this.checkboxes[length - 1];
+	}
+
+	getNewButton(): Button{
+		const length = this.buttons.push(new Button());
+		return this.buttons[length - 1];
 	}
 
 	getNewParticleSpawner(texturePath: string, numberOfStartingParticles: number = 0): ParticleSpawner {
@@ -392,6 +399,10 @@ class Rendering {
 
 		for (const checkbox of this.checkboxes) {
 			checkbox.draw();
+		}
+
+		for (const button of this.buttons) {
+			button.draw();
 		}
 		// ------------------------
 

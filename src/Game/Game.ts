@@ -11,9 +11,6 @@ class Game {
         this.rendering = rendering;
         this.ecsManager = ecsManager;
 
-        this.rendering.useBloom = false;
-        this.rendering.useCrt = false;
-
         // Load all textures to avoid loading mid game
         let smileyTexture = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
         rendering.loadTextureToStore(smileyTexture);
@@ -63,6 +60,11 @@ class Game {
 		this.bloomCheckbox.textString = "Bloom-effect ";
 		this.bloomCheckbox.getElement().style.color = "cyan"
 		this.bloomCheckbox.getInputElement().style.accentColor = "cyan";
+
+        let testButton = this.rendering.getNewButton();
+        testButton.position.x = 0.5;
+        testButton.position.y = 0.5;
+        testButton.textString = "Test button";
     }
 
     createFloorEntity(texturePath: string) {
