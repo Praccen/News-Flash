@@ -1,20 +1,19 @@
-class TextObject {
+class GuiObject {
     protected position2D: Vec2;
     protected fontSize: number;
-    scaleFontWithWindow: boolean;
+    scaleWithWindow: boolean;
     textString: string;
-    centerText: boolean;
+    center: boolean;
     
     private divContainerElement: HTMLElement;
     protected div: HTMLDivElement;
-    private textNode: Text;
 
     constructor() {
         this.position2D = new Vec2();
         this.fontSize = 42;
-        this.scaleFontWithWindow = true;
+        this.scaleWithWindow = true;
         this.textString = "";
-        this.centerText = false;
+        this.center = false;
 
         // look up the guicontainer
         this.divContainerElement = <HTMLElement>document.getElementById("guicontainer");
@@ -25,10 +24,6 @@ class TextObject {
         // assign it a CSS class
         this.div.className = "floating-div";
         
-        // make a text node for its content
-        this.textNode = document.createTextNode("");
-        this.div.appendChild(this.textNode);
-        
         // add it to the divcontainer
         this.divContainerElement.appendChild(this.div);
     }
@@ -37,18 +32,17 @@ class TextObject {
         return this.div;
     }
 
-    protected drawText() {
+    protected drawObject() {
         let style = getComputedStyle(this.divContainerElement);
         this.div.style.left = parseInt(style.paddingLeft) + this.position2D.x * parseInt(style.width) + "px";
         this.div.style.top = parseInt(style.paddingTop) + this.position2D.y * parseInt(style.height) + "px";
-        if (this.scaleFontWithWindow) {
+        if (this.scaleWithWindow) {
             this.div.style.fontSize = this.fontSize * (parseInt(style.height) / 1080.0) + "px";
         } else {
             this.div.style.fontSize = this.fontSize + "px";
         }
-        this.textNode.nodeValue = this.textString;
         
-        if (this.centerText) {
+        if (this.center) {
             this.div.style.transform = "translateX(-50%)";
         }
     }

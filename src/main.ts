@@ -91,7 +91,7 @@ window.onload = () => {
     fpsDisplay.position.x = 0.01;
     fpsDisplay.position.y = 0.01;
     fpsDisplay.size = 18;
-    fpsDisplay.scaleFontWithWindow = false;
+    fpsDisplay.scaleWithWindow = false;
     fpsDisplay.getElement().style.color = "lime";
 
 

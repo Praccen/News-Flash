@@ -1,25 +1,15 @@
-class Checkbox {
+class Checkbox extends GuiObject {
     position: Vec2;
-    textString: string;
+    textSize: number;
     
-    private divContainerElement: HTMLElement;
-    protected div: HTMLDivElement;
     private inputNode: HTMLInputElement;
     private label: HTMLLabelElement;
 
     constructor() {
+        super();
         this.position = new Vec2();
-        this.textString = "";
+        this.textSize = 42;
 
-        // look up the guicontainer
-        this.divContainerElement = <HTMLElement>document.getElementById("guicontainer");
-        
-        // make the div
-        this.div = document.createElement("div");
-        
-        // assign it a CSS class
-        this.div.className = "floating-div";
-        
         // make a input node and a label node
         this.inputNode = document.createElement('input');
         this.inputNode.type = "checkbox";
@@ -29,9 +19,6 @@ class Checkbox {
 
         this.div.appendChild(this.label);
         this.div.appendChild(this.inputNode);
-        
-        // add it to the divcontainer
-        this.divContainerElement.appendChild(this.div);
     }
 
     getElement(): HTMLDivElement {
@@ -47,9 +34,9 @@ class Checkbox {
     }
 
     draw() {
-        let style = getComputedStyle(this.divContainerElement);
-        this.div.style.left = parseInt(style.paddingLeft) + this.position.x * parseInt(style.width) + "px";
-        this.div.style.top = parseInt(style.paddingTop) + this.position.y * parseInt(style.height) + "px";
+        this.position2D = this.position;
+        this.fontSize = this.textSize;
         this.label.textContent = this.textString;
+        this.drawObject();
     }
 }

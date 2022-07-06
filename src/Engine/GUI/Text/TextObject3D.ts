@@ -1,7 +1,9 @@
-class TextObject3D extends TextObject {
+class TextObject3D extends GuiObject {
     position: Vec3;
     size: number;
     scaleFontWithDistance: boolean;
+
+    private textNode: Text;
 
     constructor() {
         super();
@@ -9,6 +11,10 @@ class TextObject3D extends TextObject {
         this.position = new Vec3();
         this.size = 42;
         this.scaleFontWithDistance = true;
+
+        // make a text node for its content
+        this.textNode = document.createTextNode("");
+        this.div.appendChild(this.textNode);
     }
 
     draw(viewProj: Matrix4): void {
@@ -28,7 +34,8 @@ class TextObject3D extends TextObject {
             this.fontSize = size;
 
             this.div.hidden = false;
-            this.drawText();
+            this.textNode.textContent = this.textString;
+            this.drawObject();
         }
         else {
             this.div.hidden = true;

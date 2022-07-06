@@ -45,26 +45,27 @@ class Game {
         particleText.getElement().style.color = "lime";
         particleText.size = 100;
         particleText.position = particleSpawnerPos;
-        particleText.centerText = true;
+        particleText.center = true;
 
         this.crtCheckbox = this.rendering.getNewCheckbox();
 		this.crtCheckbox.position.x = 0.8;
 		this.crtCheckbox.position.y = 0.1;
 		this.crtCheckbox.textString = "CRT-effect ";
 		this.crtCheckbox.getElement().style.color = "cyan"
-		this.crtCheckbox.getInputElement().style.accentColor = "cyan";
+		this.crtCheckbox.getInputElement().style.accentColor = "red";
 
         this.bloomCheckbox = this.rendering.getNewCheckbox();
 		this.bloomCheckbox.position.x = 0.8;
 		this.bloomCheckbox.position.y = 0.15;
 		this.bloomCheckbox.textString = "Bloom-effect ";
 		this.bloomCheckbox.getElement().style.color = "cyan"
-		this.bloomCheckbox.getInputElement().style.accentColor = "cyan";
+		this.bloomCheckbox.getInputElement().style.accentColor = "red";
 
         let testButton = this.rendering.getNewButton();
         testButton.position.x = 0.5;
         testButton.position.y = 0.5;
         testButton.textString = "Test button";
+        testButton.center = true;
     }
 
     createFloorEntity(texturePath: string) {
