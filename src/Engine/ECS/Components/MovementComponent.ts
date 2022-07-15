@@ -3,8 +3,8 @@ class MovementComponent extends Component {
     accelerationDirection: Vec3;
     acceleration: number ;
     velocity: Vec3;
-    maxVelocity: Vec3;
-    minVelocity: Vec3;
+    maxVelocity: Vec2; // x is horizontal movement, y is vertical
+    minVelocity: Vec2; // x is horizontal movement, y is vertical
     jumpPower: number;
     jumpAllowed: boolean;
     jumpRequested: boolean;
@@ -17,8 +17,7 @@ class MovementComponent extends Component {
         this.accelerationDirection = new Vec3();
         this.acceleration = 6.0;
         this.velocity = new Vec3();
-        this.maxVelocity = new Vec3({x: 3.0, y: 100.0, z: 0.0 });
-        this.minVelocity = new Vec3({x: -3.0, y: -100.0, z:0.0 });
+        this.maxVelocity = new Vec2({x: 3.0, y: 100.0});
         this.jumpPower = 6.0;
         this.jumpAllowed = true;
         this.jumpRequested = false;

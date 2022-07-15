@@ -6,6 +6,9 @@ class Game {
     private crtCheckbox: Checkbox;
     private bloomCheckbox: Checkbox;
 
+    private particleText: TextObject3D;
+    private particleSpawner: Entity;
+
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
         this.rendering = rendering;
@@ -29,23 +32,18 @@ class Game {
         this.createPointLight(new Vec3({x: 4.0, y: 0.2, z: 2.0}), new Vec3({x: 0.7, y: 0.0, z: 1.0}));
 
         let particleSpawnerPos = new Vec3({x: -2.0, y: 1.0, z: 0.0});
-        this.createParticleSpawner(particleSpawnerPos, 10000, 1.3, smileyTexture);
+        this.particleSpawner = this.createParticleSpawner(particleSpawnerPos, 10000, 1.3, smileyTexture);
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
         let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
 
-        // let tempText = this.rendering.getNew2DText();
-        // tempText.textString = "Hej hej";
-        // tempText.position.x = 0.9;
-        // tempText.position.y = 0.9;
-
-        let particleText = this.rendering.getNew3DText();
-        particleText.textString = "This is a smiley fountain";
-        particleText.getElement().style.color = "lime";
-        particleText.size = 100;
-        particleText.position = particleSpawnerPos;
-        particleText.center = true;
+        this.particleText = this.rendering.getNew3DText();
+        this.particleText.textString = "This is a smiley fountain";
+        this.particleText.getElement().style.color = "lime";
+        this.particleText.size = 100;
+        this.particleText.position = particleSpawnerPos;
+        this.particleText.center = true;
 
         this.crtCheckbox = this.rendering.getNewCheckbox();
 		this.crtCheckbox.position.x = 0.8;
@@ -61,11 +59,11 @@ class Game {
 		this.bloomCheckbox.getElement().style.color = "cyan"
 		this.bloomCheckbox.getInputElement().style.accentColor = "red";
 
-        let testButton = this.rendering.getNewButton();
-        testButton.position.x = 0.5;
-        testButton.position.y = 0.5;
-        testButton.textString = "Test button";
-        testButton.center = true;
+        // let testButton = this.rendering.getNewButton();
+        // testButton.position.x = 0.5;
+        // testButton.position.y = 0.5;
+        // testButton.textString = "Test button";
+        // testButton.center = true;
     }
 
     createFloorEntity(texturePath: string) {
@@ -106,7 +104,7 @@ class Game {
         return pl;
     }
 
-    createParticleSpawner(position: Vec3, numParticles: number, lifetime: number, texturePath: string) {
+    createParticleSpawner(position: Vec3, numParticles: number, lifetime: number, texturePath: string) : Entity {
         let particleSpawner = this.rendering.getNewParticleSpawner(texturePath, numParticles);
         for (let i = 0; i < particleSpawner.getNumberOfParticles(); i++) {
             let rand = Math.random() * 2.0 * Math.PI;
@@ -121,9 +119,16 @@ class Game {
 
         let entity = this.ecsManager.createEntity();
         this.ecsManager.addComponent(entity, new PositionComponent(position));
+        let movComp = new MovementComponent();
+        movComp.drag = 0.0;
+        movComp.defaultDrag = 0.0;
+        movComp.velocity.z = 5.0;
+        movComp.constantAcceleration.multiply(0.0);
+        this.ecsManager.addComponent(entity, movComp);
         let particleComp = new ParticleSpawnerComponent(particleSpawner);
         particleComp.lifetime = lifetime;
         this.ecsManager.addComponent(entity, particleComp);
+        return entity;
     }
 
     update(dt: number) {
@@ -206,5 +211,14 @@ class Game {
 
         this.rendering.useCrt = this.crtCheckbox.getChecked();
         this.rendering.useBloom = this.bloomCheckbox.getChecked();
+
+        let movComp = <MovementComponent>this.particleSpawner.getComponent(ComponentTypeEnum.MOVEMENT);
+        const posComp = <PositionComponent>this.particleSpawner.getComponent(ComponentTypeEnum.POSITION);
+        if (movComp && posComp) {
+            movComp.accelerationDirection.deepAssign(posComp.position);
+            movComp.accelerationDirection.y = 0.0;
+            movComp.accelerationDirection.multiply(-0.2);
+            this.particleText.position = posComp.position;
+        }
     }
 }

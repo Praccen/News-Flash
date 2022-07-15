@@ -12,7 +12,7 @@ class MovementSystem extends System {
                 e.getComponent(ComponentTypeEnum.MOVEMENT)
             );
 
-            // Do movement calculations and set positions accordingly
+            // Do movement calculations
             movComp.velocity.add(
                 new Vec3(movComp.accelerationDirection).multiply(movComp.acceleration).multiply(dt)
             );
@@ -24,21 +24,29 @@ class MovementSystem extends System {
                 movComp.jumpAllowed = false;
             }
 
-            movComp.velocity.min(movComp.maxVelocity);
-            movComp.velocity.max(movComp.minVelocity);
-
-            //Drag
-            if (movComp.velocity.x > 0.0 || movComp.velocity.x < 0.0) {
-                movComp.velocity.x -=
-                    movComp.velocity.x *
-                    (1.0 - movComp.accelerationDirection.x * movComp.velocity.x) * movComp.drag * dt;
+            // Drag
+            let xzVelocity = new Vec3(movComp.velocity);
+            xzVelocity.y = 0.0;
+            let xzSpeed2 = xzVelocity.length2();
+            if (xzSpeed2 > 0.0001) {
+                let xzSpeed = Math.sqrt(xzSpeed2);
+                xzSpeed = Math.max(xzSpeed - movComp.drag * dt, 0.0);
+                xzVelocity.normalize().multiply(xzSpeed);
             }
 
-            //stop if velocity is too slow
-            const accelerating = movComp.accelerationDirection.length2() > 0.0;
-            if (!accelerating && movComp.velocity.x < 0.01 && movComp.velocity.x > -0.01) {
-                movComp.velocity.x = 0.0;
+            // Stop if velocity is close to zero
+            if (xzVelocity.length2() < 0.0001 && movComp.accelerationDirection.length2() < 0.0001) {
+                xzVelocity.setValues(0.0, 0.0, 0.0);
             }
+
+            // Limit velocity using the maxVelocity
+            if (xzVelocity.length2() > Math.pow(movComp.maxVelocity.x, 2)) {
+                xzVelocity.normalize().multiply(movComp.maxVelocity.x);
+            }
+            movComp.velocity.y = Math.max(Math.min(movComp.maxVelocity.y, movComp.velocity.y), -movComp.maxVelocity.y);
+            
+            movComp.velocity.x = xzVelocity.x;
+            movComp.velocity.z = xzVelocity.z;
 
             posComp.position.add(new Vec3(movComp.velocity).multiply(dt));
 
