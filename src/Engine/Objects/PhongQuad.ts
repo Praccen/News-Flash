@@ -1,7 +1,6 @@
 class PhongQuad extends GraphicsObject {
     // Public
     modelMatrix: Matrix4; 
-    normalMatrix: Matrix4;
     textureMatrix: Matrix4;
     diffuse: Texture;
     specular: Texture;

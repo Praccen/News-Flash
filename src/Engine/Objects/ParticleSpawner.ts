@@ -1,5 +1,6 @@
 class ParticleSpawner extends GraphicsObject {
     texture: Texture;
+    fadePerSecond: number;
 
     // Private
     private numParticles: number;
@@ -35,6 +36,8 @@ class ParticleSpawner extends GraphicsObject {
         
         // All starting particles are initialized as size and position 0, so they wont be visable unless manually changed
         this.numParticles = numberOfStartingParticles; 
+
+        this.fadePerSecond = 0.0;
     }
 
     setNumParticles(amount: number) {
@@ -137,6 +140,7 @@ class ParticleSpawner extends GraphicsObject {
         this.bindVAO();
 
         this.texture.bind(0);
+        this.gl.uniform1f(this.shaderProgram.getUniformLocation("fadePerSecond")[0], this.fadePerSecond);
 
         this.gl.drawElementsInstanced(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0, this.getNumberOfParticles());
         this.unbindVAO();

@@ -16,8 +16,10 @@ layout (location = 6) in vec3 inConstantAcceleration;
 uniform mat4 viewProjMatrix;
 uniform vec3 cameraPos;
 uniform float currentTime;
+uniform float fadePerSecond;
 
 out vec2 texCoords;
+out float alpha;
 
 void main() {
     // Calculate how long this has been alive
@@ -36,6 +38,7 @@ void main() {
 
     // gl_Position = viewProjMatrix * vec4(vec3(inVertexPosition, 0.0) * inSize + currentPos, 1.0); // No billboarding
     texCoords = inTexCoords;
+    alpha = max(1.0 - lifeTime * fadePerSecond, 0.0);
 }`;
     
 const particleFragmentShaderSrc: string = 
@@ -43,6 +46,7 @@ const particleFragmentShaderSrc: string =
 precision highp float;
 
 in vec2 texCoords;
+in float alpha;
 
 uniform sampler2D texture0;
 
@@ -58,6 +62,8 @@ mat4 thresholdMatrix = mat4(
 void main()
 {
     FragColor = texture(texture0, texCoords);
+
+    FragColor.a = FragColor.a * alpha;
     
     float threshold = thresholdMatrix[int(floor(mod(gl_FragCoord.x, 4.0)))][int(floor(mod(gl_FragCoord.y, 4.0)))] / 17.0;
     if (threshold >= FragColor.a) {
@@ -79,6 +85,7 @@ class ParticleShaderProgram extends ShaderProgram {
         this.setUniformLocation("viewProjMatrix");
         this.setUniformLocation("cameraPos");
         this.setUniformLocation("currentTime");
+        this.setUniformLocation("fadePerSecond");
     }
 
     setupVertexAttributePointers(): void {
