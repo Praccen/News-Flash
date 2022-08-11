@@ -222,7 +222,7 @@ class Rendering {
 		// Disable faceculling
 		this.gl.disable(this.gl.CULL_FACE);
 	
-		this.gl.lineWidth(3.0); // Sets line width of things like wireframe and draw lines
+		this.gl.lineWidth(3.0); // Sets line width
 	}
 
     reportCanvasResize(x: number, y: number) {
