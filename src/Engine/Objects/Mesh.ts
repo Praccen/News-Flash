@@ -67,6 +67,12 @@ class Mesh extends GraphicsObject {
                     }
                 }
             }
+            else if (line.startsWith("#")) { // A comment, ignore
+
+            }
+            else if (line.length > 0) { // Unhandled keywords
+                console.warn("OBJ loader: Unhandled keyword " + line.split(/\s+/)[0]);
+            }
         }
         
         this.vertices = new Float32Array(vertices.length * 8); // 3 * pos + 3 * norm + 2 * tx 

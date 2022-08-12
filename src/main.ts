@@ -6,6 +6,8 @@ let texturesRequestedVsLoaded = {
     req: 0,
     loaded: 0,
 };
+let heightByWidth = 1080/1920;
+let widthByHeight = 1920/1080;
 
 let applicationStartTime = Date.now();
 
@@ -31,7 +33,7 @@ function initWebGL() {
 
 function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 	// Get the dimensions of the viewport
-	let viewport = {
+	let innerWindowSize = {
 		width: window.innerWidth,
 		height: window.innerHeight
 	};
@@ -40,16 +42,16 @@ function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 	let newGameWidth;
 
 	// Determine game size
-	if (gl.canvas.height / gl.canvas.width > viewport.height / viewport.width) {
-		newGameHeight = viewport.height;
-		newGameWidth = newGameHeight * gl.canvas.width / gl.canvas.height;
+	if (heightByWidth > innerWindowSize.height / innerWindowSize.width) {
+		newGameHeight = innerWindowSize.height;
+		newGameWidth = newGameHeight * widthByHeight;
 	} else {
-		newGameWidth = viewport.width;
-		newGameHeight = newGameWidth * gl.canvas.height / gl.canvas.width;
+		newGameWidth = innerWindowSize.width;
+		newGameHeight = newGameWidth * heightByWidth;
 	}
 
-	let newGameX = (viewport.width - newGameWidth) / 2;
-	let newGameY = (viewport.height - newGameHeight) / 2;
+	let newGameX = (innerWindowSize.width - newGameWidth) / 2;
+	let newGameY = (innerWindowSize.height - newGameHeight) / 2;
 
 	// Center the game by setting the padding of the game
 	gl.canvas.style.padding = newGameY + "px " + newGameX + "px";
@@ -58,12 +60,13 @@ function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 	// Resize game
 	gl.canvas.style.width = newGameWidth + "px";
 	gl.canvas.style.height = newGameHeight + "px";
+    gl.canvas.width = newGameWidth;
+    gl.canvas.height = newGameHeight;
 
     guicontainer.style.width = newGameWidth + "px";
     guicontainer.style.height = newGameHeight + "px";
 
-	//gl.viewport(newGameX, newGameY, newGameWidth, newGameHeight);
-    // rendering.reportCanvasResize(newGameWidth, newGameHeight);
+    rendering.reportCanvasResize(newGameWidth, newGameHeight);
 }
 
 /* main */

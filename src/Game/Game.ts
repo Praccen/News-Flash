@@ -107,7 +107,7 @@ class Game {
 
     createParticleSpawner(position: Vec3, numParticles: number, lifetime: number, texturePath: string) : Entity {
         let particleSpawner = this.rendering.getNewParticleSpawner(texturePath, numParticles);
-        particleSpawner.fadePerSecond = 1.0 / (lifetime * 1.5);
+        particleSpawner.fadePerSecond = 1.0 / (lifetime);
         for (let i = 0; i < particleSpawner.getNumberOfParticles(); i++) {
             let rand = Math.random() * 2.0 * Math.PI;
 

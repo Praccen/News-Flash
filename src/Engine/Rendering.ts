@@ -11,6 +11,8 @@ class Rendering {
 	private gl: WebGL2RenderingContext;
     private textureStore: TextureStore;
 	private clearColour: {r:number, g:number, b:number, a:number};
+	private resolutionWidth: number;
+	private resolutionHeight: number;
 
 	// ---- Simple shading ----
 	private simpleShaderProgram: SimpleShaderProgram;
@@ -77,6 +79,8 @@ class Rendering {
 		this.gl = gl;
         this.textureStore = new TextureStore(gl);
 		this.camera = new Camera(gl);
+		this.resolutionWidth = 1920;
+		this.resolutionHeight = 1080;
 
 		// ---- Simple shading ----
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
@@ -97,13 +101,16 @@ class Rendering {
 		// ---- Deferred rendering ----
 		this.geometryPass = new GeometryPass(this.gl);
 		this.lightingPass = new LightingPass(this.gl);
-		this.gBuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [
+		this.gBuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, [
 			{internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
 			{internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT},
 			{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}
 		]);
 		
-		let textureArray = this.gBuffer.textures;
+		let textureArray = new Array<Texture>();
+		for (let i = 0; i < this.gBuffer.textures.length; i++) {
+			textureArray.push(this.gBuffer.textures[i]);
+		}
 		textureArray.push(this.shadowBuffer.depthTexture);
 		this.lightingQuad = new ScreenQuad(this.gl, this.lightingPass, textureArray);
 		// ----------------------------
@@ -112,26 +119,26 @@ class Rendering {
 		// Crt effect
         this.useCrt = true;
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
-		this.crtFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.crtFramebuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 
 		// Bloom
 		this.useBloom = true;
 		this.bloomExtraction = new BloomExtraction(this.gl);
-		this.bloomExtractionInputFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
-		this.bloomExtractionOutputFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, 
+		this.bloomExtractionInputFramebuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.bloomExtractionOutputFramebuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, 
 			[{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE},
 			{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		this.gaussianBlur = new GaussianBlur(this.gl);
 		this.pingPongFramebuffers = new Array<Framebuffer>(2);
 		for (let i = 0; i < 2; i++) {
-			this.pingPongFramebuffers[i] = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, 
+			this.pingPongFramebuffers[i] = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, 
 				[{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		}
 		this.bloomBlending = new BloomBlending(this.gl);
 
 		// Screen quad to output the finished image on
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
-		this.screenFramebuffer = new Framebuffer(this.gl, this.gl.canvas.width, this.gl.canvas.height, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
+		this.screenFramebuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
 		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
 		// -------------------------
 		
@@ -212,10 +219,17 @@ class Rendering {
 	}
 
     reportCanvasResize(x: number, y: number) {
+		this.resolutionWidth = x;
+		this.resolutionHeight = y;
 		this.gBuffer.setProportions(x, y);
         this.crtFramebuffer.setProportions(x, y);
+		this.bloomExtractionInputFramebuffer.setProportions(x, y);
+		this.bloomExtractionOutputFramebuffer.setProportions(x, y);
+		for (let buffer of this.pingPongFramebuffers) {
+			buffer.setProportions(x, y);
+		}
         this.screenFramebuffer.setProportions(x, y);
-        console.log("X: " + x + " px " + "Y: " + y + " px");
+        // console.log("X: " + x + " px " + "Y: " + y + " px");
     }
 
     loadTextureToStore(texturePath: string) {
@@ -297,10 +311,9 @@ class Rendering {
 		this.testMesh.changeShaderProgram(this.shadowPass);
 		this.testMesh.draw(false, false);
 
-		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+		this.gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
 		// ---------------------
 
-		
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
 		this.gBuffer.bind(this.gl.FRAMEBUFFER);
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -354,7 +367,7 @@ class Rendering {
 		// ---- Simple shaded ----
 		// Copy the depth buffer information from the gBuffer to the current depth buffer
 		this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
-		this.gl.blitFramebuffer(0, 0, this.gl.canvas.width, this.gl.canvas.height, 0, 0, this.gl.canvas.width, this.gl.canvas.height, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
+		this.gl.blitFramebuffer(0, 0, this.resolutionWidth, this.resolutionHeight, 0, 0, this.resolutionWidth, this.resolutionHeight, this.gl.DEPTH_BUFFER_BIT, this.gl.NEAREST);
 
 		// Enable depth testing again
 		this.gl.enable(this.gl.DEPTH_TEST); 
