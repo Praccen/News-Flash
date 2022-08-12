@@ -59,6 +59,7 @@ class Rendering {
 	// ---- Graphics objects ----
 	private quads: Array<Quad>;
 	private phongQuads: Array<PhongQuad>;
+	private meshes: Array<Mesh>;
 	// --------------------------
 
 	// ---- Lights ----
@@ -72,8 +73,6 @@ class Rendering {
 	private checkboxes: Array<Checkbox>;
 	private buttons: Array<Button>;
 	// -----------------------
-
-	private testMesh: Mesh;
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
@@ -145,6 +144,7 @@ class Rendering {
 		// ---- Graphics objects ----
 		this.quads = new Array<Quad>();
 		this.phongQuads = new Array<PhongQuad>();
+		this.meshes = new Array<Mesh>();
 		// --------------------------
 		
 		// ---- Lights ----
@@ -158,44 +158,6 @@ class Rendering {
 		this.checkboxes = new Array<Checkbox>();
 		this.buttons = new Array<Button>();
 		// -----------------------
-
-		let meshString = `# Blender v2.80 (sub 75) OBJ File: ''
-        # www.blender.org
-        mtllib cube.mtl
-        o Cube
-        v 1.000000 1.000000 -1.000000
-        v 1.000000 -1.000000 -1.000000
-        v 1.000000 1.000000 1.000000
-        v 1.000000 -1.000000 1.000000
-        v -1.000000 1.000000 -1.000000
-        v -1.000000 -1.000000 -1.000000
-        v -1.000000 1.000000 1.000000
-        v -1.000000 -1.000000 1.000000
-        vt 0.000000 0.000000
-        vt 0.000000 1.000000
-        vt 1.000000 1.000000
-        vt 1.000000 0.000000
-        vn 0.0000 1.0000 0.0000
-        vn 0.0000 0.0000 1.0000
-        vn -1.0000 0.0000 0.0000
-        vn 0.0000 -1.0000 0.0000
-        vn 1.0000 0.0000 0.0000
-        vn 0.0000 0.0000 -1.0000
-        usemtl Material
-        s off
-        f 1/1/1 5/2/1 7/3/1 3/4/1
-        f 4/1/2 3/2/2 7/3/2 8/4/2
-        f 8/1/3 7/2/3 5/3/3 6/4/3
-        f 6/1/4 2/2/4 4/3/4 8/4/4
-        f 2/1/5 1/2/5 3/3/5 4/4/5
-        f 6/1/6 5/2/6 1/3/6 2/4/6
-		`;
-
-		let meshTexture = this.textureStore.getTexture("https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg");
-
-		this.testMesh = new Mesh(this.gl, this.geometryPass, meshString, meshTexture, meshTexture);
-		this.testMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
-		this.testMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
 
 		this.initGL();
 	}
@@ -244,6 +206,11 @@ class Rendering {
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
 		const length = this.phongQuads.push(new PhongQuad(this.gl, this.geometryPass, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
 		return this.phongQuads[length - 1];
+	}
+
+	getNewMesh(objContent: string, diffusePath: string, specularPath: string) {
+		const length = this.meshes.push(new Mesh(this.gl, this.geometryPass, objContent, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
+		return this.meshes[length - 1];
 	}
 
 	getNewPointLight(): PointLight {
@@ -308,8 +275,10 @@ class Rendering {
 			phongQuad.draw(false, false);
 		}
 
-		this.testMesh.changeShaderProgram(this.shadowPass);
-		this.testMesh.draw(false, false);
+		for (let mesh of this.meshes.values()) {
+			mesh.changeShaderProgram(this.shadowPass);
+			mesh.draw(false, false);
+		}
 
 		this.gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
 		// ---------------------
@@ -328,8 +297,10 @@ class Rendering {
 			phongQuad.draw();
 		}
 
-		this.testMesh.changeShaderProgram(this.geometryPass);
-		this.testMesh.draw();
+		for (let mesh of this.meshes.values()) {
+			mesh.changeShaderProgram(this.geometryPass);
+			mesh.draw();
+		}
 		// -----------------------
 
 		// Geometry pass over, appropriate framebuffer for post processing or render directly to screen.

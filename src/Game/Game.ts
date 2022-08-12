@@ -21,7 +21,8 @@ class Game {
         rendering.loadTextureToStore(floorTexture);
         let laserTexture = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f04b32b4-58c3-4e24-a642-67320f0a66bb/ddwzap4-c0ad82e3-b949-479c-973c-11daaa55a554.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2YwNGIzMmI0LTU4YzMtNGUyNC1hNjQyLTY3MzIwZjBhNjZiYlwvZGR3emFwNC1jMGFkODJlMy1iOTQ5LTQ3OWMtOTczYy0xMWRhYWE1NWE1NTQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.vSK6b4_DsskmHsiVKQtXQAospMA6_WZ2BoFYrODpFKQ";
         rendering.loadTextureToStore(laserTexture);
-        rendering.loadTextureToStore("https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg"); // Box texture
+        let boxTexture = "https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
+        rendering.loadTextureToStore(boxTexture);
 
         this.createFloorEntity(floorTexture);
 
@@ -37,7 +38,7 @@ class Game {
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
-        let tempQuad = rendering.getNewQuad("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png");
+        let tempQuad = rendering.getNewQuad(smileyTexture);
 
         this.particleText = this.rendering.getNew3DText();
         this.particleText.textString = "This is a smiley fountain";
@@ -65,6 +66,42 @@ class Game {
         // testButton.position.y = 0.5;
         // testButton.textString = "Test button";
         // testButton.center = true;
+
+        let meshString = `# Blender v2.80 (sub 75) OBJ File: ''
+        # www.blender.org
+        mtllib cube.mtl
+        o Cube
+        v 1.000000 1.000000 -1.000000
+        v 1.000000 -1.000000 -1.000000
+        v 1.000000 1.000000 1.000000
+        v 1.000000 -1.000000 1.000000
+        v -1.000000 1.000000 -1.000000
+        v -1.000000 -1.000000 -1.000000
+        v -1.000000 1.000000 1.000000
+        v -1.000000 -1.000000 1.000000
+        vt 0.000000 0.000000
+        vt 0.000000 1.000000
+        vt 1.000000 1.000000
+        vt 1.000000 0.000000
+        vn 0.0000 1.0000 0.0000
+        vn 0.0000 0.0000 1.0000
+        vn -1.0000 0.0000 0.0000
+        vn 0.0000 -1.0000 0.0000
+        vn 1.0000 0.0000 0.0000
+        vn 0.0000 0.0000 -1.0000
+        usemtl Material
+        s off
+        f 1/1/1 5/2/1 7/3/1 3/4/1
+        f 4/1/2 3/2/2 7/3/2 8/4/2
+        f 8/1/3 7/2/3 5/3/3 6/4/3
+        f 6/1/4 2/2/4 4/3/4 8/4/4
+        f 2/1/5 1/2/5 3/3/5 4/4/5
+        f 6/1/6 5/2/6 1/3/6 2/4/6
+		`;
+
+		let boxMesh = this.rendering.getNewMesh(meshString, boxTexture, boxTexture);
+		boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
+		boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
     }
 
     createFloorEntity(texturePath: string) {
