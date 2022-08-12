@@ -31,21 +31,22 @@ class Mesh extends GraphicsObject {
         let vertexTexCoords = new Array<Vec2>();
         let vertexNormals = new Array<Vec3>();
         let vertices = new Array<{posIndex: number, texCoordIndex: number, normalIndex: number}>();
-        for (const line of lines) {
-            if (line.includes("v ")) { // Position
-                const coords = line.split(" ").filter((element) => {return element != "" && element != "v"});
-                vertexPositions.push(new Vec3({x: coords[0], y: coords[1], z: coords[2]}));
-            }
-            else if (line.includes("vt" )) { // Texture coordinates
-                const coords = line.split(" ").filter((element) => {return element != "" && element != "vt"});
+        for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith("vt")) { // Texture coordinates
+                const coords = line.split(/\s+/).filter((element) => {return element != "vt"});
                 vertexTexCoords.push(new Vec2({x: coords[0], y: coords[1]}));
             }
-            else if (line.includes("vn ")) { // Normal
-                const coords = line.split(" ").filter((element) => {return element != "" && element != "vn"});
+            else if (line.startsWith("vn")) { // Normal
+                const coords = line.split(/\s+/).filter((element) => {return element != "vn"});
                 vertexNormals.push(new Vec3({x: coords[0], y: coords[1], z: coords[2]}));
             }
-            else if (line.includes("f ")) { // Faces
-                const coords = line.split(" ").filter((element) => {return element != "" && element != "f"});
+            else if (line.startsWith("v")) { // Position
+                const coords = line.split(/\s+/).filter((element) => {return element != "v"});
+                vertexPositions.push(new Vec3({x: coords[0], y: coords[1], z: coords[2]}));
+            }
+            else if (line.startsWith("f")) { // Faces
+                const coords = line.split(/\s+/).filter((element) => {return element != "f"});
                 for (let i = 0; i < coords.length - 2; i++) {
                     for (let j = 0; j < 3; j++) {
                         let index = j == 0 ? 0 : i+j; // 0 if j is zero, otherwize i +j
@@ -87,7 +88,7 @@ class Mesh extends GraphicsObject {
                 this.vertices[i * 8 + 4] = vertexNormals[vertices[i].normalIndex].y;
                 this.vertices[i * 8 + 5] = vertexNormals[vertices[i].normalIndex].z;
             } else {
-                this.vertices[i * 8 + 3] = 0.0;
+                this.vertices[i * 8 + 3] = 1.0;
                 this.vertices[i * 8 + 4] = 0.0;
                 this.vertices[i * 8 + 5] = 0.0;
             }
