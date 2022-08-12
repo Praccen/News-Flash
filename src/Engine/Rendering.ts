@@ -164,26 +164,10 @@ class Rendering {
         v -1.000000 -1.000000 -1.000000
         v -1.000000 1.000000 1.000000
         v -1.000000 -1.000000 1.000000
-        vt 0.375000 0.000000
-        vt 0.625000 0.000000
-        vt 0.625000 0.250000
-        vt 0.375000 0.250000
-        vt 0.375000 0.250000
-        vt 0.625000 0.250000
-        vt 0.625000 0.500000
-        vt 0.375000 0.500000
-        vt 0.625000 0.750000
-        vt 0.375000 0.750000
-        vt 0.625000 0.750000
-        vt 0.625000 1.000000
-        vt 0.375000 1.000000
-        vt 0.125000 0.500000
-        vt 0.375000 0.500000
-        vt 0.375000 0.750000
-        vt 0.125000 0.750000
-        vt 0.625000 0.500000
-        vt 0.875000 0.500000
-        vt 0.875000 0.750000
+        vt 0.000000 0.000000
+        vt 0.000000 1.000000
+        vt 1.000000 1.000000
+        vt 1.000000 0.000000
         vn 0.0000 1.0000 0.0000
         vn 0.0000 0.0000 1.0000
         vn -1.0000 0.0000 0.0000
@@ -193,16 +177,18 @@ class Rendering {
         usemtl Material
         s off
         f 1/1/1 5/2/1 7/3/1 3/4/1
-        f 4/5/2 3/6/2 7/7/2 8/8/2
-        f 8/8/3 7/7/3 5/9/3 6/10/3
-        f 6/10/4 2/11/4 4/12/4 8/13/4
-        f 2/14/5 1/15/5 3/16/5 4/17/5
-        f 6/18/6 5/19/6 1/20/6 2/11/6
+        f 4/1/2 3/2/2 7/3/2 8/4/2
+        f 8/1/3 7/2/3 5/3/3 6/4/3
+        f 6/1/4 2/2/4 4/3/4 8/4/4
+        f 2/1/5 1/2/5 3/3/5 4/4/5
+        f 6/1/6 5/2/6 1/3/6 2/4/6
 		`;
 
-		let meshTexture = this.textureStore.getTexture("https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/371b6fdf-69a3-4fa2-9ff0-bd04d50f4b98/de8synv-6aad06ab-ed16-47fd-8898-d21028c571c4.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzM3MWI2ZmRmLTY5YTMtNGZhMi05ZmYwLWJkMDRkNTBmNGI5OFwvZGU4c3ludi02YWFkMDZhYi1lZDE2LTQ3ZmQtODg5OC1kMjEwMjhjNTcxYzQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.wa-oSVpeXEpWqfc_bexczFs33hDFvEGGAQD969J7Ugw");
+		let meshTexture = this.textureStore.getTexture("https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg");
 
 		this.testMesh = new Mesh(this.gl, this.geometryPass, meshString, meshTexture, meshTexture);
+		this.testMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
+		this.testMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
 
 		this.initGL();
 	}
@@ -305,8 +291,11 @@ class Rendering {
 		//Render shadow pass
 		for (let phongQuad of this.phongQuads.values()) {
 			phongQuad.changeShaderProgram(this.shadowPass);
-			phongQuad.draw(false);
+			phongQuad.draw(false, false);
 		}
+
+		this.testMesh.changeShaderProgram(this.shadowPass);
+		this.testMesh.draw(false, false);
 
 		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 		// ---------------------
@@ -326,6 +315,7 @@ class Rendering {
 			phongQuad.draw();
 		}
 
+		this.testMesh.changeShaderProgram(this.geometryPass);
 		this.testMesh.draw();
 		// -----------------------
 

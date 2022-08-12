@@ -68,7 +68,7 @@ class Mesh extends GraphicsObject {
             }
         }
         
-        this.vertices = new Float32Array(vertices.length * 8); // 3 * pos + 2 * tx + 3 * norm 
+        this.vertices = new Float32Array(vertices.length * 8); // 3 * pos + 3 * norm + 2 * tx 
 
         for (let i = 0; i < vertices.length; i++) {
             if (!isNaN(vertices[i].posIndex)) {
@@ -82,20 +82,21 @@ class Mesh extends GraphicsObject {
                 this.vertices[i * 8 + 2] = 0.0;
             }
             
-            if (!isNaN(vertices[i].texCoordIndex)) {
-                this.vertices[i * 8 + 3] = vertexTexCoords[vertices[i].texCoordIndex].x;
-                this.vertices[i * 8 + 4] = vertexTexCoords[vertices[i].texCoordIndex].y;
+            if (!isNaN(vertices[i].normalIndex)) {
+                this.vertices[i * 8 + 3] = vertexNormals[vertices[i].normalIndex].x;
+                this.vertices[i * 8 + 4] = vertexNormals[vertices[i].normalIndex].y;
+                this.vertices[i * 8 + 5] = vertexNormals[vertices[i].normalIndex].z;
             } else {
                 this.vertices[i * 8 + 3] = 0.0;
                 this.vertices[i * 8 + 4] = 0.0;
-            }
-            
-            if (!isNaN(vertices[i].normalIndex)) {
-                this.vertices[i * 8 + 5] = vertexNormals[vertices[i].normalIndex].x;
-                this.vertices[i * 8 + 6] = vertexNormals[vertices[i].normalIndex].y;
-                this.vertices[i * 8 + 7] = vertexNormals[vertices[i].normalIndex].z;
-            } else {
                 this.vertices[i * 8 + 5] = 0.0;
+            }
+
+            
+            if (!isNaN(vertices[i].texCoordIndex)) {
+                this.vertices[i * 8 + 6] = vertexTexCoords[vertices[i].texCoordIndex].x;
+                this.vertices[i * 8 + 7] = vertexTexCoords[vertices[i].texCoordIndex].y;
+            } else {
                 this.vertices[i * 8 + 6] = 0.0;
                 this.vertices[i * 8 + 7] = 0.0;
             }
@@ -122,7 +123,6 @@ class Mesh extends GraphicsObject {
             this.gl.uniformMatrix4fv(textureReturn[0], false, this.textureMatrix.elements);
         }
 
-        // this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
         this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices.length / 8);
     }
 }
