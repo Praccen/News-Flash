@@ -1,4 +1,9 @@
-class CollisionComponent extends Component {
+import { Component , ComponentTypeEnum} from "./Component.js";
+import Entity from "../Entity.js";
+import Shape from "../../Physics/Shape.js";
+import Vec2 from "../../Physics/Vec2.js";
+
+export default class CollisionComponent extends Component {
     shape: Shape;
     currentCollisionEntities: Set<Entity>;
     isConstraint: boolean;

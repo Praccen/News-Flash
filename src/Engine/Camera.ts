@@ -1,4 +1,6 @@
-class Camera {
+import Vec3 from "./Physics/Vec3.js";
+
+export default class Camera {
     private gl: WebGL2RenderingContext;
     private pos: Vec3;
     private dir: Vec3;

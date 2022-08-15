@@ -1,15 +1,21 @@
+import Input from "./Engine/Input/Input.js";
+import Rendering from "./Engine/Rendering.js";
+import Game from "./Game/Game.js";
+import ECSManager from "./Engine/ECS/ECSManager.js";
+import AudioPlayer from "./Engine/Audio/AudioPlayer.js";
+
 // Globals
-let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
+export let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
 let guicontainer = <HTMLElement>document.getElementById("guicontainer");
-let input = new Input();
-let texturesRequestedVsLoaded = {
+export let input = new Input();
+export let texturesRequestedVsLoaded = {
     req: 0,
     loaded: 0,
 };
 let heightByWidth = 1080/1920;
 let widthByHeight = 1920/1080;
 
-let applicationStartTime = Date.now();
+export let applicationStartTime = Date.now();
 
 function initWebGL() {
 	canvas.width = 1920;

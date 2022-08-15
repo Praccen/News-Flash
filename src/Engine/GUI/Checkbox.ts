@@ -1,4 +1,7 @@
-class Checkbox extends GuiObject {
+import Vec2 from "../Physics/Vec2.js";
+import GuiObject from "./GuiObject.js";
+
+export default class Checkbox extends GuiObject {
     position: Vec2;
     textSize: number;
     

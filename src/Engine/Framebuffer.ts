@@ -1,4 +1,6 @@
-class Framebuffer {
+import Texture from "./Textures/Texture.js";
+
+export default class Framebuffer {
     // Public
     textures: Array<Texture>;
     depthTexture: Texture;

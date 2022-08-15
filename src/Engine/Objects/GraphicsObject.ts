@@ -1,4 +1,6 @@
-class GraphicsObject {
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+
+export default class GraphicsObject {
     // Protected
     protected gl: WebGL2RenderingContext;
     protected shaderProgram: ShaderProgram;

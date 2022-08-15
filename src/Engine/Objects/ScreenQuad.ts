@@ -1,5 +1,8 @@
+import GraphicsObject from "./GraphicsObject.js";
+import Texture from "../Textures/Texture.js";
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
-class ScreenQuad extends GraphicsObject {
+export default class ScreenQuad extends GraphicsObject {
     textures: Array<Texture>;
 
     // Private

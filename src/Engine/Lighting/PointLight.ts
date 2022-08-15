@@ -1,4 +1,7 @@
-class PointLight {
+import Vec3 from "../Physics/Vec3.js";
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+
+export default class PointLight {
     position: Vec3;
 	colour: Vec3;
 

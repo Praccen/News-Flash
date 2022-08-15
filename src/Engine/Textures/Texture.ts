@@ -1,4 +1,6 @@
-class Texture {
+import { texturesRequestedVsLoaded } from "../../main.js";
+
+export default class Texture {
     // Public
 	width: number;
 	height: number;

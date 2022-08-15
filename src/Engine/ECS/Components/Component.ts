@@ -1,4 +1,4 @@
-enum ComponentTypeEnum {
+export enum ComponentTypeEnum {
     ANIMATION,
     COLLISION,
     GRAPHICS,
@@ -7,7 +7,7 @@ enum ComponentTypeEnum {
     POSITION,
 }
 
-class Component {
+export class Component {
     private _type: ComponentTypeEnum;
 
     constructor(type: ComponentTypeEnum) {

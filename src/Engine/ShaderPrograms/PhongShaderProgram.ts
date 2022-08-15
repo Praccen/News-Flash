@@ -1,3 +1,6 @@
+import ShaderProgram from "./ShaderProgram.js";
+import { pointLightsToAllocate } from "./DeferredRendering/LightingPass.js";
+
 const phongVertexShaderSrc: string = 
 `#version 300 es
 // If inputs change, also update PhongShaderProgram::setupVertexAttributePointers to match
@@ -151,7 +154,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 	return lighting;
 }`;
 
-class PhongShaderProgram extends ShaderProgram {
+export default class PhongShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "PhongShaderProgram", phongVertexShaderSrc, phongFragmentShaderSrc);
 

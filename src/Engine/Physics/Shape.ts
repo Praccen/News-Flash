@@ -1,4 +1,6 @@
-class Shape {
+import Vec2 from "./Vec2.js";
+
+export default class Shape {
     private originalVertices: Array<Vec2>;
     private originalNormals: Array<Vec2>;
     

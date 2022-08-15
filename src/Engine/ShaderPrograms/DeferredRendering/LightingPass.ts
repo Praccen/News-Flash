@@ -1,4 +1,7 @@
-let pointLightsToAllocate: number = 100;
+import ShaderProgram from "../ShaderProgram.js"
+import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+
+export let pointLightsToAllocate: number = 100;
 
 const lightingFragmentShaderSrc: string = 
 `#version 300 es
@@ -153,7 +156,7 @@ float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
     return shadow;
 }`;
 
-class LightingPass extends ShaderProgram {
+export default class LightingPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
 

@@ -1,4 +1,4 @@
-class Vec3 {
+export default class Vec3 {
     x: number;
     y: number;
     z: number;

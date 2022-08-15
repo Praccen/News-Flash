@@ -1,3 +1,6 @@
+import ShaderProgram from "../ShaderProgram.js";
+import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+
 const bloomBlendingFragmentSrc: string = 
 `#version 300 es
 precision highp float;
@@ -28,7 +31,7 @@ void main()
     fragColor = vec4(result, 1.0);
 }`;
 
-class BloomBlending extends ShaderProgram {
+export default class BloomBlending extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "BloomBlending", screenQuadVertexSrc, bloomBlendingFragmentSrc);
 

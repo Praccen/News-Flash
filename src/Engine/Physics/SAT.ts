@@ -1,4 +1,7 @@
-class SAT {
+import Shape from "./Shape.js";
+import Vec2 from "./Vec2.js";
+
+export default class SAT {
     getOverlap(overlapVector: Vec2, shapeAVertices: Array<Vec2>, shapeBVertices: Array<Vec2>, reverse: {value: boolean}): number {
         let maxA = overlapVector.dot(shapeAVertices[0]);
         let minA = maxA;

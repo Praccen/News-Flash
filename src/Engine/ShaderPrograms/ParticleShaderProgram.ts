@@ -1,3 +1,4 @@
+import ShaderProgram from "./ShaderProgram.js";
 
 const particleVertexShaderSrc: string = 
 `#version 300 es
@@ -73,7 +74,7 @@ void main()
     FragColor.a = 1.0f; // Since we use screen door transparency, do not use alpha value
 }`;
 
-class ParticleShaderProgram extends ShaderProgram {
+export default class ParticleShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "ParticleShaderProgram", particleVertexShaderSrc, particleFragmentShaderSrc, false);
 

@@ -1,4 +1,7 @@
-class System {
+import { ComponentTypeEnum } from "../Components/Component.js";
+import Entity from "../Entity.js";
+
+export default class System {
     protected entities: Array<Entity>;
     protected requiredComponents: Array<ComponentTypeEnum>;
 

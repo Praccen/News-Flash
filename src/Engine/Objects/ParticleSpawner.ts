@@ -1,4 +1,11 @@
-class ParticleSpawner extends GraphicsObject {
+import { applicationStartTime } from "../../main.js";
+
+import GraphicsObject from "./GraphicsObject.js";
+import Texture from "../Textures/Texture.js";
+import Vec3 from "../Physics/Vec3.js";
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+
+export default class ParticleSpawner extends GraphicsObject {
     texture: Texture;
     fadePerSecond: number;
 

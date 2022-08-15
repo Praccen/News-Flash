@@ -1,4 +1,19 @@
-class Game {
+import { input } from "../main.js";
+import Rendering from "../Engine/Rendering.js";
+import ECSManager from "../Engine/ECS/ECSManager.js";
+import Entity from "../Engine/ECS/Entity.js";
+import ParticleSpawnerComponent from "../Engine/ECS/Components/ParticleSpawnerComponent.js";
+import GraphicsComponent from "../Engine/ECS/Components/GraphicsComponent.js";
+import PositionComponent from "../Engine/ECS/Components/PositionComponent.js";
+import MovementComponent from "../Engine/ECS/Components/MovementComponent.js";
+import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
+import Checkbox from "../Engine/GUI/Checkbox.js";
+import TextObject3D from "../Engine/GUI/Text/TextObject3D.js";
+import Vec2 from "../Engine/Physics/Vec2.js";
+import Vec3 from "../Engine/Physics/Vec3.js";
+import PointLight from "../Engine/Lighting/PointLight.js";
+
+export default class Game {
     private gl: WebGL2RenderingContext;
     private rendering: Rendering;
     private ecsManager: ECSManager;

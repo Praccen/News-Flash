@@ -1,4 +1,6 @@
-class TextureStore {
+import Texture from "./Texture.js";
+
+export default class TextureStore {
     private gl: WebGL2RenderingContext;
     private textures: Map<string, Texture>;
 

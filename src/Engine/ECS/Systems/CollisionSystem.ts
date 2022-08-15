@@ -1,4 +1,7 @@
-class CollisionSystem extends System {
+import System from "./System.js";
+import { ComponentTypeEnum } from "../Components/Component.js";
+
+export default class CollisionSystem extends System {
     constructor() {
         super([ComponentTypeEnum.COLLISION, ComponentTypeEnum.POSITION]);
 

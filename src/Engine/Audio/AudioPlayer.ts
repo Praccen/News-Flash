@@ -1,4 +1,4 @@
-class AudioPlayer {
+export default class AudioPlayer {
     sounds: object;
     active: boolean; //set to true when user has interacted with document
 
@@ -33,12 +33,12 @@ class AudioPlayer {
     }
 
     stopAll() {
-        for(const s of Object.values(this.sounds)) {
-            const playPromise = s.play();
-            playPromise.then(() => {
-                s.pause();
-                s.currentTime = 0.0;
-            })
-        }
+        // for(const s of Object.values(this.sounds)) {
+        //     const playPromise = s.play();
+        //     playPromise.then(() => {
+        //         s.pause();
+        //         s.currentTime = 0.0;
+        //     })
+        // }
     }
 };

@@ -1,4 +1,7 @@
-class AnimationComponent extends Component {
+import { Component , ComponentTypeEnum} from "./Component.js";
+import SpriteMap from "../../Textures/SpriteMap.js";
+
+export default class AnimationComponent extends Component {
     startingTile: {x: number, y: number};
     advanceBy: {x: number, y: number};
     modAdvancement: {x: number, y:number};

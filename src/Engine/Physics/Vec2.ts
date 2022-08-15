@@ -1,4 +1,4 @@
-class Vec2 {
+export default class Vec2 {
     x: number;
     y: number;
 

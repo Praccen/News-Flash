@@ -1,4 +1,8 @@
-class Entity {
+import Rendering from "../Rendering.js";
+import GraphicsComponent from "./Components/GraphicsComponent.js";
+import { Component, ComponentTypeEnum } from "./Components/Component.js";
+
+export default class Entity {
     public readonly id: number;
     private name: string;
     private components: Array<Component>;

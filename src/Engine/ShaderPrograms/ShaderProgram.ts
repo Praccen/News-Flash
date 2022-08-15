@@ -1,4 +1,6 @@
-class ShaderProgram {
+
+
+export default class ShaderProgram {
     // Protected
     protected gl: WebGL2RenderingContext;
     protected shaderProgram: WebGLProgram;

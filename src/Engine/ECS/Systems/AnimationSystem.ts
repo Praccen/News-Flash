@@ -1,4 +1,9 @@
-class AnimationSystem extends System {
+import System from "./System.js";
+import AnimationComponent from "../Components/AnimationComponent.js";
+import GraphicsComponent from "../Components/GraphicsComponent.js";
+import { ComponentTypeEnum } from "../Components/Component.js";
+
+export default class AnimationSystem extends System {
     constructor() {
         super([ComponentTypeEnum.GRAPHICS, ComponentTypeEnum.ANIMATION]);
     }

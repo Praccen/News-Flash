@@ -1,4 +1,16 @@
-class ECSManager {
+import System from "./Systems/System.js";
+import AnimationSystem from "./Systems/AnimationSystem.js";
+import CollisionSystem from "./Systems/CollisionSystem.js";
+import MovementSystem from "./Systems/MovementSystem.js";
+import GraphicsSystem from "./Systems/GraphicsSystem.js";
+import ParticleSpawnerSystem from "./Systems/ParticleSpawnerSystem.js";
+import Rendering from "../Rendering.js";
+import Entity from "./Entity.js";
+import { Component, ComponentTypeEnum } from "./Components/Component.js";
+import Camera from "../Camera.js";
+import AudioPlayer from "../Audio/AudioPlayer.js";
+
+export default class ECSManager {
     private systems: Map<String, System>;
     private entityCounter: number;
     private entities: Array<Entity>;

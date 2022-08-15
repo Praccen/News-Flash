@@ -1,4 +1,8 @@
-class MovementComponent extends Component {
+import { Component , ComponentTypeEnum} from "./Component.js";
+import Vec2 from "../../Physics/Vec2.js";
+import Vec3 from "../../Physics/Vec3.js";
+
+export default class MovementComponent extends Component {
     constantAcceleration: Vec3;
     accelerationDirection: Vec3;
     acceleration: number ;

@@ -1,4 +1,6 @@
-const screenQuadVertexSrc: string = 
+import ShaderProgram from "./ShaderProgram.js";
+
+export const screenQuadVertexSrc: string = 
 `#version 300 es
 
 layout (location = 0) in vec2 inPos;
@@ -27,7 +29,7 @@ void main() {
 }
 `;
 
-class ScreenQuadShaderProgram extends ShaderProgram {
+export default class ScreenQuadShaderProgram extends ShaderProgram {
 
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "ScreenQuadShaderProgram", screenQuadVertexSrc, screenQuadFragmentSrc);

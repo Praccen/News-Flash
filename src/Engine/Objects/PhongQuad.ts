@@ -1,4 +1,8 @@
-class PhongQuad extends GraphicsObject {
+import GraphicsObject from "./GraphicsObject.js";
+import Texture from "../Textures/Texture.js";
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+
+export default class PhongQuad extends GraphicsObject {
     // Public
     modelMatrix: Matrix4; 
     textureMatrix: Matrix4;

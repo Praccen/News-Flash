@@ -1,4 +1,4 @@
-class SpriteMap {
+export default class SpriteMap {
     nrOfSprites: {x:number, y: number};
 	currentSprite: {x:number, y: number};
 

@@ -1,3 +1,5 @@
+import ShaderProgram from "../ShaderProgram.js";
+
 
 const shadowVertexShaderSrc: string = 
 `#version 300 es
@@ -47,7 +49,7 @@ void main()
     //final_colour = vec4(1.0, 1.0, 1.0, 1.0);
 }`;
 
-class ShadowPass extends ShaderProgram {
+export default class ShadowPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "ShadowPass", shadowVertexShaderSrc, shadowFragmentShaderSrc);
 

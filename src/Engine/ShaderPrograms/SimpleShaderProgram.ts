@@ -1,3 +1,4 @@
+import ShaderProgram from "./ShaderProgram.js";
 
 const simpleVertexShaderSrc: string = 
 `#version 300 es
@@ -57,7 +58,7 @@ void main()
     FragColor.a = 1.0f; // Since we use screen door transparency, do not use alpha value
 }`;
 
-class SimpleShaderProgram extends ShaderProgram {
+export default class SimpleShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "SimpleShaderProgram", simpleVertexShaderSrc, simpleFragmentShaderSrc);
 

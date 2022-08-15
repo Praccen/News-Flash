@@ -1,3 +1,6 @@
+import ShaderProgram from "../ShaderProgram.js";
+import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+
 const bloomExtractionFragmentSrc: string = 
 `#version 300 es
 precision highp float;
@@ -22,7 +25,7 @@ void main() {
     }
 }`;
 
-class BloomExtraction extends ShaderProgram {
+export default class BloomExtraction extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "BloomExtraction", screenQuadVertexSrc, bloomExtractionFragmentSrc);
 

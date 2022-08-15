@@ -1,4 +1,10 @@
-class GraphicsSystem extends System {
+import System from "./System.js";
+import Rendering from "../../Rendering.js";
+import GraphicsComponent from "../Components/GraphicsComponent.js";
+import { ComponentTypeEnum } from "../Components/Component.js";
+import PositionComponent from "../Components/PositionComponent.js";
+
+export default class GraphicsSystem extends System {
     private rendering: Rendering;
     
     constructor(rendering: Rendering) {

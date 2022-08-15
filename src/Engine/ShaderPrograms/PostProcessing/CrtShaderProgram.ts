@@ -1,3 +1,6 @@
+import ShaderProgram from "../ShaderProgram.js";
+import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+
 const crtFragmentShaderSrc: string = 
 `#version 300 es
 precision highp float;
@@ -152,7 +155,7 @@ void main() {
 }
 `;
 
-class CrtShaderProgram extends ShaderProgram {
+export default class CrtShaderProgram extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "CrtShaderProgram", screenQuadVertexSrc, crtFragmentShaderSrc);
         

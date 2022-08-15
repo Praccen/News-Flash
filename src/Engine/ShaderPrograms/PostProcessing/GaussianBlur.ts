@@ -1,3 +1,6 @@
+import ShaderProgram from "../ShaderProgram.js";
+import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+
 const gaussianBlurFragmentSrc: string = 
 `#version 300 es
 precision highp float;
@@ -34,7 +37,7 @@ void main()
     fragColor = vec4(result, 1.0);
 }`;
 
-class GaussianBlur extends ShaderProgram {
+export default class GaussianBlur extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "GaussianBlur", screenQuadVertexSrc, gaussianBlurFragmentSrc);
 

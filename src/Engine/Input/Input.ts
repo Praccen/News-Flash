@@ -1,4 +1,6 @@
-class Input {
+import { canvas } from "../../main.js";
+
+export default class Input {
 	keys: boolean[];
 	mousePosition: {x: number, y:number};
     mouseClicked: boolean;

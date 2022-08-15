@@ -1,3 +1,5 @@
+import ShaderProgram from "../ShaderProgram.js";
+
 const geometryVertexShaderSrc: string = 
 `#version 300 es
 // If inputs change, also update GeometryPass::setupVertexAttributePointers to match
@@ -70,7 +72,7 @@ void main() {
 	gNormal = vec4(fragNormal, 1.0);
 }`;
 
-class GeometryPass extends ShaderProgram {
+export default class GeometryPass extends ShaderProgram {
     constructor(gl: WebGL2RenderingContext) {
         super(gl, "GeometryPass", geometryVertexShaderSrc, geometryFragmentShaderSrc);
 

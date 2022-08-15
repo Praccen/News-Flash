@@ -1,4 +1,7 @@
-class DirectionalLight {
+import Vec3 from "../Physics/Vec3.js";
+import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+
+export default class DirectionalLight {
     direction: Vec3;
     colour: Vec3;
     ambientMultiplier: number;

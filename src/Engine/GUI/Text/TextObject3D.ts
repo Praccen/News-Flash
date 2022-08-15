@@ -1,4 +1,7 @@
-class TextObject3D extends GuiObject {
+import Vec3 from "../../Physics/Vec3.js";
+import GuiObject from "../GuiObject.js";
+
+export default class TextObject3D extends GuiObject {
     position: Vec3;
     size: number;
     scaleFontWithDistance: boolean;

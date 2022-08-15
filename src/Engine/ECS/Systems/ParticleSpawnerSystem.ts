@@ -1,4 +1,9 @@
-class ParticleSpawnerSystem extends System {
+import System from "./System.js";
+import ParticleSpawnerComponent from "../Components/ParticleSpawnerComponent.js"
+import { ComponentTypeEnum } from "../Components/Component.js";
+import PositionComponent from "../Components/PositionComponent.js";
+
+export default class ParticleSpawnerSystem extends System {
 
     constructor() {
         super([ComponentTypeEnum.PARTICLESPAWNER, ComponentTypeEnum.POSITION]);

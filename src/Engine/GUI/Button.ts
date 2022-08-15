@@ -1,4 +1,7 @@
-class Button extends GuiObject {
+import Vec2 from "../Physics/Vec2.js";
+import GuiObject from "./GuiObject.js";
+
+export default class Button extends GuiObject {
     position: Vec2;
     
     private inputNode: HTMLInputElement;
