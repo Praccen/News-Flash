@@ -6,6 +6,8 @@ export default class DirectionalLight {
     colour: Vec3;
     ambientMultiplier: number;
 
+    lightProjectionBoxSideLength: number;
+
     private gl: WebGL2RenderingContext;
     private shaderProgram: ShaderProgram;
 
@@ -16,7 +18,7 @@ export default class DirectionalLight {
         this.direction = new Vec3({x: 0.0, y: -1.0, z: -0.5});
         this.colour = new Vec3({x: 0.2, y: 0.2, z: 0.2});
         this.ambientMultiplier = 0.1;
-
+        this.lightProjectionBoxSideLength = 50.0;
     }
 
     bind() {
@@ -28,7 +30,8 @@ export default class DirectionalLight {
     calcAndSendLightSpaceMatrix(focusPos: Vec3, offset: number, uniformLocation: WebGLUniformLocation) {
         let cameraPos = new Vec3(focusPos);
         let offsetVec = new Vec3(this.direction).normalize().multiply(offset);
-        let lightSpaceMatrix = new Matrix4(null).setOrtho(-50.0, 50.0, -50.0, 50.0, 0.1, offset * 2.0); // Start by setting it to projection
+        let lightSpaceMatrix = new Matrix4(null).setOrtho(-this.lightProjectionBoxSideLength, this.lightProjectionBoxSideLength, 
+            -this.lightProjectionBoxSideLength, this.lightProjectionBoxSideLength, 0.1, offset * 2.0); // Start by setting it to projection
         cameraPos.subtract(offsetVec);
         let lightView = new Matrix4(null).setLookAt(cameraPos.x, cameraPos.y, cameraPos.z, focusPos.x, focusPos.y, focusPos.z, 0.0, 1.0, 0.0); // This will make it impossible to have exactly straight down shadows, but I'm fine with that
         lightSpaceMatrix = lightSpaceMatrix.concat(lightView); // Multiply with view

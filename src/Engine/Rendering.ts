@@ -219,6 +219,11 @@ export default class Rendering {
         // console.log("X: " + x + " px " + "Y: " + y + " px");
     }
 
+	setShadowMappingResolution(res: number) {
+		this.shadowResolution = res;
+		this.shadowBuffer.setProportions(res, res);
+	}
+
     loadTextureToStore(texturePath: string) {
         this.textureStore.getTexture(texturePath);
     }
@@ -241,6 +246,10 @@ export default class Rendering {
 	getNewPointLight(): PointLight {
 		const length = this.pointLights.push(new PointLight(this.gl, this.lightingPass, this.pointLights.length));
 		return this.pointLights[length - 1];
+	}
+
+	getDirectionalLight(): DirectionalLight {
+		return this.directionalLight;
 	}
 
 	getNew2DText(): TextObject2D {

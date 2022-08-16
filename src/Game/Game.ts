@@ -20,6 +20,7 @@ export default class Game {
 
     private crtCheckbox: Checkbox;
     private bloomCheckbox: Checkbox;
+    private shadowCheckbox: Checkbox;
 
     private particleText: TextObject3D;
     private particleSpawner: Entity;
@@ -77,6 +78,13 @@ export default class Game {
 		this.bloomCheckbox.textString = "Bloom-effect ";
 		this.bloomCheckbox.getElement().style.color = "cyan"
 		this.bloomCheckbox.getInputElement().style.accentColor = "red";
+
+        this.shadowCheckbox = this.rendering.getNewCheckbox();
+        this.shadowCheckbox.position.x = 0.8;
+		this.shadowCheckbox.position.y = 0.2;
+		this.shadowCheckbox.textString = "Smaller shadows ";
+		this.shadowCheckbox.getElement().style.color = "cyan"
+		this.shadowCheckbox.getInputElement().style.accentColor = "red";
 
         // let testButton = this.rendering.getNewButton();
         // testButton.position.x = 0.5;
@@ -267,6 +275,13 @@ export default class Game {
 
         this.rendering.useCrt = this.crtCheckbox.getChecked();
         this.rendering.useBloom = this.bloomCheckbox.getChecked();
+        if (this.shadowCheckbox.getChecked()) {
+            this.rendering.setShadowMappingResolution(400);
+            this.rendering.getDirectionalLight().lightProjectionBoxSideLength = 20.0;
+        } else {
+            this.rendering.setShadowMappingResolution(4096);
+            this.rendering.getDirectionalLight().lightProjectionBoxSideLength = 50.0;
+        }
 
         let movComp = <MovementComponent>this.particleSpawner.getComponent(ComponentTypeEnum.MOVEMENT);
         const posComp = <PositionComponent>this.particleSpawner.getComponent(ComponentTypeEnum.POSITION);
