@@ -80,7 +80,6 @@ export default class Rendering {
 
 	// Screen quad to output the finished image on
 	private screenQuadShaderProgram: ScreenQuadShaderProgram;
-	private screenFramebuffer: Framebuffer;
 	private screenQuad: ScreenQuad;
 	// -------------------------
 
@@ -165,8 +164,7 @@ export default class Rendering {
 
 		// Screen quad to output the finished image on
 		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
-		this.screenFramebuffer = new Framebuffer(this.gl, this.resolutionWidth, this.resolutionHeight, false, [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]);
-		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, this.screenFramebuffer.textures);
+		this.screenQuad = new ScreenQuad(this.gl, this.screenQuadShaderProgram, new Array<Texture>());
 		// -------------------------
 		
 		// ---- Graphics objects ----
@@ -204,8 +202,8 @@ export default class Rendering {
 		
 		// Disable faceculling
 		this.gl.disable(this.gl.CULL_FACE);
-	
-		this.gl.lineWidth(3.0); // Sets line width
+
+		
 	}
 
     reportCanvasResize(x: number, y: number) {
@@ -218,7 +216,6 @@ export default class Rendering {
 		for (let buffer of this.pingPongFramebuffers) {
 			buffer.setProportions(x, y);
 		}
-        this.screenFramebuffer.setProportions(x, y);
         // console.log("X: " + x + " px " + "Y: " + y + " px");
     }
 
@@ -292,6 +289,7 @@ export default class Rendering {
 		this.shadowPass.use();
 		this.gl.viewport(0, 0, this.shadowResolution, this.shadowResolution);
 		this.shadowBuffer.bind(this.gl.FRAMEBUFFER);
+		this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	
 		//Set uniforms
@@ -300,12 +298,12 @@ export default class Rendering {
 		//Render shadow pass
 		for (let phongQuad of this.phongQuads.values()) {
 			phongQuad.changeShaderProgram(this.shadowPass);
-			phongQuad.draw(false, false);
+			phongQuad.draw(false);
 		}
 
 		for (let mesh of this.meshes.values()) {
 			mesh.changeShaderProgram(this.shadowPass);
-			mesh.draw(false, false);
+			mesh.draw(false);
 		}
 
 		this.gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
