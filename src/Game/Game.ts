@@ -38,6 +38,8 @@ export default class Game {
         rendering.loadTextureToStore(laserTexture);
         let boxTexture = "https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
         rendering.loadTextureToStore(boxTexture);
+        let fireTexture = "Assets/fire.png";
+        rendering.loadTextureToStore(fireTexture);
 
         this.createFloorEntity(floorTexture);
 
@@ -49,14 +51,14 @@ export default class Game {
         this.createPointLight(new Vec3({x: 4.0, y: 0.2, z: 2.0}), new Vec3({x: 0.7, y: 0.0, z: 1.0}));
 
         let particleSpawnerPos = new Vec3({x: -2.0, y: 1.0, z: 0.0});
-        this.particleSpawner = this.createParticleSpawner(particleSpawnerPos, 10000, 1.3, smileyTexture);
+        this.particleSpawner = this.createParticleSpawner(particleSpawnerPos, 10000, 1.3, fireTexture);
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
         let tempQuad = rendering.getNewQuad(smileyTexture);
 
         this.particleText = this.rendering.getNew3DText();
-        this.particleText.textString = "This is a smiley fountain";
+        this.particleText.textString = "This is a fire fountain";
         this.particleText.getElement().style.color = "lime";
         this.particleText.size = 100;
         this.particleText.position = particleSpawnerPos;
@@ -165,7 +167,7 @@ export default class Game {
 
             particleSpawner.setParticleData(i, 
                 new Vec3(position),
-                0.1,
+                0.4,
                 new Vec3({x: Math.cos(rand), y: 5.0 + Math.random() * 20.0, z: Math.sin(rand)}).normalize().multiply(8.0 + Math.random() * 3.0),
                 new Vec3({x: 0.0, y: -4.0, z: 0.0})
                 );
