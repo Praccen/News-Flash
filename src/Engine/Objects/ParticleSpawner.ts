@@ -8,6 +8,7 @@ import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 export default class ParticleSpawner extends GraphicsObject {
     texture: Texture;
     fadePerSecond: number;
+    sizeChangePerSecond: number;
 
     // Private
     private numParticles: number;
@@ -45,6 +46,7 @@ export default class ParticleSpawner extends GraphicsObject {
         this.numParticles = numberOfStartingParticles; 
 
         this.fadePerSecond = 0.0;
+        this.sizeChangePerSecond = 1.0;
     }
 
     setNumParticles(amount: number) {
@@ -148,6 +150,7 @@ export default class ParticleSpawner extends GraphicsObject {
 
         this.texture.bind(0);
         this.gl.uniform1f(this.shaderProgram.getUniformLocation("fadePerSecond")[0], this.fadePerSecond);
+        this.gl.uniform1f(this.shaderProgram.getUniformLocation("sizeChangePerSecond")[0], this.sizeChangePerSecond);
 
         this.gl.drawElementsInstanced(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0, this.getNumberOfParticles());
         this.unbindVAO();

@@ -167,9 +167,11 @@ export default class Game {
         return pl;
     }
 
-    createParticleSpawner(position: Vec3, numParticles: number, lifetime: number, texturePath: string) : Entity {
+    createParticleSpawner(position: Vec3, numParticles: number, lifeTime: number, texturePath: string) : Entity {
         let particleSpawner = this.rendering.getNewParticleSpawner(texturePath, numParticles);
-        particleSpawner.fadePerSecond = 1.0 / (lifetime);
+        particleSpawner.fadePerSecond = 1.0 / lifeTime;
+        particleSpawner.sizeChangePerSecond = -0.4 * (1.0 / lifeTime);
+        // particleSpawner.sizeMultiplierPerSecond = 2.0;
         for (let i = 0; i < particleSpawner.getNumberOfParticles(); i++) {
             let rand = Math.random() * 2.0 * Math.PI;
 
@@ -190,7 +192,7 @@ export default class Game {
         movComp.constantAcceleration.multiply(0.0);
         this.ecsManager.addComponent(entity, movComp);
         let particleComp = new ParticleSpawnerComponent(particleSpawner);
-        particleComp.lifetime = lifetime;
+        particleComp.lifeTime = lifeTime;
         this.ecsManager.addComponent(entity, particleComp);
         return entity;
     }

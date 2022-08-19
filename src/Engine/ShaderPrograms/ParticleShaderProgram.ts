@@ -18,6 +18,7 @@ uniform mat4 viewProjMatrix;
 uniform vec3 cameraPos;
 uniform float currentTime;
 uniform float fadePerSecond;
+uniform float sizeChangePerSecond;
 
 out vec2 texCoords;
 out float alpha;
@@ -33,8 +34,8 @@ void main() {
     vec3 camDir = cameraPos - currentPos;
     vec3 rightVec = normalize(cross(vec3(0.0, 1.0, 0.0), camDir));
     vec3 upVec = normalize(cross(camDir, rightVec));
-    rightVec = rightVec * inVertexPosition.x * inSize;
-    upVec = upVec * inVertexPosition.y * inSize;
+    rightVec = rightVec * inVertexPosition.x * (inSize + sizeChangePerSecond * lifeTime);
+    upVec = upVec * inVertexPosition.y * (inSize + sizeChangePerSecond * lifeTime);
     gl_Position = viewProjMatrix * vec4(rightVec + upVec + currentPos, 1.0);
 
     // gl_Position = viewProjMatrix * vec4(vec3(inVertexPosition, 0.0) * inSize + currentPos, 1.0); // No billboarding
@@ -87,6 +88,7 @@ export default class ParticleShaderProgram extends ShaderProgram {
         this.setUniformLocation("cameraPos");
         this.setUniformLocation("currentTime");
         this.setUniformLocation("fadePerSecond");
+        this.setUniformLocation("sizeChangePerSecond");
     }
 
     setupVertexAttributePointers(): void {

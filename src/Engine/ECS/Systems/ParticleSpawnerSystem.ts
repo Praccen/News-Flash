@@ -16,15 +16,15 @@ export default class ParticleSpawnerSystem extends System {
             let posComp = <PositionComponent> e.getComponent(ComponentTypeEnum.POSITION);
 
             if (particleComp && posComp) {
-                let currentParticle = Math.floor(particleComp.resetTimer / Math.max(particleComp.lifetime, 0.00001) * particleComp.particleSpawner.getNumberOfParticles());
+                let currentParticle = Math.floor(particleComp.resetTimer / Math.max(particleComp.lifeTime, 0.00001) * particleComp.particleSpawner.getNumberOfParticles());
                 particleComp.resetTimer += dt;
-                let endParticle = Math.floor(particleComp.resetTimer / Math.max(particleComp.lifetime, 0.00001) * particleComp.particleSpawner.getNumberOfParticles())
+                let endParticle = Math.floor(particleComp.resetTimer / Math.max(particleComp.lifeTime, 0.00001) * particleComp.particleSpawner.getNumberOfParticles())
                 for (currentParticle; currentParticle < endParticle; currentParticle++) {
                     particleComp.particleSpawner.resetParticleStartTime(currentParticle % particleComp.particleSpawner.getNumberOfParticles());
                     particleComp.particleSpawner.setParticleStartPosition(currentParticle % particleComp.particleSpawner.getNumberOfParticles(), posComp.position);
                 }
-                if (particleComp.resetTimer > particleComp.lifetime) {
-                    particleComp.resetTimer -= particleComp.lifetime;
+                if (particleComp.resetTimer > particleComp.lifeTime) {
+                    particleComp.resetTimer -= particleComp.lifeTime;
                 }
             }
         }
