@@ -12,6 +12,7 @@ import TextObject3D from "../Engine/GUI/Text/TextObject3D.js";
 import Vec2 from "../Engine/Physics/Vec2.js";
 import Vec3 from "../Engine/Physics/Vec3.js";
 import PointLight from "../Engine/Lighting/PointLight.js";
+import Mesh from "../Engine/Objects/Mesh.js";
 
 export default class Game {
     private gl: WebGL2RenderingContext;
@@ -39,8 +40,10 @@ export default class Game {
         rendering.loadTextureToStore(laserTexture);
         let boxTexture = "https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
         rendering.loadTextureToStore(boxTexture);
-        let fireTexture = "Assets/fire.png";
+        let fireTexture = "Assets/textures/fire.png";
         rendering.loadTextureToStore(fireTexture);
+        let knightTexture = "Assets/textures/knight.png";
+        rendering.loadTextureToStore(knightTexture);
 
         this.createFloorEntity(floorTexture);
 
@@ -56,7 +59,7 @@ export default class Game {
 
         this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
-        let tempQuad = rendering.getNewQuad(smileyTexture);
+        rendering.getNewQuad(smileyTexture);
 
         this.particleText = this.rendering.getNew3DText();
         this.particleText.textString = "This is a fire fountain";
@@ -92,41 +95,24 @@ export default class Game {
         // testButton.textString = "Test button";
         // testButton.center = true;
 
-        let meshString = `# Blender v2.80 (sub 75) OBJ File: ''
-        # www.blender.org
-        mtllib cube.mtl
-        o Cube
-        v 1.000000 1.000000 -1.000000
-        v 1.000000 -1.000000 -1.000000
-        v 1.000000 1.000000 1.000000
-        v 1.000000 -1.000000 1.000000
-        v -1.000000 1.000000 -1.000000
-        v -1.000000 -1.000000 -1.000000
-        v -1.000000 1.000000 1.000000
-        v -1.000000 -1.000000 1.000000
-        vt 0.000000 0.000000
-        vt 0.000000 1.000000
-        vt 1.000000 1.000000
-        vt 1.000000 0.000000
-        vn 0.0000 1.0000 0.0000
-        vn 0.0000 0.0000 1.0000
-        vn -1.0000 0.0000 0.0000
-        vn 0.0000 -1.0000 0.0000
-        vn 1.0000 0.0000 0.0000
-        vn 0.0000 0.0000 -1.0000
-        usemtl Material
-        s off
-        f 1/1/1 5/2/1 7/3/1 3/4/1
-        f 4/1/2 3/2/2 7/3/2 8/4/2
-        f 8/1/3 7/2/3 5/3/3 6/4/3
-        f 6/1/4 2/2/4 4/3/4 8/4/4
-        f 2/1/5 1/2/5 3/3/5 4/4/5
-        f 6/1/6 5/2/6 1/3/6 2/4/6
-		`;
+		let boxMesh: Mesh;
+        fetch('Assets/objs/cube.obj')
+        .then(response => response.text())
+        .then(text => {
+            boxMesh = this.rendering.getNewMesh(text, boxTexture, boxTexture);
+            boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
+            boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
+        });
 
-		let boxMesh = this.rendering.getNewMesh(meshString, boxTexture, boxTexture);
-		boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
-		boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
+        let knightMesh: Mesh;
+        fetch('Assets/objs/knight.obj')
+        .then(response => response.text())
+        .then(text => {
+            knightMesh = this.rendering.getNewMesh(text, knightTexture, knightTexture);
+            knightMesh.modelMatrix.translate(4.0, -2.0, -2.0);
+            knightMesh.modelMatrix.rotate(-45.0, 0.0, 1.0, 0.0);
+            knightMesh.modelMatrix.scale(0.25, 0.25, 0.25);
+        });
     }
 
     createFloorEntity(texturePath: string) {
@@ -171,7 +157,7 @@ export default class Game {
         let particleSpawner = this.rendering.getNewParticleSpawner(texturePath, numParticles);
         particleSpawner.fadePerSecond = 1.0 / lifeTime;
         particleSpawner.sizeChangePerSecond = -0.4 * (1.0 / lifeTime);
-        // particleSpawner.sizeMultiplierPerSecond = 2.0;
+
         for (let i = 0; i < particleSpawner.getNumberOfParticles(); i++) {
             let rand = Math.random() * 2.0 * Math.PI;
 
