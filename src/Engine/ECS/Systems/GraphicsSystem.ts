@@ -5,32 +5,38 @@ import { ComponentTypeEnum } from "../Components/Component.js";
 import PositionComponent from "../Components/PositionComponent.js";
 
 export default class GraphicsSystem extends System {
-    private rendering: Rendering;
-    
-    constructor(rendering: Rendering) {
-        super([ComponentTypeEnum.GRAPHICS, ComponentTypeEnum.POSITION]);
-        this.rendering = rendering;
-    }
+	private rendering: Rendering;
 
-    update(dt: number) {
-        for (const e of this.entities) {
-            let graphComp = <GraphicsComponent> e.getComponent(ComponentTypeEnum.GRAPHICS);
-            let posComp = <PositionComponent> e.getComponent(ComponentTypeEnum.POSITION);
+	constructor(rendering: Rendering) {
+		super([ComponentTypeEnum.GRAPHICS, ComponentTypeEnum.POSITION]);
+		this.rendering = rendering;
+	}
 
-            if (graphComp && posComp) {
-                posComp.calculateMatrix(graphComp.quad.modelMatrix);
-            }
-        }
-    }
+	update(dt: number) {
+		for (const e of this.entities) {
+			let graphComp = <GraphicsComponent>(
+				e.getComponent(ComponentTypeEnum.GRAPHICS)
+			);
+			let posComp = <PositionComponent>(
+				e.getComponent(ComponentTypeEnum.POSITION)
+			);
 
-    removeEntity(entityId: number) {
-        const index = this.entities.findIndex(c => c.id == entityId);
+			if (graphComp && posComp) {
+				posComp.calculateMatrix(graphComp.quad.modelMatrix);
+			}
+		}
+	}
 
-        if (index != -1) {
-            let graphComp = <GraphicsComponent> this.entities[index].getComponent(ComponentTypeEnum.GRAPHICS);
-            this.rendering.deletePhongQuad(graphComp.quad);
+	removeEntity(entityId: number) {
+		const index = this.entities.findIndex((c) => c.id == entityId);
 
-            this.entities.splice(index, 1);
-        }
-    }
-};
+		if (index != -1) {
+			let graphComp = <GraphicsComponent>(
+				this.entities[index].getComponent(ComponentTypeEnum.GRAPHICS)
+			);
+			this.rendering.deletePhongQuad(graphComp.quad);
+
+			this.entities.splice(index, 1);
+		}
+	}
+}

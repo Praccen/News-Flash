@@ -1,70 +1,70 @@
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class GraphicsObject {
-    // Protected
-    protected gl: WebGL2RenderingContext;
-    protected shaderProgram: ShaderProgram;
+	// Protected
+	protected gl: WebGL2RenderingContext;
+	protected shaderProgram: ShaderProgram;
 
-    // Private
-    private VAO: WebGLVertexArrayObject;
-    private VBO: WebGLBuffer;
-    private EBO: WebGLBuffer;
+	// Private
+	private VAO: WebGLVertexArrayObject;
+	private VBO: WebGLBuffer;
+	private EBO: WebGLBuffer;
 
-    constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram) {
-        this.gl = gl;
-        this.shaderProgram = shaderProgram;
+	constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram) {
+		this.gl = gl;
+		this.shaderProgram = shaderProgram;
 
-        this.VAO = null;
-        this.VBO = null;
-        this.EBO = null; // Optional
+		this.VAO = null;
+		this.VBO = null;
+		this.EBO = null; // Optional
 
-        this.init();
-    }
+		this.init();
+	}
 
-    init() {
-        // Create buffers
-        this.VAO = this.gl.createVertexArray();
-        this.VBO = this.gl.createBuffer();
-        this.EBO = this.gl.createBuffer();
-        
-        // Bind buffers
-        this.gl.bindVertexArray(this.VAO);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
-    
-        this.shaderProgram.setupVertexAttributePointers();
-    
-        this.gl.bindVertexArray(null);
-    }
+	init() {
+		// Create buffers
+		this.VAO = this.gl.createVertexArray();
+		this.VBO = this.gl.createBuffer();
+		this.EBO = this.gl.createBuffer();
 
-    changeShaderProgram(shaderProgram) {
-        this.shaderProgram = shaderProgram;
-    }
+		// Bind buffers
+		this.gl.bindVertexArray(this.VAO);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
 
-    bindVAO() {
-        this.gl.bindVertexArray(this.VAO);
-    }
+		this.shaderProgram.setupVertexAttributePointers();
 
-    unbindVAO() {
-        this.gl.bindVertexArray(null);
-    }
+		this.gl.bindVertexArray(null);
+	}
 
-    setVertexData(data: Float32Array) {
-        this.gl.bindVertexArray(this.VAO);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
-        this.gl.bindVertexArray(null);
-    }
+	changeShaderProgram(shaderProgram) {
+		this.shaderProgram = shaderProgram;
+	}
 
-    setIndexData(data: Int32Array) {
-        this.gl.bindVertexArray(this.VAO);
+	bindVAO() {
+		this.gl.bindVertexArray(this.VAO);
+	}
 
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.EBO);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
-    
-        this.gl.bindVertexArray(null);
-    }
+	unbindVAO() {
+		this.gl.bindVertexArray(null);
+	}
 
-    draw() { // Can this be virtual? 
+	setVertexData(data: Float32Array) {
+		this.gl.bindVertexArray(this.VAO);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
+		this.gl.bindVertexArray(null);
+	}
 
-    }
-};
+	setIndexData(data: Int32Array) {
+		this.gl.bindVertexArray(this.VAO);
+
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.EBO);
+		this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
+
+		this.gl.bindVertexArray(null);
+	}
+
+	draw() {
+		// Can this be virtual?
+	}
+}

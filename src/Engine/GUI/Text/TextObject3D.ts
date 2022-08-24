@@ -2,46 +2,52 @@ import Vec3 from "../../Physics/Vec3.js";
 import GuiObject from "../GuiObject.js";
 
 export default class TextObject3D extends GuiObject {
-    position: Vec3;
-    size: number;
-    scaleFontWithDistance: boolean;
+	position: Vec3;
+	size: number;
+	scaleFontWithDistance: boolean;
 
-    private textNode: Text;
+	private textNode: Text;
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.position = new Vec3();
-        this.size = 42;
-        this.scaleFontWithDistance = true;
+		this.position = new Vec3();
+		this.size = 42;
+		this.scaleFontWithDistance = true;
 
-        // make a text node for its content
-        this.textNode = document.createTextNode("");
-        this.div.appendChild(this.textNode);
-    }
+		// make a text node for its content
+		this.textNode = document.createTextNode("");
+		this.div.appendChild(this.textNode);
+	}
 
-    draw(viewProj: Matrix4): void {
-        let pos = new Vector4([this.position.x, this.position.y, this.position.z, 1.0]);
-        let screenCoords = viewProj.multiplyVector4(pos);
-        screenCoords.elements[0] = (screenCoords.elements[0] / screenCoords.elements[3] + 1.0) / 2.0;
-        screenCoords.elements[1] = 1.0 - ((screenCoords.elements[1] / screenCoords.elements[3] + 1.0) / 2.0);
-        
-        if (screenCoords.elements[2] > 0.0) {
-            this.position2D.x = screenCoords.elements[0];
-            this.position2D.y = screenCoords.elements[1];
+	draw(viewProj: Matrix4): void {
+		let pos = new Vector4([
+			this.position.x,
+			this.position.y,
+			this.position.z,
+			1.0,
+		]);
+		let screenCoords = viewProj.multiplyVector4(pos);
+		screenCoords.elements[0] =
+			(screenCoords.elements[0] / screenCoords.elements[3] + 1.0) / 2.0;
+		screenCoords.elements[1] =
+			1.0 - (screenCoords.elements[1] / screenCoords.elements[3] + 1.0) / 2.0;
 
-            let size = this.size;
-            if (this.scaleFontWithDistance) {
-                size = this.size / screenCoords.elements[2];
-            }
-            this.fontSize = size;
+		if (screenCoords.elements[2] > 0.0) {
+			this.position2D.x = screenCoords.elements[0];
+			this.position2D.y = screenCoords.elements[1];
 
-            this.div.hidden = false;
-            this.textNode.textContent = this.textString;
-            this.drawObject();
-        }
-        else {
-            this.div.hidden = true;
-        }
-    }
+			let size = this.size;
+			if (this.scaleFontWithDistance) {
+				size = this.size / screenCoords.elements[2];
+			}
+			this.fontSize = size;
+
+			this.div.hidden = false;
+			this.textNode.textContent = this.textString;
+			this.drawObject();
+		} else {
+			this.div.hidden = true;
+		}
+	}
 }

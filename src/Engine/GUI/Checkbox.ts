@@ -2,44 +2,44 @@ import Vec2 from "../Physics/Vec2.js";
 import GuiObject from "./GuiObject.js";
 
 export default class Checkbox extends GuiObject {
-    position: Vec2;
-    textSize: number;
-    
-    private inputNode: HTMLInputElement;
-    private label: HTMLLabelElement;
+	position: Vec2;
+	textSize: number;
 
-    constructor() {
-        super();
-        this.position = new Vec2();
-        this.textSize = 42;
+	private inputNode: HTMLInputElement;
+	private label: HTMLLabelElement;
 
-        // make a input node and a label node
-        this.inputNode = document.createElement('input');
-        this.inputNode.type = "checkbox";
+	constructor() {
+		super();
+		this.position = new Vec2();
+		this.textSize = 42;
 
-        this.label = document.createElement('label');
-        this.label.textContent = this.textString;
+		// make a input node and a label node
+		this.inputNode = document.createElement("input");
+		this.inputNode.type = "checkbox";
 
-        this.div.appendChild(this.label);
-        this.div.appendChild(this.inputNode);
-    }
+		this.label = document.createElement("label");
+		this.label.textContent = this.textString;
 
-    getElement(): HTMLDivElement {
-        return this.div;
-    }
+		this.div.appendChild(this.label);
+		this.div.appendChild(this.inputNode);
+	}
 
-    getInputElement(): HTMLInputElement {
-        return this.inputNode;
-    }
+	getElement(): HTMLDivElement {
+		return this.div;
+	}
 
-    getChecked(): boolean {
-        return this.inputNode.checked;
-    }
+	getInputElement(): HTMLInputElement {
+		return this.inputNode;
+	}
 
-    draw() {
-        this.position2D = this.position;
-        this.fontSize = this.textSize;
-        this.label.textContent = this.textString;
-        this.drawObject();
-    }
+	getChecked(): boolean {
+		return this.inputNode.checked;
+	}
+
+	draw() {
+		this.position2D = this.position;
+		this.fontSize = this.textSize;
+		this.label.textContent = this.textString;
+		this.drawObject();
+	}
 }

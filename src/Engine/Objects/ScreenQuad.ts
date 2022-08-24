@@ -3,47 +3,46 @@ import Texture from "../Textures/Texture.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class ScreenQuad extends GraphicsObject {
-    textures: Array<Texture>;
+	textures: Array<Texture>;
 
-    // Private
-    private vertices: Float32Array;
-    private indices: Int32Array;
+	// Private
+	private vertices: Float32Array;
+	private indices: Int32Array;
 
-    constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram, textures: Array<Texture>) {
-        super(gl, shaderProgram);
+	constructor(
+		gl: WebGL2RenderingContext,
+		shaderProgram: ShaderProgram,
+		textures: Array<Texture>
+	) {
+		super(gl, shaderProgram);
 
-        this.vertices = new Float32Array([ 
-            // positions        // uv
-            -1.0,  1.0,     0.0, 1.0,
-            -1.0, -1.0,     0.0, 0.0,
-             1.0, -1.0,     1.0, 0.0,
-             1.0,  1.0,     1.0, 1.0,
-        ]);
-        this.indices = new Int32Array([
-            0, 1, 2,
-            0, 2, 3,
-        ]);
+		this.vertices = new Float32Array([
+			// positions   // uv
+			-1.0, 1.0, 0.0, 1.0, -1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 1.0, 0.0, 1.0, 1.0,
+			1.0, 1.0,
+		]);
+		this.indices = new Int32Array([0, 1, 2, 0, 2, 3]);
 
-        this.setVertexData(this.vertices);
-        this.setIndexData(this.indices);
+		this.setVertexData(this.vertices);
+		this.setIndexData(this.indices);
 
-        this.textures = textures;
-        
-        for (let texture of this.textures) {
-            texture.setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-            texture.setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-        }
-    }
+		this.textures = textures;
 
-    draw(bindTextures: boolean = true) {
-        this.bindVAO();
+		for (let texture of this.textures) {
+			texture.setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+			texture.setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+		}
+	}
 
-        if (bindTextures) {
-            for (let i = 0; i < this.textures.length; i++) {
-                this.textures[i].bind(i);
-            }
-        }
+	draw(bindTextures: boolean = true) {
+		this.bindVAO();
 
-        this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
-    }
-};
+		if (bindTextures) {
+			for (let i = 0; i < this.textures.length; i++) {
+				this.textures[i].bind(i);
+			}
+		}
+
+		this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
+	}
+}

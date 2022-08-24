@@ -1,8 +1,7 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
 
-const bloomExtractionFragmentSrc: string = 
-`#version 300 es
+const bloomExtractionFragmentSrc: string = `#version 300 es
 precision highp float;
 
 in vec2 texCoords;
@@ -26,23 +25,28 @@ void main() {
 }`;
 
 export default class BloomExtraction extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "BloomExtraction", screenQuadVertexSrc, bloomExtractionFragmentSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(
+			gl,
+			"BloomExtraction",
+			screenQuadVertexSrc,
+			bloomExtractionFragmentSrc
+		);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("inputTexture");
+		this.setUniformLocation("inputTexture");
 
-        this.gl.uniform1i(this.getUniformLocation("inputTexture")[0], 0);
-    }
+		this.gl.uniform1i(this.getUniformLocation("inputTexture")[0], 0);
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 4 * 4;
-        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
-     
-        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-        this.gl.enableVertexAttribArray(1);
-    }
-};
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 4 * 4;
+		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
+
+		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+		this.gl.enableVertexAttribArray(1);
+	}
+}
