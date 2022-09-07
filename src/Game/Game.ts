@@ -1,4 +1,4 @@
-import { input } from "../main.js";
+import { applicationStartTime, input } from "../main.js";
 import Rendering from "../Engine/Rendering.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
@@ -13,6 +13,8 @@ import Vec2 from "../Engine/Physics/Vec2.js";
 import Vec3 from "../Engine/Physics/Vec3.js";
 import PointLight from "../Engine/Lighting/PointLight.js";
 import Mesh from "../Engine/Objects/Mesh.js";
+import Triangle3D from "../Engine/Physics/Triangle3D.js";
+import { IntersectionTester } from "../Engine/Physics/IntersectionTester.js";
 
 export default class Game {
     private gl: WebGL2RenderingContext;
@@ -22,9 +24,16 @@ export default class Game {
     private crtCheckbox: Checkbox;
     private bloomCheckbox: Checkbox;
     private shadowCheckbox: Checkbox;
+    private collidingCheckbox: Checkbox;
 
     private particleText: TextObject3D;
     private particleSpawner: Entity;
+
+    private boxMesh: Mesh;
+    private boxTriangles: Array<Triangle3D>;
+
+    private knightMesh: Mesh;
+    private knightTriangles: Array<Triangle3D>;
 
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
@@ -83,36 +92,52 @@ export default class Game {
 		this.bloomCheckbox.getInputElement().style.accentColor = "red";
 
         this.shadowCheckbox = this.rendering.getNewCheckbox();
-        this.shadowCheckbox.position.x = 0.8;
+        this.shadowCheckbox.position.x = 0.75;
 		this.shadowCheckbox.position.y = 0.2;
 		this.shadowCheckbox.textString = "Smaller shadows ";
 		this.shadowCheckbox.getElement().style.color = "cyan"
 		this.shadowCheckbox.getInputElement().style.accentColor = "red";
+
+        this.collidingCheckbox = this.rendering.getNewCheckbox();
+        this.collidingCheckbox.position.x = 0.8;
+		this.collidingCheckbox.position.y = 0.25;
+		this.collidingCheckbox.textString = "Colliding ";
+		this.collidingCheckbox.getElement().style.color = "cyan"
+		this.collidingCheckbox.getInputElement().style.accentColor = "red";
 
         // let testButton = this.rendering.getNewButton();
         // testButton.position.x = 0.5;
         // testButton.position.y = 0.5;
         // testButton.textString = "Test button";
         // testButton.center = true;
+    }
 
-		let boxMesh: Mesh;
-        fetch('Assets/objs/cube.obj')
-        .then(response => response.text())
-        .then(text => {
-            boxMesh = this.rendering.getNewMesh(text, boxTexture, boxTexture);
-            boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
-            boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
-        });
+    async init() {
 
-        let knightMesh: Mesh;
-        fetch('Assets/objs/knight.obj')
-        .then(response => response.text())
-        .then(text => {
-            knightMesh = this.rendering.getNewMesh(text, knightTexture, knightTexture);
-            knightMesh.modelMatrix.translate(4.0, -2.0, -2.0);
-            knightMesh.modelMatrix.rotate(-45.0, 0.0, 1.0, 0.0);
-            knightMesh.modelMatrix.scale(0.25, 0.25, 0.25);
-        });
+        let boxTexture = "https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
+        this.boxMesh = await this.rendering.getNewMesh("Assets/objs/cube.obj", boxTexture, boxTexture);
+        // boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
+        this.boxMesh.modelMatrix.translate(-4.0, 0.0, 0.0);
+        this.boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
+
+        this.boxTriangles = new Array<Triangle3D>();
+        this.boxMesh.setupShapes(this.boxTriangles);
+        for (let triangle of this.boxTriangles) {
+            triangle.setTransformMatrix(this.boxMesh.modelMatrix);
+        }
+        
+        let knightTexture = "Assets/textures/knight.png";
+        this.knightMesh = await this.rendering.getNewMesh("Assets/objs/knight.obj", knightTexture, knightTexture);
+        this.knightMesh.modelMatrix.translate(2.0, -2.0, 0.0);
+        this.knightMesh.modelMatrix.rotate(-45.0, 0.0, 1.0, 0.0);
+        this.knightMesh.modelMatrix.scale(0.25, 0.25, 0.25);
+
+        this.knightTriangles = new Array<Triangle3D>();
+        this.knightMesh.setupShapes(this.knightTriangles);
+
+        for (let triangle of this.knightTriangles) {
+            triangle.setTransformMatrix(this.knightMesh.modelMatrix);
+        }
     }
 
     createFloorEntity(texturePath: string) {
@@ -278,6 +303,23 @@ export default class Game {
             movComp.accelerationDirection.y = 0.0;
             movComp.accelerationDirection.multiply(-0.2);
             this.particleText.position = posComp.position;
+        }
+
+        this.boxMesh.modelMatrix.setTranslate(Math.sin((Date.now() - applicationStartTime) * 0.001) * 4.0, 0.0, 0.0);
+
+        for (let tri of this.boxTriangles) {
+            tri.setTransformMatrix(this.boxMesh.modelMatrix);
+        }
+
+        for (let tri of this.knightTriangles) {
+            tri.setTransformMatrix(this.knightMesh.modelMatrix);
+        }
+
+        if (IntersectionTester.identifyMeshVsMeshIntersection(this.boxTriangles, this.knightTriangles)) {
+            this.collidingCheckbox.getInputElement().checked = true;
+        }
+        else {
+            this.collidingCheckbox.getInputElement().checked = false;
         }
     }
 }

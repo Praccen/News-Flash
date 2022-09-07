@@ -238,7 +238,10 @@ export default class Rendering {
 		return this.phongQuads[length - 1];
 	}
 
-	getNewMesh(objContent: string, diffusePath: string, specularPath: string) {
+	async getNewMesh(meshPath: string, diffusePath: string, specularPath: string) {
+		const response = await fetch(meshPath);
+        const objContent = await response.text();
+
 		const length = this.meshes.push(new Mesh(this.gl, this.geometryPass, objContent, this.textureStore.getTexture(diffusePath), this.textureStore.getTexture(specularPath)));
 		return this.meshes[length - 1];
 	}

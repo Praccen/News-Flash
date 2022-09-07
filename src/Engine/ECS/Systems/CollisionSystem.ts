@@ -3,7 +3,7 @@ import { ComponentTypeEnum } from "../Components/Component.js";
 
 export default class CollisionSystem extends System {
     constructor() {
-        super([ComponentTypeEnum.COLLISION, ComponentTypeEnum.POSITION]);
+        super([ComponentTypeEnum.MESHCOLLISION, ComponentTypeEnum.POSITION]);
 
     }
 

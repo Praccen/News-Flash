@@ -10,7 +10,7 @@ export default class Button extends GuiObject {
         super();
         this.position = new Vec2();
         
-        // make a input node and a label node
+        // make an input node and a label node
         this.inputNode = document.createElement('input');
         this.inputNode.type = "button";
 

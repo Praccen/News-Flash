@@ -3,12 +3,19 @@ import Rendering from "./Engine/Rendering.js";
 import Game from "./Game/Game.js";
 import ECSManager from "./Engine/ECS/ECSManager.js";
 import AudioPlayer from "./Engine/Audio/AudioPlayer.js";
+import { SAT } from "./Engine/Physics/SAT.js";
+
+SAT.runUnitTests();
 
 // Globals
 export let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
 let guicontainer = <HTMLElement>document.getElementById("guicontainer");
 export let input = new Input();
 export let texturesRequestedVsLoaded = {
+    req: 0,
+    loaded: 0,
+};
+export let meshesRequestedVsLoaded = {
     req: 0,
     loaded: 0,
 };
@@ -76,7 +83,7 @@ function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 }
 
 /* main */
-window.onload = () => {
+window.onload = async () => {
 	"use strict";
 
 	let gl = initWebGL();
@@ -160,13 +167,24 @@ window.onload = () => {
             requestAnimationFrame(waitForTextureLoading);
         }
         else {
-            console.log("All " + texturesRequestedVsLoaded.loaded + "/" + texturesRequestedVsLoaded.req + " loaded!");
+            console.log("All " + texturesRequestedVsLoaded.loaded + "/" + texturesRequestedVsLoaded.req + " textures loaded!");
+        }
+    }
+
+    function waitForMeshLoading() { //Waits until all meshes are loaded before starting the game
+        if (meshesRequestedVsLoaded.loaded < meshesRequestedVsLoaded.req) {
+            requestAnimationFrame(waitForMeshLoading);
+        }
+        else {
+            console.log("All " + meshesRequestedVsLoaded.loaded + "/" + meshesRequestedVsLoaded.req + " meshes loaded!");
         }
     }
 
 	console.log("Everything is ready.");
 
 	resize(gl, rendering);
-	requestAnimationFrame(waitForTextureLoading);
+	//requestAnimationFrame(waitForTextureLoading);
+    //requestAnimationFrame(waitForMeshLoading);
+    await game.init();
 	requestAnimationFrame(gameLoop);
 };

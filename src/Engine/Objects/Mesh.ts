@@ -3,6 +3,7 @@ import Texture from "../Textures/Texture.js";
 import Vec2 from "../Physics/Vec2.js";
 import Vec3 from "../Physics/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+import Triangle3D from "../Physics/Triangle3D.js";
 
 export default class Mesh extends GraphicsObject {
     // Public
@@ -113,6 +114,18 @@ export default class Mesh extends GraphicsObject {
                 this.vertices[i * 8 + 6] = 0.0;
                 this.vertices[i * 8 + 7] = 0.0;
             }
+        }
+    }
+    
+    setupShapes(triangles: Array<Triangle3D>) {
+        triangles.length = 0; // Clear triangles
+        for (let i = 0; i < this.vertices.length; i += 8*3) { // Go through the vertices
+            // Save the positions as shapes in the input array
+            const length = triangles.push(new Triangle3D());
+            triangles[length - 1].setVertices(
+                new Vec3({x: this.vertices[i], y: this.vertices[i + 1], z: this.vertices[i + 2]}), 
+                new Vec3({x: this.vertices[i + 8], y: this.vertices[i + 8 + 1], z: this.vertices[i + 8 + 2]}), 
+                new Vec3({x: this.vertices[i + 16], y: this.vertices[i + 16 + 1], z: this.vertices[i + 16 + 2]}));
         }
     }
 

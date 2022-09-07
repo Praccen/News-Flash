@@ -13,7 +13,7 @@ export default class Checkbox extends GuiObject {
         this.position = new Vec2();
         this.textSize = 42;
 
-        // make a input node and a label node
+        // make an input node and a label node
         this.inputNode = document.createElement('input');
         this.inputNode.type = "checkbox";
 

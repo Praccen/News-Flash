@@ -1,7 +1,7 @@
 export enum ComponentTypeEnum {
     ANIMATION,
-    COLLISION,
     GRAPHICS,
+    MESHCOLLISION,
     MOVEMENT,
     PARTICLESPAWNER,
     POSITION,
