@@ -1,7 +1,6 @@
 import ShaderProgram from "./ShaderProgram.js";
 
-const simpleVertexShaderSrc: string = 
-`#version 300 es
+const simpleVertexShaderSrc: string = `#version 300 es
 // If inputs change, also update SimpleShaderProgram::setupVertexAttributePointers to match
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec4 inColor;
@@ -20,9 +19,8 @@ void main() {
     color = inColor;
     texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
 }`;
-    
-const simpleFragmentShaderSrc: string = 
-`#version 300 es
+
+const simpleFragmentShaderSrc: string = `#version 300 es
 precision highp float;
 
 in vec4 color;
@@ -59,30 +57,35 @@ void main()
 }`;
 
 export default class SimpleShaderProgram extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "SimpleShaderProgram", simpleVertexShaderSrc, simpleFragmentShaderSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(
+			gl,
+			"SimpleShaderProgram",
+			simpleVertexShaderSrc,
+			simpleFragmentShaderSrc
+		);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("modelMatrix");
-        this.setUniformLocation("viewProjMatrix");
-        this.setUniformLocation("textureMatrix");
-        this.setUniformLocation("texture0");
-        this.setUniformLocation("useTexture");
+		this.setUniformLocation("modelMatrix");
+		this.setUniformLocation("viewProjMatrix");
+		this.setUniformLocation("textureMatrix");
+		this.setUniformLocation("texture0");
+		this.setUniformLocation("useTexture");
 
-        this.gl.uniform1i(this.uniformBindings["texture0"], 0);
-    }
+		this.gl.uniform1i(this.uniformBindings["texture0"], 0);
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 9 * 4;
-        this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 9 * 4;
+		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
 
-        this.gl.vertexAttribPointer(1, 4, this.gl.FLOAT, false, stride, 3 * 4);
-        this.gl.enableVertexAttribArray(1);
+		this.gl.vertexAttribPointer(1, 4, this.gl.FLOAT, false, stride, 3 * 4);
+		this.gl.enableVertexAttribArray(1);
 
-        this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 7 * 4);
-        this.gl.enableVertexAttribArray(2);
-    }
-};
+		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 7 * 4);
+		this.gl.enableVertexAttribArray(2);
+	}
+}

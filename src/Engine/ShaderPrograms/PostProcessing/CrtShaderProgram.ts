@@ -1,8 +1,7 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
 
-const crtFragmentShaderSrc: string = 
-`#version 300 es
+const crtFragmentShaderSrc: string = `#version 300 es
 precision highp float;
 //
 // PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
@@ -156,20 +155,19 @@ void main() {
 `;
 
 export default class CrtShaderProgram extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "CrtShaderProgram", screenQuadVertexSrc, crtFragmentShaderSrc);
-        
-	    this.setUniformLocation("screenTexture");
-    }
+	constructor(gl: WebGL2RenderingContext) {
+		super(gl, "CrtShaderProgram", screenQuadVertexSrc, crtFragmentShaderSrc);
 
-    setupVertexAttributePointers() {
-        // Change if input layout changes in shaders
-        const stride = 4 * 4;
-        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
-     
-        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-        this.gl.enableVertexAttribArray(1);
-     }
-};
+		this.setUniformLocation("screenTexture");
+	}
 
+	setupVertexAttributePointers() {
+		// Change if input layout changes in shaders
+		const stride = 4 * 4;
+		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
+
+		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+		this.gl.enableVertexAttribArray(1);
+	}
+}

@@ -1,8 +1,7 @@
 import ShaderProgram from "./ShaderProgram.js";
 import { pointLightsToAllocate } from "./DeferredRendering/LightingPass.js";
 
-const phongVertexShaderSrc: string = 
-`#version 300 es
+const phongVertexShaderSrc: string = `#version 300 es
 // If inputs change, also update PhongShaderProgram::setupVertexAttributePointers to match
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
@@ -31,11 +30,11 @@ void main() {
 	
     gl_Position = viewProjMatrix * worldPos;
 }`;
-    
+
 // let pointLightsToAllocate: number = 100;
 
-const phongFragmentShaderSrc: string = 
-`#version 300 es
+const phongFragmentShaderSrc: string =
+	`#version 300 es
 precision highp float;
 
 in vec3 fragPos;
@@ -66,7 +65,9 @@ struct DirectionalLight {
 	float ambientMultiplier;
 };
 
-#define NR_POINT_LIGHTS ` + pointLightsToAllocate + `
+#define NR_POINT_LIGHTS ` +
+	pointLightsToAllocate +
+	`
 
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
@@ -155,47 +156,52 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 }`;
 
 export default class PhongShaderProgram extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "PhongShaderProgram", phongVertexShaderSrc, phongFragmentShaderSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(
+			gl,
+			"PhongShaderProgram",
+			phongVertexShaderSrc,
+			phongFragmentShaderSrc
+		);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("modelMatrix");
-        this.setUniformLocation("viewProjMatrix");
-        this.setUniformLocation("textureMatrix");
+		this.setUniformLocation("modelMatrix");
+		this.setUniformLocation("viewProjMatrix");
+		this.setUniformLocation("textureMatrix");
 
-        this.setUniformLocation("material.diffuse");
-        this.setUniformLocation("material.specular");
+		this.setUniformLocation("material.diffuse");
+		this.setUniformLocation("material.specular");
 
-        this.gl.uniform1i(this.getUniformLocation("material.diffuse"), 0);
-        this.gl.uniform1i(this.getUniformLocation("material.specular"), 1);
+		this.gl.uniform1i(this.getUniformLocation("material.diffuse"), 0);
+		this.gl.uniform1i(this.getUniformLocation("material.specular"), 1);
 
-        for (let i = 0; i < pointLightsToAllocate; i++) {
-            this.setUniformLocation("pointLights[" + i + "].position");
-            this.setUniformLocation("pointLights[" + i + "].colour");
+		for (let i = 0; i < pointLightsToAllocate; i++) {
+			this.setUniformLocation("pointLights[" + i + "].position");
+			this.setUniformLocation("pointLights[" + i + "].colour");
 
-            this.setUniformLocation("pointLights[" + i + "].constant");
-            this.setUniformLocation("pointLights[" + i + "].linear");
-            this.setUniformLocation("pointLights[" + i + "].quadratic");
-        }
+			this.setUniformLocation("pointLights[" + i + "].constant");
+			this.setUniformLocation("pointLights[" + i + "].linear");
+			this.setUniformLocation("pointLights[" + i + "].quadratic");
+		}
 
-        this.setUniformLocation("directionalLight.direction");
-        this.setUniformLocation("directionalLight.colour");
-        this.setUniformLocation("directionalLight.ambientMultiplier");
-        this.setUniformLocation("nrOfPointLights");
-        this.setUniformLocation("camPos");
-    }
+		this.setUniformLocation("directionalLight.direction");
+		this.setUniformLocation("directionalLight.colour");
+		this.setUniformLocation("directionalLight.ambientMultiplier");
+		this.setUniformLocation("nrOfPointLights");
+		this.setUniformLocation("camPos");
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 8 * 4;
-        this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 8 * 4;
+		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
 
-        this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
-        this.gl.enableVertexAttribArray(1);
+		this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
+		this.gl.enableVertexAttribArray(1);
 
-        this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
-        this.gl.enableVertexAttribArray(2);
-    }
-};
+		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
+		this.gl.enableVertexAttribArray(2);
+	}
+}
