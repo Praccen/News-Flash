@@ -28,7 +28,7 @@ export default class Vec3 {
         return retVec;
     }
 
-    setValues(x?: number, y?: number, z?: number) {
+    setValues(x?: number, y?: number, z?: number): Vec3 {
         if (x) {
             this.x = x;
         }
@@ -38,12 +38,20 @@ export default class Vec3 {
         if (z) {
             this.z = z;
         }
+
+        return this;
     }
 
-    deepAssign(base: any) {
+    deepAssign(base: any): Vec3 {
         this.x = base.x;
         this.y = base.y;
         this.z = base.z;
+
+        return this;
+    }
+
+    compare(other: any): boolean {
+        return this.x == other.x && this.y == other.y && this.z == other.z;
     }
 
     length(): number {
@@ -54,6 +62,10 @@ export default class Vec3 {
         return Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2);
     }
 
+    /**
+     * Normalizes the vector and returns it.
+     * It does not return a copy, so this will change the instance itself.
+     */
     normalize(): Vec3 {
         const length = this.length();
         if (length > 0.0) {

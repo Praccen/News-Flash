@@ -1,5 +1,4 @@
 import Rendering from "../Rendering.js";
-import GraphicsComponent from "./Components/GraphicsComponent.js";
 import { Component, ComponentTypeEnum } from "./Components/Component.js";
 
 export default class Entity {
@@ -24,12 +23,9 @@ export default class Entity {
         return (this.components.some(c => c.type == type));
     }
 
-    removeComponent(type: ComponentTypeEnum, rendering: Rendering) {
+    removeComponent(type: ComponentTypeEnum) {
         let index = this.components.findIndex(c => c.type == type);
         if (index != -1) {
-            if (type == ComponentTypeEnum.GRAPHICS) {
-                rendering.deletePhongQuad((<GraphicsComponent> this.components[index]).quad);
-            }
             this.components.splice(index, 1);
         }
     }

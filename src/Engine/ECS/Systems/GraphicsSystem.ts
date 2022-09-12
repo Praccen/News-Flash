@@ -1,15 +1,13 @@
 import System from "./System.js";
-import Rendering from "../../Rendering.js";
 import GraphicsComponent from "../Components/GraphicsComponent.js";
 import { ComponentTypeEnum } from "../Components/Component.js";
 import PositionComponent from "../Components/PositionComponent.js";
+import MeshCollisionComponent from "../Components/MeshCollisionComponent.js";
 
 export default class GraphicsSystem extends System {
-    private rendering: Rendering;
     
-    constructor(rendering: Rendering) {
+    constructor() {
         super([ComponentTypeEnum.GRAPHICS, ComponentTypeEnum.POSITION]);
-        this.rendering = rendering;
     }
 
     update(dt: number) {
@@ -18,19 +16,8 @@ export default class GraphicsSystem extends System {
             let posComp = <PositionComponent> e.getComponent(ComponentTypeEnum.POSITION);
 
             if (graphComp && posComp) {
-                posComp.calculateMatrix(graphComp.quad.modelMatrix);
+                posComp.calculateMatrix(graphComp.object.modelMatrix);
             }
-        }
-    }
-
-    removeEntity(entityId: number) {
-        const index = this.entities.findIndex(c => c.id == entityId);
-
-        if (index != -1) {
-            let graphComp = <GraphicsComponent> this.entities[index].getComponent(ComponentTypeEnum.GRAPHICS);
-            this.rendering.deletePhongQuad(graphComp.quad);
-
-            this.entities.splice(index, 1);
         }
     }
 };

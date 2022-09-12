@@ -138,7 +138,7 @@ float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
 
     // check whether current frag pos is in shadow
 	// float bias = 0.001;
-	float bias = max(0.0012 * (1.0 - dot(normal, directionalLight.direction)), 0.001);
+	float bias = max(0.002 * (1.0 - dot(normal, directionalLight.direction)), 0.002);
 	
 	float shadow = 0.0;
 	ivec2 textureSize = textureSize(depthMap, 0);

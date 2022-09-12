@@ -1,11 +1,11 @@
-import PhongQuad from "../../Objects/PhongQuad.js";
+import GraphicsObject from "../../Objects/GraphicsObject.js";
 import { Component, ComponentTypeEnum } from "./Component.js";
 
 export default class GraphicsComponent extends Component {
-    quad: PhongQuad; // TODO: Make this take a graphics object instead
+    object: GraphicsObject; // TODO: Make this take a graphics object instead
 
-    constructor(quad: PhongQuad) {
+    constructor(object: GraphicsObject) {
         super(ComponentTypeEnum.GRAPHICS);
-        this.quad = quad;
+        this.object = object;
     }
 };

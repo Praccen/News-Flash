@@ -1,4 +1,4 @@
-import Vec2 from "../Physics/Vec2.js";
+import Vec2 from "../Maths/Vec2.js";
 
 export default class GuiObject {
     protected position2D: Vec2;

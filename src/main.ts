@@ -3,7 +3,7 @@ import Rendering from "./Engine/Rendering.js";
 import Game from "./Game/Game.js";
 import ECSManager from "./Engine/ECS/ECSManager.js";
 import AudioPlayer from "./Engine/Audio/AudioPlayer.js";
-import { SAT } from "./Engine/Physics/SAT.js";
+import { SAT } from "./Engine/Maths/SAT.js";
 
 SAT.runUnitTests();
 
@@ -95,8 +95,8 @@ window.onload = async () => {
 
 	let lastTick = null;
 
-	//Fixed update rate
-	let minUpdateRate = 1.0 / 60.0;
+	// Fixed update rate
+	let minUpdateRate = 1.0 / 120.0;
 	let updateTimer = 0.0;
 	let updatesSinceRender = 0;
     

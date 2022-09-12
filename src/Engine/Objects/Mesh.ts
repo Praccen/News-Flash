@@ -1,13 +1,12 @@
 import GraphicsObject from "./GraphicsObject.js";
 import Texture from "../Textures/Texture.js";
-import Vec2 from "../Physics/Vec2.js";
-import Vec3 from "../Physics/Vec3.js";
+import Vec2 from "../Maths/Vec2.js";
+import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 import Triangle3D from "../Physics/Triangle3D.js";
 
 export default class Mesh extends GraphicsObject {
     // Public
-    modelMatrix: Matrix4; 
     textureMatrix: Matrix4;
     diffuse: Texture;
     specular: Texture;

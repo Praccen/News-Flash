@@ -1,5 +1,4 @@
 export enum ComponentTypeEnum {
-    ANIMATION,
     GRAPHICS,
     MESHCOLLISION,
     MOVEMENT,

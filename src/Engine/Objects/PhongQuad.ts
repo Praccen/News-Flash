@@ -1,6 +1,8 @@
 import GraphicsObject from "./GraphicsObject.js";
 import Texture from "../Textures/Texture.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+import Triangle3D from "../Physics/Triangle3D.js";
+import Vec3 from "../Maths/Vec3.js";
 
 export default class PhongQuad extends GraphicsObject {
     // Public
@@ -36,6 +38,18 @@ export default class PhongQuad extends GraphicsObject {
 
         this.modelMatrix = new Matrix4(null);
         this.textureMatrix = new Matrix4(null);
+    }
+
+    setupShapes(triangles: Array<Triangle3D>) {
+        triangles.length = 0; // Clear triangles
+        for (let i = 0; i < this.indices.length; i += 3) { // Go through the vertices
+            // Save the positions as shapes in the input array
+            const length = triangles.push(new Triangle3D());
+            triangles[length - 1].setVertices(
+                new Vec3({x: this.vertices[this.indices[i] * 8], y: this.vertices[this.indices[i] * 8 + 1], z: this.vertices[this.indices[i] * 8 + 2]}), 
+                new Vec3({x: this.vertices[this.indices[i + 1] * 8], y: this.vertices[this.indices[i + 1] * 8 + 1], z: this.vertices[this.indices[i + 1] * 8 + 2]}), 
+                new Vec3({x: this.vertices[this.indices[i + 2] * 8], y: this.vertices[this.indices[i + 2] * 8 + 1], z: this.vertices[this.indices[i + 2] * 8 + 2]}));
+        }
     }
 
     draw(bindDiffuse: boolean = true, bindBoth: boolean = true) {

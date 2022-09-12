@@ -1,4 +1,4 @@
-import { applicationStartTime, input } from "../main.js";
+import { applicationStartTime, input, meshesRequestedVsLoaded } from "../main.js";
 import Rendering from "../Engine/Rendering.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
@@ -9,12 +9,13 @@ import MovementComponent from "../Engine/ECS/Components/MovementComponent.js";
 import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
 import Checkbox from "../Engine/GUI/Checkbox.js";
 import TextObject3D from "../Engine/GUI/Text/TextObject3D.js";
-import Vec2 from "../Engine/Physics/Vec2.js";
-import Vec3 from "../Engine/Physics/Vec3.js";
+import Vec2 from "../Engine/Maths/Vec2.js";
+import Vec3 from "../Engine/Maths/Vec3.js";
 import PointLight from "../Engine/Lighting/PointLight.js";
 import Mesh from "../Engine/Objects/Mesh.js";
 import Triangle3D from "../Engine/Physics/Triangle3D.js";
 import { IntersectionTester } from "../Engine/Physics/IntersectionTester.js";
+import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
 
 export default class Game {
     private gl: WebGL2RenderingContext;
@@ -29,11 +30,9 @@ export default class Game {
     private particleText: TextObject3D;
     private particleSpawner: Entity;
 
-    private boxMesh: Mesh;
-    private boxTriangles: Array<Triangle3D>;
+    private boxEntity: Entity;
 
-    private knightMesh: Mesh;
-    private knightTriangles: Array<Triangle3D>;
+    private knightEntity: Entity;
 
     constructor(gl: WebGL2RenderingContext, rendering: Rendering, ecsManager: ECSManager) {
         this.gl = gl;
@@ -115,29 +114,30 @@ export default class Game {
     async init() {
 
         let boxTexture = "https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
-        this.boxMesh = await this.rendering.getNewMesh("Assets/objs/cube.obj", boxTexture, boxTexture);
-        // boxMesh.modelMatrix.translate(-4.0, 0.0, -3.0);
-        this.boxMesh.modelMatrix.translate(-4.0, 0.0, 0.0);
-        this.boxMesh.modelMatrix.rotate(45.0, 0.0, 1.0, 0.0);
+        let boxMesh = await this.rendering.getNewMesh("Assets/objs/cube.obj", boxTexture, boxTexture);
+        this.boxEntity = this.ecsManager.createEntity();
 
-        this.boxTriangles = new Array<Triangle3D>();
-        this.boxMesh.setupShapes(this.boxTriangles);
-        for (let triangle of this.boxTriangles) {
-            triangle.setTransformMatrix(this.boxMesh.modelMatrix);
-        }
+        this.ecsManager.addComponent(this.boxEntity, new GraphicsComponent(boxMesh));
+        let boxPosComp = new PositionComponent();
+        this.ecsManager.addComponent(this.boxEntity, new MovementComponent());
+        boxPosComp.position.setValues(-4.0, 0.0, 0.0);
+        // boxPosComp.rotation.setValues(0.0, 45.0, 0.0);
+        boxPosComp.scale.setValues(0.2, 0.2, 0.2);
+        this.ecsManager.addComponent(this.boxEntity, boxPosComp);
+        this.ecsManager.addComponent(this.boxEntity, new MeshCollisionComponent(boxMesh));
         
         let knightTexture = "Assets/textures/knight.png";
-        this.knightMesh = await this.rendering.getNewMesh("Assets/objs/knight.obj", knightTexture, knightTexture);
-        this.knightMesh.modelMatrix.translate(2.0, -2.0, 0.0);
-        this.knightMesh.modelMatrix.rotate(-45.0, 0.0, 1.0, 0.0);
-        this.knightMesh.modelMatrix.scale(0.25, 0.25, 0.25);
-
-        this.knightTriangles = new Array<Triangle3D>();
-        this.knightMesh.setupShapes(this.knightTriangles);
-
-        for (let triangle of this.knightTriangles) {
-            triangle.setTransformMatrix(this.knightMesh.modelMatrix);
-        }
+        let knightMesh = await this.rendering.getNewMesh("Assets/objs/knight.obj", knightTexture, knightTexture);
+        this.knightEntity = this.ecsManager.createEntity();
+        this.ecsManager.addComponent(this.knightEntity, new GraphicsComponent(knightMesh));
+        let knightPosComp = new PositionComponent();
+        knightPosComp.position.setValues(2.0, -2.0, 0.0);
+        knightPosComp.rotation.setValues(0.0, -45.0, 0.0);
+        knightPosComp.scale.setValues(0.25, 0.25, 0.25);
+        this.ecsManager.addComponent(this.knightEntity, knightPosComp);
+        let knightColComp = new MeshCollisionComponent(knightMesh); 
+        knightColComp.isStatic = true
+        this.ecsManager.addComponent(this.knightEntity, knightColComp);
     }
 
     createFloorEntity(texturePath: string) {
@@ -145,6 +145,9 @@ export default class Game {
         let phongQuad = this.rendering.getNewPhongQuad(texturePath, texturePath);
         phongQuad.textureMatrix.setScale(50.0, 50.0, 1.0);
         this.ecsManager.addComponent(entity, new GraphicsComponent(phongQuad));
+        let meshCollisionComp = new MeshCollisionComponent(phongQuad);
+        meshCollisionComp.isStatic = true;
+        this.ecsManager.addComponent(entity, meshCollisionComp);
         let posComp = new PositionComponent(new Vec3({x: 0.0, y: -2.0, z: 0.0}));
         posComp.rotation.setValues(-90.0, 0.0, 0.0);
         posComp.scale.setValues(50.0, 50.0, 1.0);
@@ -197,8 +200,6 @@ export default class Game {
         let entity = this.ecsManager.createEntity();
         this.ecsManager.addComponent(entity, new PositionComponent(position));
         let movComp = new MovementComponent();
-        movComp.drag = 0.0;
-        movComp.defaultDrag = 0.0;
         movComp.velocity.z = 5.0;
         movComp.constantAcceleration.multiply(0.0);
         this.ecsManager.addComponent(entity, movComp);
@@ -296,30 +297,36 @@ export default class Game {
             this.rendering.getDirectionalLight().lightProjectionBoxSideLength = 50.0;
         }
 
-        let movComp = <MovementComponent>this.particleSpawner.getComponent(ComponentTypeEnum.MOVEMENT);
-        const posComp = <PositionComponent>this.particleSpawner.getComponent(ComponentTypeEnum.POSITION);
-        if (movComp && posComp) {
-            movComp.accelerationDirection.deepAssign(posComp.position);
-            movComp.accelerationDirection.y = 0.0;
-            movComp.accelerationDirection.multiply(-0.2);
-            this.particleText.position = posComp.position;
+        let particleMovComp = <MovementComponent>this.particleSpawner.getComponent(ComponentTypeEnum.MOVEMENT);
+        const particlePosComp = <PositionComponent>this.particleSpawner.getComponent(ComponentTypeEnum.POSITION);
+        if (particleMovComp && particlePosComp) {
+            particleMovComp.accelerationDirection.deepAssign(particlePosComp.position);
+            particleMovComp.accelerationDirection.y = 0.0;
+            particleMovComp.accelerationDirection.multiply(-1.0);
+            this.particleText.position = particlePosComp.position;
         }
 
-        this.boxMesh.modelMatrix.setTranslate(Math.sin((Date.now() - applicationStartTime) * 0.001) * 4.0, 0.0, 0.0);
+        if (input.keys["e"]) {
+            let boxPosComp = <PositionComponent> this.boxEntity.getComponent(ComponentTypeEnum.POSITION); 
+            boxPosComp.position.deepAssign(this.rendering.camera.getPosition()).add(
+                this.rendering.camera.getDir());
 
-        for (let tri of this.boxTriangles) {
-            tri.setTransformMatrix(this.boxMesh.modelMatrix);
+            let boxMovComp = <MovementComponent> this.boxEntity.getComponent(ComponentTypeEnum.MOVEMENT);
+            boxMovComp.velocity.deepAssign(this.rendering.camera.getDir()).multiply(15.0);
         }
 
-        for (let tri of this.knightTriangles) {
-            tri.setTransformMatrix(this.knightMesh.modelMatrix);
-        }
 
-        if (IntersectionTester.identifyMeshVsMeshIntersection(this.boxTriangles, this.knightTriangles)) {
-            this.collidingCheckbox.getInputElement().checked = true;
-        }
-        else {
-            this.collidingCheckbox.getInputElement().checked = false;
-        }
+        // let boxMCComp = <MeshCollisionComponent> this.boxEntity.getComponent(ComponentTypeEnum.MESHCOLLISION);
+        // boxMCComp.updateTransformMatrix();
+
+        // let knightMCComp = <MeshCollisionComponent> this.knightEntity.getComponent(ComponentTypeEnum.MESHCOLLISION);
+        // knightMCComp.updateTransformMatrix();
+
+        // if (IntersectionTester.identifyMeshVsMeshIntersection(boxMCComp.triangles, knightMCComp.triangles)) {
+        //     this.collidingCheckbox.getInputElement().checked = true;
+        // }
+        // else {
+        //     this.collidingCheckbox.getInputElement().checked = false;
+        // }
     }
 }

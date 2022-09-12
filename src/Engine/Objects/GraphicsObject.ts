@@ -1,6 +1,9 @@
+import Triangle3D from "../Physics/Triangle3D.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class GraphicsObject {
+    modelMatrix: Matrix4;
+
     // Protected
     protected gl: WebGL2RenderingContext;
     protected shaderProgram: ShaderProgram;
@@ -62,6 +65,9 @@ export default class GraphicsObject {
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
     
         this.gl.bindVertexArray(null);
+    }
+    
+    setupShapes(triangles: Array<Triangle3D>) {
     }
 
     draw() { // Can this be virtual? 

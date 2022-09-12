@@ -1,7 +1,8 @@
 import { Component , ComponentTypeEnum} from "./Component.js";
-import Vec3 from "../../Physics/Vec3.js";
+import Vec3 from "../../Maths/Vec3.js";
 
 export default class PositionComponent extends Component {
+
     position: Vec3;
     rotation: Vec3;
     scale: Vec3;

@@ -1,4 +1,4 @@
-import Vec3 from "../../Physics/Vec3.js";
+import Vec3 from "../../Maths/Vec3.js";
 import GuiObject from "../GuiObject.js";
 
 export default class TextObject3D extends GuiObject {

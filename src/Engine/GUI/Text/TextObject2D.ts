@@ -1,5 +1,5 @@
-import Vec2 from "../../Physics/Vec2.js";
-import Vec3 from "../../Physics/Vec3.js";
+import Vec2 from "../../Maths/Vec2.js";
+import Vec3 from "../../Maths/Vec3.js";
 import GuiObject from "../GuiObject.js";
 
 export default class TextObject2D extends GuiObject {

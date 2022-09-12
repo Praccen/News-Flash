@@ -1,5 +1,4 @@
 import System from "./Systems/System.js";
-import AnimationSystem from "./Systems/AnimationSystem.js";
 import CollisionSystem from "./Systems/CollisionSystem.js";
 import MovementSystem from "./Systems/MovementSystem.js";
 import GraphicsSystem from "./Systems/GraphicsSystem.js";
@@ -34,14 +33,13 @@ export default class ECSManager {
         this.componentAdditionQueue = new Array<{entity: Entity, component: Component}>();
         this.componentRemovalQueue = new Array<{entity: Entity, componentType: ComponentTypeEnum}>();
 
-        this.initializeSystems(audio);
+        this.initializeSystems();
     }
 
-    initializeSystems(audio: AudioPlayer) {
-        this.systems.set("ANIMATION", new AnimationSystem());
+    initializeSystems() {
         this.systems.set("COLLISION", new CollisionSystem());
         this.systems.set("MOVEMENT", new MovementSystem());
-        this.systems.set("GRAPHICS", new GraphicsSystem(this.rendering));
+        this.systems.set("GRAPHICS", new GraphicsSystem());
         this.systems.set("PARTICLE", new ParticleSpawnerSystem());
     }
 
@@ -62,7 +60,6 @@ export default class ECSManager {
     }
 
     updateRenderingSystems(dt: number) {
-        this.systems.get("ANIMATION").update(dt);
         this.systems.get("PARTICLE").update(dt);
     }
 
@@ -156,7 +153,7 @@ export default class ECSManager {
     {
         for (const compEntityPair of this.componentRemovalQueue) {
             // Remove component from entity
-            compEntityPair.entity.removeComponent(compEntityPair.componentType, this.rendering);
+            compEntityPair.entity.removeComponent(compEntityPair.componentType);
 
             // Remove entity from system if it no longer lives up to the requirements of being in the system
             for (let system of this.systems) {

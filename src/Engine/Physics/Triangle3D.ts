@@ -1,4 +1,4 @@
-import Vec3 from "./Vec3.js";
+import Vec3 from "../Maths/Vec3.js";
 
 export default class Triangle3D {
     private originalVertices: Array<Vec3>;
@@ -37,6 +37,13 @@ export default class Triangle3D {
         this.originalVertices.push(vertex3);
         this.originalNormal.deepAssign(new Vec3(vertex2).subtract(vertex1).cross(new Vec3(vertex3).subtract(vertex2)).normalize());
 
+        this.verticesNeedsUpdate = true;
+        this.normalNeedsUpdate = true;
+        this.edgesNeedsUpdate = true;
+        this.edgeNormalsNeedsUpdate = true;
+    }
+
+    setUpdateNeeded() {
         this.verticesNeedsUpdate = true;
         this.normalNeedsUpdate = true;
         this.edgesNeedsUpdate = true;
