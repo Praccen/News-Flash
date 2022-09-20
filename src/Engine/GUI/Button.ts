@@ -2,33 +2,33 @@ import Vec2 from "../Maths/Vec2.js";
 import GuiObject from "./GuiObject.js";
 
 export default class Button extends GuiObject {
-    position: Vec2;
-    
-    private inputNode: HTMLInputElement;
+	position: Vec2;
 
-    constructor() {
-        super();
-        this.position = new Vec2();
-        
-        // make an input node and a label node
-        this.inputNode = document.createElement('input');
-        this.inputNode.type = "button";
+	private inputNode: HTMLInputElement;
 
-        this.div.appendChild(this.inputNode);
-    }
+	constructor() {
+		super();
+		this.position = new Vec2();
 
-    getElement(): HTMLDivElement {
-        return this.div;
-    }
+		// make an input node and a label node
+		this.inputNode = document.createElement("input");
+		this.inputNode.type = "button";
 
-    getInputElement(): HTMLInputElement {
-        return this.inputNode;
-    }
+		this.div.appendChild(this.inputNode);
+	}
 
-    draw() {
-        this.position2D = this.position;
-        this.inputNode.value = this.textString;
+	getElement(): HTMLDivElement {
+		return this.div;
+	}
 
-        this.drawObject();
-    }
+	getInputElement(): HTMLInputElement {
+		return this.inputNode;
+	}
+
+	draw() {
+		this.position2D = this.position;
+		this.inputNode.value = this.textString;
+
+		this.drawObject();
+	}
 }

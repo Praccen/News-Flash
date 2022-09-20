@@ -1,8 +1,7 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
 
-const gaussianBlurFragmentSrc: string = 
-`#version 300 es
+const gaussianBlurFragmentSrc: string = `#version 300 es
 precision highp float;
 
 out vec4 fragColor;
@@ -38,25 +37,25 @@ void main()
 }`;
 
 export default class GaussianBlur extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "GaussianBlur", screenQuadVertexSrc, gaussianBlurFragmentSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(gl, "GaussianBlur", screenQuadVertexSrc, gaussianBlurFragmentSrc);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("image");
+		this.setUniformLocation("image");
 
-        this.gl.uniform1i(this.getUniformLocation("image")[0], 0);
+		this.gl.uniform1i(this.getUniformLocation("image")[0], 0);
 
-        this.setUniformLocation("horizontal");
-    }
+		this.setUniformLocation("horizontal");
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 4 * 4;
-        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
-     
-        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-        this.gl.enableVertexAttribArray(1);
-    }
-};
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 4 * 4;
+		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
+
+		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+		this.gl.enableVertexAttribArray(1);
+	}
+}

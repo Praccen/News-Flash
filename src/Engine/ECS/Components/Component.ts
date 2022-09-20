@@ -1,19 +1,19 @@
 export enum ComponentTypeEnum {
-    GRAPHICS,
-    MESHCOLLISION,
-    MOVEMENT,
-    PARTICLESPAWNER,
-    POSITION,
+	GRAPHICS,
+	MESHCOLLISION,
+	MOVEMENT,
+	PARTICLESPAWNER,
+	POSITION,
 }
 
 export class Component {
-    private _type: ComponentTypeEnum;
+	private _type: ComponentTypeEnum;
 
-    constructor(type: ComponentTypeEnum) {
-        this._type = type;
-    }
+	constructor(type: ComponentTypeEnum) {
+		this._type = type;
+	}
 
-    get type(): ComponentTypeEnum {
-        return this._type;
-    }
-};
+	get type(): ComponentTypeEnum {
+		return this._type;
+	}
+}

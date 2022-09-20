@@ -1,7 +1,6 @@
 import ShaderProgram from "./ShaderProgram.js";
 
-const particleVertexShaderSrc: string = 
-`#version 300 es
+const particleVertexShaderSrc: string = `#version 300 es
 
 layout (location = 0) in vec2 inVertexPosition;
 layout (location = 1) in vec2 inTexCoords;
@@ -42,9 +41,8 @@ void main() {
     texCoords = inTexCoords;
     alpha = max(1.0 - lifeTime * fadePerSecond, 0.0);
 }`;
-    
-const particleFragmentShaderSrc: string = 
-`#version 300 es
+
+const particleFragmentShaderSrc: string = `#version 300 es
 precision highp float;
 
 in vec2 texCoords;
@@ -76,55 +74,61 @@ void main()
 }`;
 
 export default class ParticleShaderProgram extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "ParticleShaderProgram", particleVertexShaderSrc, particleFragmentShaderSrc, false);
+	constructor(gl: WebGL2RenderingContext) {
+		super(
+			gl,
+			"ParticleShaderProgram",
+			particleVertexShaderSrc,
+			particleFragmentShaderSrc,
+			false
+		);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("texture0");
-        this.gl.uniform1i(this.getUniformLocation("texture0")[0], 0);
+		this.setUniformLocation("texture0");
+		this.gl.uniform1i(this.getUniformLocation("texture0")[0], 0);
 
-        this.setUniformLocation("viewProjMatrix");
-        this.setUniformLocation("cameraPos");
-        this.setUniformLocation("currentTime");
-        this.setUniformLocation("fadePerSecond");
-        this.setUniformLocation("sizeChangePerSecond");
-    }
+		this.setUniformLocation("viewProjMatrix");
+		this.setUniformLocation("cameraPos");
+		this.setUniformLocation("currentTime");
+		this.setUniformLocation("fadePerSecond");
+		this.setUniformLocation("sizeChangePerSecond");
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 4 * 4;
-        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 4 * 4;
+		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
 
-        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-        this.gl.enableVertexAttribArray(1);
-    }
+		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+		this.gl.enableVertexAttribArray(1);
+	}
 
-    setupInstancedVertexAttributePointers(): void {
-        const stride = 11 * 4;
-        this.gl.vertexAttribPointer(2, 3, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(2);
-        this.gl.vertexAttribDivisor(2, 1);
+	setupInstancedVertexAttributePointers(): void {
+		const stride = 11 * 4;
+		this.gl.vertexAttribPointer(2, 3, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(2);
+		this.gl.vertexAttribDivisor(2, 1);
 
-        this.gl.vertexAttribPointer(3, 1, this.gl.FLOAT, false, stride, 3 * 4);
-        this.gl.enableVertexAttribArray(3);
-        this.gl.vertexAttribDivisor(3, 1);
+		this.gl.vertexAttribPointer(3, 1, this.gl.FLOAT, false, stride, 3 * 4);
+		this.gl.enableVertexAttribArray(3);
+		this.gl.vertexAttribDivisor(3, 1);
 
-        this.gl.vertexAttribPointer(4, 3, this.gl.FLOAT, false, stride, 4 * 4);
-        this.gl.enableVertexAttribArray(4);
-        this.gl.vertexAttribDivisor(4, 1);
-        
-        this.gl.vertexAttribPointer(5, 1, this.gl.FLOAT, false, stride, 7 * 4);
-        this.gl.enableVertexAttribArray(5);
-        this.gl.vertexAttribDivisor(5, 1);
+		this.gl.vertexAttribPointer(4, 3, this.gl.FLOAT, false, stride, 4 * 4);
+		this.gl.enableVertexAttribArray(4);
+		this.gl.vertexAttribDivisor(4, 1);
 
-        this.gl.vertexAttribPointer(6, 3, this.gl.FLOAT, false, stride, 8 * 4);
-        this.gl.enableVertexAttribArray(6);
-        this.gl.vertexAttribDivisor(6, 1);
+		this.gl.vertexAttribPointer(5, 1, this.gl.FLOAT, false, stride, 7 * 4);
+		this.gl.enableVertexAttribArray(5);
+		this.gl.vertexAttribDivisor(5, 1);
 
-        // this.gl.vertexAttribPointer(7, 1, this.gl.FLOAT, false, stride, 11 * 4);
-        // this.gl.enableVertexAttribArray(7);
-        // this.gl.vertexAttribDivisor(7, 1);
-    }
-};
+		this.gl.vertexAttribPointer(6, 3, this.gl.FLOAT, false, stride, 8 * 4);
+		this.gl.enableVertexAttribArray(6);
+		this.gl.vertexAttribDivisor(6, 1);
+
+		// this.gl.vertexAttribPointer(7, 1, this.gl.FLOAT, false, stride, 11 * 4);
+		// this.gl.enableVertexAttribArray(7);
+		// this.gl.vertexAttribDivisor(7, 1);
+	}
+}

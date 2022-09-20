@@ -1,8 +1,6 @@
 import ShaderProgram from "../ShaderProgram.js";
 
-
-const shadowVertexShaderSrc: string = 
-`#version 300 es
+const shadowVertexShaderSrc: string = `#version 300 es
 // If inputs change, also update ShadowPass::setupVertexAttributePointers to match
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
@@ -19,9 +17,8 @@ void main()
     gl_Position = lightSpaceMatrix * modelMatrix * vec4(inPosition, 1.0);
     texCoords = inTexCoords;
 }`;
-    
-const shadowFragmentShaderSrc: string = 
-`#version 300 es
+
+const shadowFragmentShaderSrc: string = `#version 300 es
 precision highp float;
 
 in vec2 texCoords;
@@ -50,26 +47,26 @@ void main()
 }`;
 
 export default class ShadowPass extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "ShadowPass", shadowVertexShaderSrc, shadowFragmentShaderSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(gl, "ShadowPass", shadowVertexShaderSrc, shadowFragmentShaderSrc);
 
-        this.use();
+		this.use();
 
-        this.setUniformLocation("lightSpaceMatrix");
-        this.setUniformLocation("modelMatrix");
-        this.setUniformLocation("textureMatrix");
-    }
+		this.setUniformLocation("lightSpaceMatrix");
+		this.setUniformLocation("modelMatrix");
+		this.setUniformLocation("textureMatrix");
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 8 * 4;
-        this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 8 * 4;
+		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
 
-        this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
-        this.gl.enableVertexAttribArray(1);
+		this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
+		this.gl.enableVertexAttribArray(1);
 
-        this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
-        this.gl.enableVertexAttribArray(2);
-    }
-};
+		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
+		this.gl.enableVertexAttribArray(2);
+	}
+}

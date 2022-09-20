@@ -1,10 +1,10 @@
-import ShaderProgram from "../ShaderProgram.js"
+import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
 
 export let pointLightsToAllocate: number = 100;
 
-const lightingFragmentShaderSrc: string = 
-`#version 300 es
+const lightingFragmentShaderSrc: string =
+	`#version 300 es
 precision highp float;
 
 in vec2 texCoords;
@@ -31,7 +31,9 @@ struct DirectionalLight {
 	float ambientMultiplier;
 };
 
-#define NR_POINT_LIGHTS ` + pointLightsToAllocate + `
+#define NR_POINT_LIGHTS ` +
+	pointLightsToAllocate +
+	`
 
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
@@ -157,45 +159,45 @@ float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
 }`;
 
 export default class LightingPass extends ShaderProgram {
-    constructor(gl: WebGL2RenderingContext) {
-        super(gl, "LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
+	constructor(gl: WebGL2RenderingContext) {
+		super(gl, "LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
 
-        this.use();
-        
-        this.setUniformLocation("gPosition");
-        this.setUniformLocation("gNormal");
-        this.setUniformLocation("gColourSpec");
-        this.setUniformLocation("depthMap");
+		this.use();
 
-        this.gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
-        this.gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
-        this.gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
-        this.gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
+		this.setUniformLocation("gPosition");
+		this.setUniformLocation("gNormal");
+		this.setUniformLocation("gColourSpec");
+		this.setUniformLocation("depthMap");
 
-        for (let i = 0; i < pointLightsToAllocate; i++) {
-            this.setUniformLocation("pointLights[" + i + "].position");
-            this.setUniformLocation("pointLights[" + i + "].colour");
+		this.gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
+		this.gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
+		this.gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
+		this.gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
 
-            this.setUniformLocation("pointLights[" + i + "].constant");
-            this.setUniformLocation("pointLights[" + i + "].linear");
-            this.setUniformLocation("pointLights[" + i + "].quadratic");
-        }
+		for (let i = 0; i < pointLightsToAllocate; i++) {
+			this.setUniformLocation("pointLights[" + i + "].position");
+			this.setUniformLocation("pointLights[" + i + "].colour");
 
-        this.setUniformLocation("directionalLight.direction");
-        this.setUniformLocation("directionalLight.colour");
-        this.setUniformLocation("directionalLight.ambientMultiplier");
-        this.setUniformLocation("nrOfPointLights");
-        this.setUniformLocation("camPos");
+			this.setUniformLocation("pointLights[" + i + "].constant");
+			this.setUniformLocation("pointLights[" + i + "].linear");
+			this.setUniformLocation("pointLights[" + i + "].quadratic");
+		}
+
+		this.setUniformLocation("directionalLight.direction");
+		this.setUniformLocation("directionalLight.colour");
+		this.setUniformLocation("directionalLight.ambientMultiplier");
+		this.setUniformLocation("nrOfPointLights");
+		this.setUniformLocation("camPos");
 		this.setUniformLocation("lightSpaceMatrix");
-    }
+	}
 
-    setupVertexAttributePointers(): void {
-        // Change if input layout changes in shaders
-        const stride = 4 * 4;
-        this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-        this.gl.enableVertexAttribArray(0);
-     
-        this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-        this.gl.enableVertexAttribArray(1);
-    }
-};
+	setupVertexAttributePointers(): void {
+		// Change if input layout changes in shaders
+		const stride = 4 * 4;
+		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+		this.gl.enableVertexAttribArray(0);
+
+		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+		this.gl.enableVertexAttribArray(1);
+	}
+}
