@@ -1,15 +1,19 @@
 ### Setup
-```
-npm install 
-```
-Will install all neede packages 
 
-### Compile 
 ```
-tsc -p tsconfig.json
+npm install
 ```
 
-### Formatting 
+Will install all neede packages
+
+### Compile
+
 ```
-npx prettier --write src 
+./node_modules/.bin/tsc -p tsconfig.json
+```
+
+### Formatting
+
+```
+./node_modules/.bin/prettier --write src
 ```
