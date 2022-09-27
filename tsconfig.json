@@ -5,6 +5,15 @@
       "sourceMap": true,
       "outDir": "out",
       "allowJs": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "baseUrl": ".",
+      "paths": {
+        "*": [
+          "node_modules/",
+          "src/types/*"
+        ]
+      }
     },
     "include": ["src", "libs"],
   }
