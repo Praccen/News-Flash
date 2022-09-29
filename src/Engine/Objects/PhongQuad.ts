@@ -1,7 +1,7 @@
 import GraphicsObject from "./GraphicsObject.js";
 import Texture from "../Textures/Texture.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
-import Triangle3D from "../Physics/Triangle3D.js";
+import Triangle from "../Physics/Shapes/Triangle.js";
 import Vec3 from "../Maths/Vec3.js";
 
 export default class PhongQuad extends GraphicsObject {
@@ -31,6 +31,7 @@ export default class PhongQuad extends GraphicsObject {
              0.5, -0.5,  0.0,   0.0, 0.0, 1.0,     1.0, 0.0,
              0.5,  0.5,  0.0,   0.0, 0.0, 1.0,     1.0, 1.0,
         ]);
+
 		// prettier-ignore
 		this.indices = new Int32Array([
             0, 1, 2,
@@ -46,12 +47,12 @@ export default class PhongQuad extends GraphicsObject {
 		this.textureMatrix = new Matrix4(null);
 	}
 
-	setupShapes(triangles: Array<Triangle3D>) {
+	setupShapes(triangles: Array<Triangle>) {
 		triangles.length = 0; // Clear triangles
 		for (let i = 0; i < this.indices.length; i += 3) {
 			// Go through the vertices
 			// Save the positions as shapes in the input array
-			const length = triangles.push(new Triangle3D());
+			const length = triangles.push(new Triangle());
 			triangles[length - 1].setVertices(
 				new Vec3({
 					x: this.vertices[this.indices[i] * 8],
@@ -70,6 +71,20 @@ export default class PhongQuad extends GraphicsObject {
 				})
 			);
 		}
+	}
+
+	getVertexPositions(): Array<Vec3> {
+		let returnArr = new Array<Vec3>();
+		for (let i = 0; i < this.vertices.length; i += 8) {
+			returnArr.push(
+				new Vec3({
+					x: this.vertices[i],
+					y: this.vertices[i + 1],
+					z: this.vertices[i + 2],
+				})
+			);
+		}
+		return returnArr;
 	}
 
 	draw(bindDiffuse: boolean = true, bindBoth: boolean = true) {

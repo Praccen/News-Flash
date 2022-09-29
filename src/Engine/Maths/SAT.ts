@@ -1,4 +1,5 @@
-import Triangle3D from "../Physics/Triangle3D.js";
+import Shape from "../Physics/Shapes/Shape.js";
+import Triangle from "../Physics/Shapes/Triangle.js";
 import Vec3 from "./Vec3.js";
 
 export module SAT {
@@ -60,16 +61,16 @@ export module SAT {
 	}
 
 	/**
-	 * This will find the average point of intersection between two triangles along an axis.
-	 * This assumes that the triangles are intersecting and can not be used to find out IF two triangles are intersecting.
-	 * @param shapeA Triangle A
-	 * @param shapeB Triangle B
+	 * This will find the average point of intersection between two shapes along an axis.
+	 * This assumes that the shapes are intersecting and can not be used to find out IF two shapes are intersecting.
+	 * @param shapeA Shape A
+	 * @param shapeB Shape B
 	 * @param testAxis The axis to test along.
 	 * @returns The average point of intersection.
 	 */
 	export function getIntersectionPoint(
-		shapeA: Triangle3D,
-		shapeB: Triangle3D,
+		shapeA: Shape,
+		shapeB: Shape,
 		testAxis: Vec3
 	): Vec3 {
 		let shapeAVertices = shapeA.getTransformedVertices();
@@ -165,20 +166,20 @@ export module SAT {
 	}
 
 	/**
-	 * Intersection testing of two 3D triangles.
-	 * @param shapeA Triangle A
-	 * @param shapeB Triangle B
+	 * Intersection testing of two shapes.
+	 * @param shapeA Shape A
+	 * @param shapeB Shape B
 	 * @param intersectionAxis The minimum translation vector (MTV).
-	 * This is the axis at which the triangles are intersecting the least.
+	 * This is the axis at which the shapes are intersecting the least.
 	 * Is set by this function.
-	 * Will always point from Triangle B towards Triangle A.
-	 * @param intersectionDepth An object holding a variable "depth" that will state how much the triangles are intersecting.
+	 * Will always point from Shape B towards Shape A.
+	 * @param intersectionDepth An object holding a variable "depth" that will state how much the shapes are intersecting.
 	 * Is set by this function
-	 * @returns Boolean stating if the triangles intersect or not.
+	 * @returns Boolean stating if the shapes intersect or not.
 	 */
 	export function getIntersection3D(
-		shapeA: Triangle3D,
-		shapeB: Triangle3D,
+		shapeA: Shape,
+		shapeB: Shape,
 		intersectionAxis: Vec3,
 		intersectionDepth: { depth: number }
 	): boolean {
@@ -187,105 +188,111 @@ export module SAT {
 		let shapeAVertices = shapeA.getTransformedVertices();
 		let shapeBVertices = shapeB.getTransformedVertices();
 
-		let shapeANormal = shapeA.getTransformedNormal();
 		let reverse = { value: false };
-		let overlap: number = SAT.getOverlap(
-			shapeANormal,
-			shapeAVertices,
-			shapeBVertices,
-			reverse
-		);
+		let overlap: number;
 
-		if (overlap < 0.0) {
-			return false;
-		}
+		let shapeANormals = shapeA.getTransformedNormals();
+		for (let normal of shapeANormals) {
+			reverse = { value: false };
+			overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse);
 
-		if (overlap < intersectionDepth.depth) {
-			intersectionDepth.depth = overlap;
-			intersectionAxis.deepAssign(shapeANormal);
-			if (reverse.value) {
-				intersectionAxis.flip();
+			if (overlap < 0.0) {
+				return false;
+			}
+
+			if (overlap < intersectionDepth.depth) {
+				intersectionDepth.depth = overlap;
+				intersectionAxis.deepAssign(normal);
+				if (reverse.value) {
+					intersectionAxis.flip();
+				}
 			}
 		}
 
-		let shapeBNormal = shapeB.getTransformedNormal();
-		reverse = { value: false };
-		overlap = SAT.getOverlap(
-			shapeBNormal,
-			shapeAVertices,
-			shapeBVertices,
-			reverse
-		);
+		let shapeBNormals = shapeB.getTransformedNormals();
+		for (let normal of shapeBNormals) {
+			reverse = { value: false };
+			overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse);
 
-		if (overlap < 0.0) {
-			return false;
-		}
+			if (overlap < 0.0) {
+				return false;
+			}
 
-		if (overlap < intersectionDepth.depth) {
-			intersectionDepth.depth = overlap;
-			intersectionAxis.deepAssign(shapeBNormal);
-			if (reverse.value) {
-				intersectionAxis.flip();
+			if (overlap < intersectionDepth.depth) {
+				intersectionDepth.depth = overlap;
+				intersectionAxis.deepAssign(normal);
+				if (reverse.value) {
+					intersectionAxis.flip();
+				}
 			}
 		}
 
 		// The triangles are intersecting along both normals
 		// Two cases are possible;
-		// 1. The triangles are coplanar -> We need to test the triangles in "2d", projected on the plane they are on
-		// 2. The triangles are not coplanar -> We need to test the cross products of all the edges of triangleA with the edges of triangleB
+		// 1. The shapes are flat and coplanar -> We need to test the shapes in "2d", projected on the plane they are on
+		// 2. The shapes are not flat and coplanar -> We need to test the cross products of all the edges of ShapeA with the edges of ShapeB
 
-		// Lets start with the coplanar possibility, which can be checked by seeing if the normals of the two triangles are perpendicular
-		// Side note; If the normals are perpendicular, but the triangles are not coplanar, the previous tests would have found a seperating axis, so we wouldn't have gotten here
-		let crossVector = new Vec3(shapeANormal).cross(shapeBNormal);
-		if (crossVector.x == 0.0 && crossVector.y == 0.0 && crossVector.z == 0.0) {
-			// Coplanar
-			// Test the edge normals for all edges
-			for (const AEdgeNormal of shapeA.getTransformedEdgeNormals()) {
-				reverse = { value: false };
-				overlap = SAT.getOverlap(
-					AEdgeNormal,
-					shapeAVertices,
-					shapeBVertices,
-					reverse
-				);
+		// Lets start with the coplanar possibility, which can be checked by seeing if both shapes have only one normal, and the two shapes normals are perpendicular
+		// Side note; If the normals are perpendicular, but the shapes are not coplanar, the previous tests would have found a seperating axis, so we wouldn't have gotten here
 
-				if (overlap < 0.0) {
-					return false;
-				}
+		if (shapeANormals.length == 1 && shapeBNormals.length == 1) {
+			// Coplanar possible
+			let crossVector = new Vec3(shapeANormals[0]).cross(shapeBNormals[0]);
 
-				if (overlap < intersectionDepth.depth) {
-					intersectionDepth.depth = overlap;
-					intersectionAxis.deepAssign(shapeBNormal);
-					if (reverse.value) {
-						intersectionAxis.flip();
+			if (
+				crossVector.x == 0.0 &&
+				crossVector.y == 0.0 &&
+				crossVector.z == 0.0
+			) {
+				// Coplanar
+				// Test the edge normals for all edges
+				for (const AEdgeNormal of shapeA.getTransformedEdgeNormals()) {
+					reverse = { value: false };
+					overlap = SAT.getOverlap(
+						AEdgeNormal,
+						shapeAVertices,
+						shapeBVertices,
+						reverse
+					);
+
+					if (overlap < 0.0) {
+						return false;
+					}
+
+					if (overlap < intersectionDepth.depth) {
+						intersectionDepth.depth = overlap;
+						intersectionAxis.deepAssign(shapeBNormals[0]);
+						if (reverse.value) {
+							intersectionAxis.flip();
+						}
 					}
 				}
-			}
 
-			for (const BEdgeNormal of shapeB.getTransformedEdgeNormals()) {
-				reverse = { value: false };
-				overlap = SAT.getOverlap(
-					BEdgeNormal,
-					shapeAVertices,
-					shapeBVertices,
-					reverse
-				);
+				for (const BEdgeNormal of shapeB.getTransformedEdgeNormals()) {
+					reverse = { value: false };
+					overlap = SAT.getOverlap(
+						BEdgeNormal,
+						shapeAVertices,
+						shapeBVertices,
+						reverse
+					);
 
-				if (overlap < 0.0) {
-					return false;
-				}
+					if (overlap < 0.0) {
+						return false;
+					}
 
-				if (overlap < intersectionDepth.depth) {
-					intersectionDepth.depth = overlap;
-					intersectionAxis.deepAssign(shapeBNormal);
-					if (reverse.value) {
-						intersectionAxis.flip();
+					if (overlap < intersectionDepth.depth) {
+						intersectionDepth.depth = overlap;
+						intersectionAxis.deepAssign(shapeBNormals[0]);
+						if (reverse.value) {
+							intersectionAxis.flip();
+						}
 					}
 				}
-			}
 
-			// There is an intersection, return it
-			return true;
+				// There is an intersection, return it
+				return true;
+			}
 		}
 
 		// Not coplanar
@@ -374,9 +381,9 @@ export module SAT {
 		}
 
 		// Create triangles from the Vec3s
-		let triangles = new Array<Triangle3D>();
+		let triangles = new Array<Triangle>();
 		for (let i = 0; i < vertexPositions.length; i += 3) {
-			let length = triangles.push(new Triangle3D());
+			let length = triangles.push(new Triangle());
 			triangles[length - 1].setVertices(
 				vertexPositions[i],
 				vertexPositions[i + 1],

@@ -16,26 +16,22 @@ import TextObject3D from "../Engine/GUI/Text/TextObject3D.js";
 import Vec2 from "../Engine/Maths/Vec2.js";
 import Vec3 from "../Engine/Maths/Vec3.js";
 import PointLight from "../Engine/Lighting/PointLight.js";
-import Mesh from "../Engine/Objects/Mesh.js";
-import Triangle3D from "../Engine/Physics/Triangle3D.js";
-import { IntersectionTester } from "../Engine/Physics/IntersectionTester.js";
+import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
+import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
 
 export default class Game {
-	private gl: WebGL2RenderingContext;
 	private rendering: Rendering;
 	private ecsManager: ECSManager;
 
 	private crtCheckbox: Checkbox;
 	private bloomCheckbox: Checkbox;
 	private shadowCheckbox: Checkbox;
-	private collidingCheckbox: Checkbox;
 
 	private particleText: TextObject3D;
 	private particleSpawner: Entity;
 
 	private boxEntity: Entity;
-
 	private knightEntity: Entity;
 
 	constructor(
@@ -43,7 +39,6 @@ export default class Game {
 		rendering: Rendering,
 		ecsManager: ECSManager
 	) {
-		this.gl = gl;
 		this.rendering = rendering;
 		this.ecsManager = ecsManager;
 
@@ -123,13 +118,6 @@ export default class Game {
 		this.shadowCheckbox.getElement().style.color = "cyan";
 		this.shadowCheckbox.getInputElement().style.accentColor = "red";
 
-		this.collidingCheckbox = this.rendering.getNewCheckbox();
-		this.collidingCheckbox.position.x = 0.8;
-		this.collidingCheckbox.position.y = 0.25;
-		this.collidingCheckbox.textString = "Colliding ";
-		this.collidingCheckbox.getElement().style.color = "cyan";
-		this.collidingCheckbox.getInputElement().style.accentColor = "red";
-
 		// let testButton = this.rendering.getNewButton();
 		// testButton.position.x = 0.5;
 		// testButton.position.y = 0.5;
@@ -138,6 +126,7 @@ export default class Game {
 	}
 
 	async init() {
+		// ---- Box ----
 		let boxTexture =
 			"https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
 		let boxMesh = await this.rendering.getNewMesh(
@@ -157,11 +146,16 @@ export default class Game {
 		// boxPosComp.rotation.setValues(0.0, 45.0, 0.0);
 		boxPosComp.scale.setValues(0.2, 0.2, 0.2);
 		this.ecsManager.addComponent(this.boxEntity, boxPosComp);
-		this.ecsManager.addComponent(
-			this.boxEntity,
-			new MeshCollisionComponent(boxMesh)
-		);
 
+		// Collision stuff
+		let boxBoundingBoxComp = new BoundingBoxComponent();
+		boxBoundingBoxComp.setup(boxMesh);
+		boxBoundingBoxComp.updateTransformMatrix(boxMesh.modelMatrix);
+		this.ecsManager.addComponent(this.boxEntity, boxBoundingBoxComp);
+		this.ecsManager.addComponent(this.boxEntity, new CollisionComponent());
+		// -------------
+
+		// ---- Knight ----
 		let knightTexture = "Assets/textures/knight.png";
 		let knightMesh = await this.rendering.getNewMesh(
 			"Assets/objs/knight.obj",
@@ -178,9 +172,20 @@ export default class Game {
 		knightPosComp.rotation.setValues(0.0, -45.0, 0.0);
 		knightPosComp.scale.setValues(0.25, 0.25, 0.25);
 		this.ecsManager.addComponent(this.knightEntity, knightPosComp);
-		let knightColComp = new MeshCollisionComponent(knightMesh);
+
+		// Collision stuff
+		let knightBoundingBoxComp = new BoundingBoxComponent();
+		knightBoundingBoxComp.setup(knightMesh);
+		knightBoundingBoxComp.updateTransformMatrix(knightMesh.modelMatrix);
+		this.ecsManager.addComponent(this.knightEntity, knightBoundingBoxComp);
+		let knightColComp = new CollisionComponent();
 		knightColComp.isStatic = true;
 		this.ecsManager.addComponent(this.knightEntity, knightColComp);
+		let knightMeshCollisionComp = new MeshCollisionComponent();
+		knightMeshCollisionComp.setup(knightMesh);
+		knightMeshCollisionComp.updateTransformMatrix(knightMesh.modelMatrix);
+		this.ecsManager.addComponent(this.knightEntity, knightMeshCollisionComp);
+		// ----------------
 	}
 
 	createFloorEntity(texturePath: string) {
@@ -188,13 +193,19 @@ export default class Game {
 		let phongQuad = this.rendering.getNewPhongQuad(texturePath, texturePath);
 		phongQuad.textureMatrix.setScale(50.0, 50.0, 1.0);
 		this.ecsManager.addComponent(entity, new GraphicsComponent(phongQuad));
-		let meshCollisionComp = new MeshCollisionComponent(phongQuad);
-		meshCollisionComp.isStatic = true;
-		this.ecsManager.addComponent(entity, meshCollisionComp);
 		let posComp = new PositionComponent(new Vec3({ x: 0.0, y: -2.0, z: 0.0 }));
 		posComp.rotation.setValues(-90.0, 0.0, 0.0);
 		posComp.scale.setValues(50.0, 50.0, 1.0);
 		this.ecsManager.addComponent(entity, posComp);
+
+		// Collision stuff
+		let boundingBoxComp = new BoundingBoxComponent();
+		boundingBoxComp.setup(phongQuad);
+		boundingBoxComp.updateTransformMatrix(phongQuad.modelMatrix);
+		this.ecsManager.addComponent(entity, boundingBoxComp);
+		let collisionComp = new CollisionComponent();
+		collisionComp.isStatic = true;
+		this.ecsManager.addComponent(entity, collisionComp);
 	}
 
 	createTestEntity(pos: Vec3, rotX: number = 0.0) {
@@ -399,18 +410,5 @@ export default class Game {
 				.deepAssign(this.rendering.camera.getDir())
 				.multiply(15.0);
 		}
-
-		// let boxMCComp = <MeshCollisionComponent> this.boxEntity.getComponent(ComponentTypeEnum.MESHCOLLISION);
-		// boxMCComp.updateTransformMatrix();
-
-		// let knightMCComp = <MeshCollisionComponent> this.knightEntity.getComponent(ComponentTypeEnum.MESHCOLLISION);
-		// knightMCComp.updateTransformMatrix();
-
-		// if (IntersectionTester.identifyMeshVsMeshIntersection(boxMCComp.triangles, knightMCComp.triangles)) {
-		//     this.collidingCheckbox.getInputElement().checked = true;
-		// }
-		// else {
-		//     this.collidingCheckbox.getInputElement().checked = false;
-		// }
 	}
 }

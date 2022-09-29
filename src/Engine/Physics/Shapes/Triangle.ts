@@ -1,11 +1,12 @@
-import Vec3 from "../Maths/Vec3.js";
+import Vec3 from "../../Maths/Vec3.js";
+import Shape from "./Shape.js";
 
-export default class Triangle3D {
+export default class Triangle extends Shape {
 	private originalVertices: Array<Vec3>;
 	private originalNormal: Vec3;
 
 	private transformedVertices: Array<Vec3>;
-	private transformedNormal: Vec3;
+	private transformedNormals: Array<Vec3>;
 	private transformedEdges: Array<Vec3>;
 	private transformedEdgeNormals: Array<Vec3>;
 
@@ -16,10 +17,11 @@ export default class Triangle3D {
 	private edgeNormalsNeedsUpdate: boolean;
 
 	constructor() {
+		super();
 		this.originalVertices = new Array<Vec3>();
 		this.originalNormal = new Vec3();
 		this.transformedVertices = new Array<Vec3>();
-		this.transformedNormal = new Vec3();
+		this.transformedNormals = new Array<Vec3>(1);
 		this.transformedEdges = new Array<Vec3>();
 		this.transformedEdgeNormals = new Array<Vec3>();
 		this.transformMatrix = new Matrix4(null);
@@ -88,7 +90,7 @@ export default class Triangle3D {
 		return this.transformedVertices;
 	}
 
-	getTransformedNormal(): Vec3 {
+	getTransformedNormals(): Array<Vec3> {
 		if (this.normalNeedsUpdate) {
 			let tempMatrix = new Matrix4(this.transformMatrix);
 			let transformedNormal = tempMatrix
@@ -102,14 +104,14 @@ export default class Triangle3D {
 					])
 				)
 				.normalize();
-			this.transformedNormal = new Vec3({
+			this.transformedNormals[0] = new Vec3({
 				x: transformedNormal.elements[0],
 				y: transformedNormal.elements[1],
 				z: transformedNormal.elements[2],
 			});
 			this.normalNeedsUpdate = false;
 		}
-		return this.transformedNormal;
+		return this.transformedNormals;
 	}
 
 	getTransformedEdges(): Array<Vec3> {
@@ -141,22 +143,22 @@ export default class Triangle3D {
 	getTransformedEdgeNormals(): Array<Vec3> {
 		if (this.edgeNormalsNeedsUpdate) {
 			this.getTransformedEdges(); // Force update of edges
-			this.getTransformedNormal(); // Force update of normal
+			this.getTransformedNormals(); // Force update of normal
 			this.transformedEdgeNormals.length = 0;
 
 			this.transformedEdgeNormals.push(
 				new Vec3(this.transformedEdges[0])
-					.cross(this.transformedNormal)
+					.cross(this.transformedNormals[0])
 					.normalize()
 			);
 			this.transformedEdgeNormals.push(
 				new Vec3(this.transformedEdges[1])
-					.cross(this.transformedNormal)
+					.cross(this.transformedNormals[0])
 					.normalize()
 			);
 			this.transformedEdgeNormals.push(
 				new Vec3(this.transformedEdges[2])
-					.cross(this.transformedNormal)
+					.cross(this.transformedNormals[0])
 					.normalize()
 			);
 

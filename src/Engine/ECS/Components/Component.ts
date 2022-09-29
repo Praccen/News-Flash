@@ -1,4 +1,6 @@
 export enum ComponentTypeEnum {
+	BOUNDINGBOX,
+	COLLISION,
 	GRAPHICS,
 	MESHCOLLISION,
 	MOVEMENT,

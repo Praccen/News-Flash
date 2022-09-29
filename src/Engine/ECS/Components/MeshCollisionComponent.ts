@@ -1,23 +1,27 @@
 import { Component, ComponentTypeEnum } from "./Component.js";
-import Triangle3D from "../../Physics/Triangle3D.js";
+import Triangle from "../../Physics/Shapes/Triangle.js";
 import GraphicsObject from "../../Objects/GraphicsObject.js";
 
 export default class MeshCollisionComponent extends Component {
-	mesh: GraphicsObject;
-	triangles: Array<Triangle3D>;
-	isStatic: boolean;
+	triangles: Array<Triangle>;
 
-	constructor(mesh: GraphicsObject) {
+	constructor() {
 		super(ComponentTypeEnum.MESHCOLLISION);
-
-		this.mesh = mesh;
-		this.isStatic = false;
-
-		this.triangles = new Array<Triangle3D>();
-		mesh.setupShapes(this.triangles);
-		this.updateTransformMatrix(mesh.modelMatrix);
+		this.triangles = new Array<Triangle>();
 	}
 
+	/**
+	 * Sets up the triangles based on the vertices in a graphics object
+	 * @param graphicsObj The graphics object
+	 */
+	setup(graphicsObj: GraphicsObject) {
+		graphicsObj.setupTriangles(this.triangles);
+	}
+
+	/**
+	 * Update the transform matrix used for the triangles.
+	 * @param matrix Optional: Will set a new matrix to use for the triangles. If no matrix is sent, it will use the previously set matrix but mark all triangles to be updated.
+	 */
 	updateTransformMatrix(matrix?: Matrix4) {
 		if (matrix) {
 			for (let tri of this.triangles) {

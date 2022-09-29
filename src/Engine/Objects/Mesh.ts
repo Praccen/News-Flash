@@ -3,7 +3,8 @@ import Texture from "../Textures/Texture.js";
 import Vec2 from "../Maths/Vec2.js";
 import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
-import Triangle3D from "../Physics/Triangle3D.js";
+import Triangle from "../Physics/Shapes/Triangle.js";
+import OBB from "../Physics/Shapes/Obb.js";
 
 export default class Mesh extends GraphicsObject {
 	// Public
@@ -140,12 +141,12 @@ export default class Mesh extends GraphicsObject {
 		}
 	}
 
-	setupShapes(triangles: Array<Triangle3D>) {
+	setupTriangles(triangles: Array<Triangle>) {
 		triangles.length = 0; // Clear triangles
 		for (let i = 0; i < this.vertices.length; i += 8 * 3) {
 			// Go through the vertices
 			// Save the positions as shapes in the input array
-			const length = triangles.push(new Triangle3D());
+			const length = triangles.push(new Triangle());
 			triangles[length - 1].setVertices(
 				new Vec3({
 					x: this.vertices[i],
@@ -164,6 +165,20 @@ export default class Mesh extends GraphicsObject {
 				})
 			);
 		}
+	}
+
+	getVertexPositions(): Array<Vec3> {
+		let returnArr = new Array<Vec3>();
+		for (let i = 0; i < this.vertices.length; i += 8) {
+			returnArr.push(
+				new Vec3({
+					x: this.vertices[i],
+					y: this.vertices[i + 1],
+					z: this.vertices[i + 2],
+				})
+			);
+		}
+		return returnArr;
 	}
 
 	draw(bindDiffuse: boolean = true, bindBoth: boolean = true) {

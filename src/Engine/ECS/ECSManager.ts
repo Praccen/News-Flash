@@ -66,8 +66,8 @@ export default class ECSManager {
 		this.removeEntitiesMarkedForDeletion();
 
 		this.systems.get("MOVEMENT").update(dt);
-		this.systems.get("COLLISION").update(dt);
 		this.systems.get("GRAPHICS").update(dt);
+		this.systems.get("COLLISION").update(dt);
 	}
 
 	updateRenderingSystems(dt: number) {

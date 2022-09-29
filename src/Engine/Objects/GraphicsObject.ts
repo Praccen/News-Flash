@@ -1,4 +1,5 @@
-import Triangle3D from "../Physics/Triangle3D.js";
+import Vec3 from "../Maths/Vec3.js";
+import Triangle from "../Physics/Shapes/Triangle.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class GraphicsObject {
@@ -67,7 +68,11 @@ export default class GraphicsObject {
 		this.gl.bindVertexArray(null);
 	}
 
-	setupShapes(triangles: Array<Triangle3D>) {}
+	setupTriangles(triangles: Array<Triangle>) {}
+
+	getVertexPositions(): Array<Vec3> {
+		return null;
+	}
 
 	draw() {
 		// Can this be virtual?

@@ -98,7 +98,7 @@ window.onload = async () => {
 	let lastTick = null;
 
 	// Fixed update rate
-	let minUpdateRate = 1.0 / 120.0;
+	let minUpdateRate = 1.0 / 144.0;
 	let updateTimer = 0.0;
 	let updatesSinceRender = 0;
 
