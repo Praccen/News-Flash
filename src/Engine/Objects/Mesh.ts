@@ -4,11 +4,9 @@ import Vec2 from "../Maths/Vec2.js";
 import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 import Triangle from "../Physics/Shapes/Triangle.js";
-import OBB from "../Physics/Shapes/Obb.js";
 
 export default class Mesh extends GraphicsObject {
 	// Public
-	textureMatrix: Matrix4;
 	diffuse: Texture;
 	specular: Texture;
 
@@ -37,8 +35,8 @@ export default class Mesh extends GraphicsObject {
 
 	private parseObjContent(objContent: String) {
 		/*
-        https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
-        */
+		https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
+		*/
 		const lines = objContent.split("\n");
 		let vertexPositions = new Array<Vec3>();
 		let vertexTexCoords = new Array<Vec2>();
@@ -104,7 +102,7 @@ export default class Mesh extends GraphicsObject {
 				// A comment, ignore
 			} else if (line.length > 0) {
 				// Unhandled keywords
-				console.warn("OBJ loader: Unhandled keyword " + line.split(/\s+/)[0]);
+				//console.warn("OBJ loader: Unhandled keyword " + line.split(/\s+/)[0]);
 			}
 		}
 

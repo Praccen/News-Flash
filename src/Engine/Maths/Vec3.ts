@@ -28,13 +28,13 @@ export default class Vec3 {
 	}
 
 	setValues(x?: number, y?: number, z?: number): Vec3 {
-		if (x) {
+		if (x != undefined) {
 			this.x = x;
 		}
-		if (y) {
+		if (y != undefined) {
 			this.y = y;
 		}
-		if (z) {
+		if (z != undefined) {
 			this.z = z;
 		}
 

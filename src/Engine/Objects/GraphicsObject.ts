@@ -4,6 +4,7 @@ import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class GraphicsObject {
 	modelMatrix: Matrix4;
+	textureMatrix: Matrix4;
 
 	// Protected
 	protected gl: WebGL2RenderingContext;

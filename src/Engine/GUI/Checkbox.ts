@@ -9,7 +9,7 @@ export default class Checkbox extends GuiObject {
 	private label: HTMLLabelElement;
 
 	constructor() {
-		super();
+		super("floating-div");
 		this.position = new Vec2();
 		this.textSize = 42;
 

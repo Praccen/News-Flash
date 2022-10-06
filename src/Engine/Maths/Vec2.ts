@@ -39,6 +39,10 @@ export default class Vec2 {
 		return this;
 	}
 
+	compare(other: Vec2): boolean {
+		return this.x === other.x && this.y === other.y;
+	}
+
 	add(vec: Vec2): Vec2 {
 		this.x += vec.x;
 		this.y += vec.y;

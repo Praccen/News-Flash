@@ -9,7 +9,7 @@ export default class TextObject3D extends GuiObject {
 	private textNode: Text;
 
 	constructor() {
-		super();
+		super("floating-div");
 
 		this.position = new Vec3();
 		this.size = 42;
@@ -20,7 +20,7 @@ export default class TextObject3D extends GuiObject {
 		this.div.appendChild(this.textNode);
 	}
 
-	draw(viewProj: Matrix4): void {
+	draw3D(viewProj: Matrix4): void {
 		let pos = new Vector4([
 			this.position.x,
 			this.position.y,

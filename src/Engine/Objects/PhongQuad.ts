@@ -6,8 +6,6 @@ import Vec3 from "../Maths/Vec3.js";
 
 export default class PhongQuad extends GraphicsObject {
 	// Public
-	modelMatrix: Matrix4;
-	textureMatrix: Matrix4;
 	diffuse: Texture;
 	specular: Texture;
 

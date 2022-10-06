@@ -1,5 +1,3 @@
-import { canvas } from "../../main.js";
-
 export default class Input {
 	keys: boolean[];
 	mousePosition: { x: number; y: number };
@@ -8,7 +6,10 @@ export default class Input {
 	private touchUsed: boolean;
 	drawHud: boolean;
 
+	private canvas: HTMLCanvasElement;
+
 	constructor() {
+		this.canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
 		this.keys = [];
 		this.mousePosition = { x: 0, y: 0 };
 		this.mouseClicked = false;
@@ -28,7 +29,7 @@ export default class Input {
 			self.drawHud = false;
 		});
 
-		canvas.addEventListener("mousemove", function (event) {
+		this.canvas.addEventListener("mousemove", function (event) {
 			self.mousePosition = { x: event.clientX, y: event.clientY };
 		});
 		document.addEventListener("mousedown", (event) => {
@@ -54,10 +55,10 @@ export default class Input {
 	handleTouch(touches) {
 		this.drawHud = true;
 
-		var paddingX = parseInt(canvas.style.paddingLeft, 10);
-		var paddingY = parseInt(canvas.style.paddingTop, 10);
-		var width = parseInt(canvas.style.width, 10);
-		var height = parseInt(canvas.style.height, 10);
+		var paddingX = parseInt(this.canvas.style.paddingLeft, 10);
+		var paddingY = parseInt(this.canvas.style.paddingTop, 10);
+		var width = parseInt(this.canvas.style.width, 10);
+		var height = parseInt(this.canvas.style.height, 10);
 
 		this.keys["w"] = false;
 		this.keys["a"] = false;

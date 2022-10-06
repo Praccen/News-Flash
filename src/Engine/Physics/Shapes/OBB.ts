@@ -1,3 +1,4 @@
+import Matrix3 from "../../Maths/Matrix3.js";
 import Vec3 from "../../Maths/Vec3.js";
 import Shape from "./Shape.js";
 
@@ -110,19 +111,11 @@ export default class OBB extends Shape {
 	getTransformedNormals(): Array<Vec3> {
 		if (this.normalsNeedsUpdate) {
 			this.transformedNormals.length = 0;
-			let tempMatrix = new Matrix4(this.transformMatrix).invert().transpose();
+			let tempMatrix = new Matrix3();
+			tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
 			for (const originalNormal of this.originalNormals) {
-				let transformedNormal = tempMatrix
-					.multiplyVector3(
-						new Vector3([originalNormal.x, originalNormal.y, originalNormal.z])
-					)
-					.normalize();
 				this.transformedNormals.push(
-					new Vec3({
-						x: transformedNormal.elements[0],
-						y: transformedNormal.elements[1],
-						z: transformedNormal.elements[2],
-					})
+					tempMatrix.multiplyVec3(originalNormal).normalize()
 				);
 			}
 

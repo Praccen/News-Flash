@@ -11,15 +11,16 @@ export module CollisionSolver {
 
 		// Add all the intersection axises (with depth).
 		let resultingVec = new Vec3();
-		let maxDepth = 0.0;
+		// let maxDepth = 0.0;
 		for (let inf of intersectionInformation) {
-			if (inf.depth > maxDepth) {
-				resultingVec.deepAssign(inf.axis);
-				maxDepth = inf.depth;
-			}
-			// resultingVec.add(new Vec3(inf.axis).multiply(inf.depth));
+			resultingVec.add(new Vec3(inf.axis).multiply(inf.depth));
+			
+			// if (inf.depth > maxDepth) {
+			// 	resultingVec.deepAssign(inf.axis);
+			// 	maxDepth = inf.depth;
+			// }
 		}
-		resultingVec.multiply(maxDepth);
+		// resultingVec.multiply(maxDepth);
 
 		// Take the resulting vector and try to make it not go against any of the intersection axises
 		// for (let inf of intersectionInformation) {

@@ -15,8 +15,8 @@ void main() {
 	normalShaded = texture(inputTexture, texCoords);
     
     // check whether fragment output is higher than threshold, if so output as brightness color
-    float brightness = dot(normalShaded.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 0.4) { // Change this to 1.0 when having actual lights in the future
+    float brightness = normalShaded.r + normalShaded.g + normalShaded.b;
+    if(brightness > 1.0) {
         brightOnly = normalShaded;
     }
     else {

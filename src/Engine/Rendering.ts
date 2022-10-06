@@ -1,4 +1,4 @@
-import { applicationStartTime } from "../main.js";
+import { applicationStartTime, options } from "../main.js";
 
 import Framebuffer from "./Framebuffer.js";
 import ScreenQuad from "./Objects/ScreenQuad.js";
@@ -25,10 +25,14 @@ import LightingPass from "./ShaderPrograms/DeferredRendering/LightingPass.js";
 import BloomExtraction from "./ShaderPrograms/PostProcessing/BloomExtraction.js";
 import BloomBlending from "./ShaderPrograms/PostProcessing/BloomBlending.js";
 import GaussianBlur from "./ShaderPrograms/PostProcessing/GaussianBlur.js";
+import GraphicsObject from "./Objects/GraphicsObject.js";
+import Slider from "./GUI/Slider.js";
+import GuiObject from "./GUI/GuiObject.js";
 
 export default class Rendering {
 	// public
 	camera: Camera;
+	clearColour: { r: number; g: number; b: number; a: number };
 
 	// ---- Post processing toggles ----
 	useCrt: boolean;
@@ -38,9 +42,10 @@ export default class Rendering {
 	// private
 	private gl: WebGL2RenderingContext;
 	private textureStore: TextureStore;
-	private clearColour: { r: number; g: number; b: number; a: number };
 	private resolutionWidth: number;
 	private resolutionHeight: number;
+	private bloomResolutionWidth: number;
+	private bloomResolutionHeight: number;
 
 	// ---- Simple shading ----
 	private simpleShaderProgram: SimpleShaderProgram;
@@ -85,8 +90,7 @@ export default class Rendering {
 
 	// ---- Graphics objects ----
 	private quads: Array<Quad>;
-	private phongQuads: Array<PhongQuad>;
-	private meshes: Array<Mesh>;
+	private graphicObjects: Array<GraphicsObject>;
 	// --------------------------
 
 	// ---- Lights ----
@@ -95,18 +99,16 @@ export default class Rendering {
 	// ----------------
 
 	// ---- GUI rendering ----
-	private textObjects2D: Array<TextObject2D>;
-	private textObjects3D: Array<TextObject3D>;
-	private checkboxes: Array<Checkbox>;
-	private buttons: Array<Button>;
+	private guiObjects3D: Array<TextObject3D>;
+	private guiObjects2D: Array<GuiObject>;
 	// -----------------------
 
 	constructor(gl: WebGL2RenderingContext) {
 		this.gl = gl;
 		this.textureStore = new TextureStore(gl);
 		this.camera = new Camera(gl);
-		this.resolutionWidth = 1920;
-		this.resolutionHeight = 1080;
+		this.resolutionWidth = options.resolutionWidth;
+		this.resolutionHeight = options.resolutionHeight;
 
 		// ---- Simple shading ----
 		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
@@ -162,7 +164,7 @@ export default class Rendering {
 
 		// ---- Post processing ----
 		// Crt effect
-		this.useCrt = true;
+		this.useCrt = options.useCrt;
 		this.crtShaderProgram = new CrtShaderProgram(this.gl);
 		this.crtFramebuffer = new Framebuffer(
 			this.gl,
@@ -173,7 +175,7 @@ export default class Rendering {
 		);
 
 		// Bloom
-		this.useBloom = true;
+		this.useBloom = options.useBloom;
 		this.bloomExtraction = new BloomExtraction(this.gl);
 		this.bloomExtractionInputFramebuffer = new Framebuffer(
 			this.gl,
@@ -200,11 +202,13 @@ export default class Rendering {
 		);
 		this.gaussianBlur = new GaussianBlur(this.gl);
 		this.pingPongFramebuffers = new Array<Framebuffer>(2);
+		this.bloomResolutionWidth = 1280;
+		this.bloomResolutionHeight = 720;
 		for (let i = 0; i < 2; i++) {
 			this.pingPongFramebuffers[i] = new Framebuffer(
 				this.gl,
-				this.resolutionWidth,
-				this.resolutionHeight,
+				this.bloomResolutionWidth,
+				this.bloomResolutionHeight,
 				false,
 				[
 					{
@@ -227,8 +231,7 @@ export default class Rendering {
 
 		// ---- Graphics objects ----
 		this.quads = new Array<Quad>();
-		this.phongQuads = new Array<PhongQuad>();
-		this.meshes = new Array<Mesh>();
+		this.graphicObjects = new Array<GraphicsObject>();
 		// --------------------------
 
 		// ---- Lights ----
@@ -237,10 +240,8 @@ export default class Rendering {
 		// ----------------
 
 		// ---- GUI rendering ----
-		this.textObjects2D = new Array<TextObject2D>();
-		this.textObjects3D = new Array<TextObject3D>();
-		this.checkboxes = new Array<Checkbox>();
-		this.buttons = new Array<Button>();
+		this.guiObjects3D = new Array<TextObject3D>();
+		this.guiObjects2D = new Array<GuiObject>();
 		// -----------------------
 
 		this.initGL();
@@ -267,6 +268,16 @@ export default class Rendering {
 		this.gl.disable(this.gl.CULL_FACE);
 	}
 
+	clear() {
+		for (let guiObject2D of this.guiObjects2D) {
+			guiObject2D.remove();
+		}
+
+		for (let guiObject3D of this.guiObjects3D) {
+			guiObject3D.remove();
+		}
+	}
+
 	reportCanvasResize(x: number, y: number) {
 		this.resolutionWidth = x;
 		this.resolutionHeight = y;
@@ -274,10 +285,9 @@ export default class Rendering {
 		this.crtFramebuffer.setProportions(x, y);
 		this.bloomExtractionInputFramebuffer.setProportions(x, y);
 		this.bloomExtractionOutputFramebuffer.setProportions(x, y);
-		for (let buffer of this.pingPongFramebuffers) {
-			buffer.setProportions(x, y);
-		}
-		// console.log("X: " + x + " px " + "Y: " + y + " px");
+		// for (let buffer of this.pingPongFramebuffers) {
+		// 	buffer.setProportions(x, y);
+		// }
 	}
 
 	setShadowMappingResolution(res: number) {
@@ -287,6 +297,10 @@ export default class Rendering {
 
 	loadTextureToStore(texturePath: string) {
 		this.textureStore.getTexture(texturePath);
+	}
+
+	getTextureFromStore(path: string) {
+		return this.textureStore.getTexture(path);
 	}
 
 	getNewQuad(texturePath: string): Quad {
@@ -301,7 +315,7 @@ export default class Rendering {
 	}
 
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
-		const length = this.phongQuads.push(
+		const length = this.graphicObjects.push(
 			new PhongQuad(
 				this.gl,
 				this.geometryPass,
@@ -309,7 +323,7 @@ export default class Rendering {
 				this.textureStore.getTexture(specularPath)
 			)
 		);
-		return this.phongQuads[length - 1];
+		return this.graphicObjects[length - 1] as PhongQuad;
 	}
 
 	async getNewMesh(
@@ -320,7 +334,7 @@ export default class Rendering {
 		const response = await fetch(meshPath);
 		const objContent = await response.text();
 
-		const length = this.meshes.push(
+		const length = this.graphicObjects.push(
 			new Mesh(
 				this.gl,
 				this.geometryPass,
@@ -329,12 +343,13 @@ export default class Rendering {
 				this.textureStore.getTexture(specularPath)
 			)
 		);
-		return this.meshes[length - 1];
+
+		return this.graphicObjects[length - 1];
 	}
 
 	getNewPointLight(): PointLight {
 		const length = this.pointLights.push(
-			new PointLight(this.gl, this.lightingPass, this.pointLights.length)
+			new PointLight(this.gl, this.lightingPass)
 		);
 		return this.pointLights[length - 1];
 	}
@@ -344,23 +359,28 @@ export default class Rendering {
 	}
 
 	getNew2DText(): TextObject2D {
-		const length = this.textObjects2D.push(new TextObject2D());
-		return this.textObjects2D[length - 1];
+		const length = this.guiObjects2D.push(new TextObject2D());
+		return this.guiObjects2D[length - 1] as TextObject2D;
 	}
 
 	getNew3DText(): TextObject3D {
-		const length = this.textObjects3D.push(new TextObject3D());
-		return this.textObjects3D[length - 1];
+		const length = this.guiObjects3D.push(new TextObject3D());
+		return this.guiObjects3D[length - 1];
 	}
 
 	getNewCheckbox(): Checkbox {
-		const length = this.checkboxes.push(new Checkbox());
-		return this.checkboxes[length - 1];
+		const length = this.guiObjects2D.push(new Checkbox());
+		return this.guiObjects2D[length - 1] as Checkbox;
 	}
 
 	getNewButton(): Button {
-		const length = this.buttons.push(new Button());
-		return this.buttons[length - 1];
+		const length = this.guiObjects2D.push(new Button());
+		return this.guiObjects2D[length - 1] as Button;
+	}
+
+	getNewSlider(): Slider {
+		const length = this.guiObjects2D.push(new Slider());
+		return this.guiObjects2D[length - 1] as Slider;
 	}
 
 	getNewParticleSpawner(
@@ -385,11 +405,12 @@ export default class Rendering {
 		}
 	}
 
-	deletePhongQuad(quad: PhongQuad) {
-		let index = this.phongQuads.findIndex((q) => q == quad);
-		if (index != -1) {
-			this.phongQuads.splice(index, 1);
-		}
+	deleteGraphicsObject(object: GraphicsObject) {
+		this.graphicObjects = this.graphicObjects.filter((o) => object !== o);
+	}
+
+	deletePointLight(light: PointLight) {
+		this.pointLights = this.pointLights.filter((l) => light !== l);
 	}
 
 	draw() {
@@ -410,14 +431,14 @@ export default class Rendering {
 		);
 
 		//Render shadow pass
-		for (let phongQuad of this.phongQuads.values()) {
-			phongQuad.changeShaderProgram(this.shadowPass);
-			phongQuad.draw(false);
-		}
-
-		for (let mesh of this.meshes.values()) {
-			mesh.changeShaderProgram(this.shadowPass);
-			mesh.draw(false);
+		for (let obj of this.graphicObjects.values()) {
+			obj.changeShaderProgram(this.shadowPass);
+			// TODO: Add phongGraphicsObject that has the same draw function and we don't have to check instanceof
+			if (obj instanceof PhongQuad) {
+				(obj as PhongQuad).draw(false);
+			} else if (obj instanceof Mesh) {
+				(obj as Mesh).draw(false);
+			}
 		}
 
 		this.gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
@@ -438,14 +459,9 @@ export default class Rendering {
 			this.geometryPass.getUniformLocation("viewProjMatrix")[0]
 		);
 
-		for (let phongQuad of this.phongQuads.values()) {
-			phongQuad.changeShaderProgram(this.geometryPass);
-			phongQuad.draw();
-		}
-
-		for (let mesh of this.meshes.values()) {
-			mesh.changeShaderProgram(this.geometryPass);
-			mesh.draw();
+		for (let obj of this.graphicObjects.values()) {
+			obj.changeShaderProgram(this.geometryPass);
+			obj.draw();
 		}
 		// -----------------------
 
@@ -492,8 +508,8 @@ export default class Rendering {
 			this.lightingPass.getUniformLocation("nrOfPointLights")[0],
 			this.pointLights.length
 		);
-		for (let pointLight of this.pointLights.values()) {
-			pointLight.bind();
+		for (let i = 0; i < this.pointLights.length; i++) {
+			this.pointLights[i].bind(i);
 		}
 
 		this.lightingQuad.draw();
@@ -559,6 +575,7 @@ export default class Rendering {
 			this.bloomExtractionInputFramebuffer.textures[0].bind(0);
 			this.screenQuad.draw(false);
 
+			this.gl.viewport(0, 0, this.bloomResolutionWidth, this.bloomResolutionHeight);
 			// Blur the bright image (second of the two in bloomExtractionOutputFramebuffer)
 			let horizontal = true,
 				firstIteration = true;
@@ -582,6 +599,9 @@ export default class Rendering {
 				horizontal = !horizontal;
 				firstIteration = false;
 			}
+
+			
+			this.gl.viewport(0, 0, this.resolutionWidth, this.resolutionHeight);
 
 			// Combine the normal image with the blured bright image
 			this.bloomBlending.use();
@@ -607,23 +627,25 @@ export default class Rendering {
 		}
 		// -------------------------
 
-		// ---- Text rendering ----
-		for (const text of this.textObjects3D) {
-			text.draw(this.camera.getViewProjMatrix());
+		// ---- GUI rendering ----
+		for (let i = 0; i < this.guiObjects3D.length; i++) {
+			if (!this.guiObjects3D[i].removed) {
+				this.guiObjects3D[i].draw3D(this.camera.getViewProjMatrix());
+			} else {
+				this.guiObjects3D.splice(i, 1);
+				i--;
+			}
 		}
 
-		for (const text of this.textObjects2D) {
-			text.draw();
+		for (let i = 0; i < this.guiObjects2D.length; i++) {
+			if (!this.guiObjects2D[i].removed) {
+				this.guiObjects2D[i].draw();
+			} else {
+				this.guiObjects2D.splice(i, 1);
+				i--;
+			}
 		}
-
-		for (const checkbox of this.checkboxes) {
-			checkbox.draw();
-		}
-
-		for (const button of this.buttons) {
-			button.draw();
-		}
-		// ------------------------
+		// -----------------------
 	}
 
 	private renderTextureToScreen(texture: Texture) {

@@ -1,50 +1,55 @@
 import Input from "./Engine/Input/Input.js";
 import Rendering from "./Engine/Rendering.js";
-import Game from "./Game/Game.js";
 import ECSManager from "./Engine/ECS/ECSManager.js";
 import AudioPlayer from "./Engine/Audio/AudioPlayer.js";
 import { SAT } from "./Engine/Maths/SAT.js";
+import Menu from "./Game/Menu.js";
+import OptionsMenu from "./Game/OptionsMenu.js";
+import Game from "./Game/Game.js";
+import TextObject2D from "./Engine/GUI/Text/TextObject2D.js";
+import StateMachine from "./Engine/StateMachine.js";
 
 SAT.runUnitTests();
 
 // Globals
-export let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
-let guicontainer = <HTMLElement>document.getElementById("guicontainer");
+export let gl: WebGL2RenderingContext;
 export let input = new Input();
-export let texturesRequestedVsLoaded = {
-	req: 0,
-	loaded: 0,
-};
-export let meshesRequestedVsLoaded = {
-	req: 0,
-	loaded: 0,
-};
-let heightByWidth = 1080 / 1920;
-let widthByHeight = 1920 / 1080;
-
 export let applicationStartTime = Date.now();
+export let options = {
+	useCrt: false,
+	useBloom: true,
+	showFps: true,
+	volume: 0.05,
+	resolutionWidth: 1920,
+	resolutionHeight: 1080
+};
 
-function initWebGL() {
-	canvas.width = 1920;
-	canvas.height = 1080;
+function initWebGL(): WebGL2RenderingContext{
+	canvas.width = options.resolutionWidth;
+	canvas.height = options.resolutionHeight;
 
-	let gl = canvas.getContext("webgl2", { antialias: false });
-	if (!gl.getExtension("EXT_color_buffer_float")) {
+	let tempGl = canvas.getContext("webgl2", { antialias: false });
+	if (!tempGl.getExtension("EXT_color_buffer_float")) {
 		alert(
 			"Rendering to floating point textures is not supported on this platform"
 		);
 	}
-	if (!gl.getExtension("OES_texture_float_linear")) {
+	if (!tempGl.getExtension("OES_texture_float_linear")) {
 		alert("Floating point rendering to FBO textures not supported");
 	}
 
-	if (!gl) {
+	if (!tempGl) {
 		console.log("Failed to get rendering context for WebGL");
 		return;
 	}
 
-	return gl;
+	return tempGl;
 }
+
+let heightByWidth = options.resolutionHeight / options.resolutionWidth;
+let widthByHeight = options.resolutionWidth / options.resolutionHeight;
+let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
+let guicontainer = <HTMLElement>document.getElementById("guicontainer");
 
 function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 	// Get the dimensions of the viewport
@@ -81,123 +86,60 @@ function resize(gl: WebGL2RenderingContext, rendering: Rendering) {
 	guicontainer.style.width = newGameWidth + "px";
 	guicontainer.style.height = newGameHeight + "px";
 
-	rendering.reportCanvasResize(newGameWidth, newGameHeight);
+	// Update the options resolution
+	options.resolutionWidth = newGameWidth;
+	options.resolutionHeight = newGameHeight;
+
+	if (rendering) {
+		rendering.reportCanvasResize(newGameWidth, newGameHeight);
+	}
 }
+
+/**
+ * These are the variables available to all the states
+ */
+export class StateAccessible {
+	rendering: Rendering;
+	fpsDisplay: TextObject2D;
+	ecsManager: ECSManager;
+	audioPlayer: AudioPlayer;
+}
+
+let stateMachine: StateMachine;
 
 /* main */
 window.onload = async () => {
 	"use strict";
 
-	let gl = initWebGL();
+	// Set up webgl
+	gl = initWebGL();
 
-	let rendering = new Rendering(gl);
-	let audio = new AudioPlayer();
-	let ecsManager = new ECSManager(rendering, audio);
-	let game = new Game(gl, rendering, ecsManager);
+	// Init the state accessible variables
+	let stateAccessible: StateAccessible = {
+		rendering: null,
+		fpsDisplay: null,
+		ecsManager: null,
+		audioPlayer: new AudioPlayer()
+	};
 
-	let lastTick = null;
+	stateMachine = new StateMachine(stateAccessible);
+	
+	// Add states
+	stateMachine.addState(Menu, 1.0/60.0);
+	stateMachine.addState(OptionsMenu, 1.0/60.0);
+	stateMachine.addState(Game, 1.0/144.0);
 
-	// Fixed update rate
-	let minUpdateRate = 1.0 / 144.0;
-	let updateTimer = 0.0;
-	let updatesSinceRender = 0;
+	stateMachine.resetStates();
+	// Resize to fit the current window
+	resize(gl, stateAccessible.rendering);
 
-	let fpsUpdateTimer = 0.0;
-	let frameCounter = 0;
-
-	let fpsDisplay = rendering.getNew2DText();
-	fpsDisplay.position.x = 0.01;
-	fpsDisplay.position.y = 0.01;
-	fpsDisplay.size = 18;
-	fpsDisplay.scaleWithWindow = false;
-	fpsDisplay.getElement().style.color = "lime";
-
-	/* Gameloop */
-	function gameLoop() {
-		let now = Date.now();
-		let dt = (now - (lastTick || now)) * 0.001;
-		lastTick = now;
-
-		frameCounter++;
-		fpsUpdateTimer += dt;
-
-		if (fpsUpdateTimer > 0.5) {
-			let fps = frameCounter / fpsUpdateTimer;
-			fpsUpdateTimer -= 0.5;
-			frameCounter = 0;
-			fpsDisplay.textString = "" + Math.round(fps);
-		}
-
-		// Constant update rate
-		updateTimer += dt;
-		updatesSinceRender = 0;
-
-		//Only update if update timer goes over update rate
-		while (updateTimer >= minUpdateRate) {
-			if (updatesSinceRender >= 20) {
-				// Too many updates, throw away the rest of dt (makes the game run in slow-motion)
-				updateTimer = 0;
-				break;
-			}
-
-			game.update(minUpdateRate);
-			ecsManager.update(minUpdateRate);
-			updateTimer -= minUpdateRate;
-			updatesSinceRender++;
-		}
-
-		if (updatesSinceRender == 0) {
-			// dt is faster than min update rate, allow faster updates
-			game.update(updateTimer);
-			ecsManager.update(updateTimer);
-			updateTimer = 0.0;
-		}
-
-		ecsManager.updateRenderingSystems(dt);
-		rendering.draw();
-
-		requestAnimationFrame(gameLoop);
-	}
-
+	// Resize canvas in the future when window is resized
 	window.addEventListener("resize", function () {
-		resize(gl, rendering);
+		resize(gl, stateAccessible.rendering);
 	});
-
-	function waitForTextureLoading() {
-		//Waits until all textures are loaded before starting the game
-		if (texturesRequestedVsLoaded.loaded < texturesRequestedVsLoaded.req) {
-			requestAnimationFrame(waitForTextureLoading);
-		} else {
-			console.log(
-				"All " +
-					texturesRequestedVsLoaded.loaded +
-					"/" +
-					texturesRequestedVsLoaded.req +
-					" textures loaded!"
-			);
-		}
-	}
-
-	function waitForMeshLoading() {
-		//Waits until all meshes are loaded before starting the game
-		if (meshesRequestedVsLoaded.loaded < meshesRequestedVsLoaded.req) {
-			requestAnimationFrame(waitForMeshLoading);
-		} else {
-			console.log(
-				"All " +
-					meshesRequestedVsLoaded.loaded +
-					"/" +
-					meshesRequestedVsLoaded.req +
-					" meshes loaded!"
-			);
-		}
-	}
 
 	console.log("Everything is ready.");
 
-	resize(gl, rendering);
-	//requestAnimationFrame(waitForTextureLoading);
-	//requestAnimationFrame(waitForMeshLoading);
-	await game.init();
-	requestAnimationFrame(gameLoop);
+	// Start the state machine
+	stateMachine.start();
 };

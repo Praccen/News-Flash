@@ -1,3 +1,4 @@
+import Matrix3 from "../../Maths/Matrix3.js";
 import Vec3 from "../../Maths/Vec3.js";
 import Shape from "./Shape.js";
 
@@ -92,23 +93,12 @@ export default class Triangle extends Shape {
 
 	getTransformedNormals(): Array<Vec3> {
 		if (this.normalNeedsUpdate) {
-			let tempMatrix = new Matrix4(this.transformMatrix);
-			let transformedNormal = tempMatrix
-				.invert()
-				.transpose()
-				.multiplyVector3(
-					new Vector3([
-						this.originalNormal.x,
-						this.originalNormal.y,
-						this.originalNormal.z,
-					])
-				)
+			let tempMatrix = new Matrix3();
+			tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
+
+			this.transformedNormals[0] = tempMatrix
+				.multiplyVec3(this.originalNormal)
 				.normalize();
-			this.transformedNormals[0] = new Vec3({
-				x: transformedNormal.elements[0],
-				y: transformedNormal.elements[1],
-				z: transformedNormal.elements[2],
-			});
 			this.normalNeedsUpdate = false;
 		}
 		return this.transformedNormals;

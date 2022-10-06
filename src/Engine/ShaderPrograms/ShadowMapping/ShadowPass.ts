@@ -15,7 +15,7 @@ out vec2 texCoords;
 void main()
 {
     gl_Position = lightSpaceMatrix * modelMatrix * vec4(inPosition, 1.0);
-    texCoords = inTexCoords;
+	texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
 }`;
 
 const shadowFragmentShaderSrc: string = `#version 300 es

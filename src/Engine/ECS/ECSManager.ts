@@ -7,7 +7,6 @@ import Rendering from "../Rendering.js";
 import Entity from "./Entity.js";
 import { Component, ComponentTypeEnum } from "./Components/Component.js";
 import Camera from "../Camera.js";
-import AudioPlayer from "../Audio/AudioPlayer.js";
 
 export default class ECSManager {
 	private systems: Map<String, System>;
@@ -26,7 +25,7 @@ export default class ECSManager {
 	camera: Camera;
 	rendering: Rendering;
 
-	constructor(rendering: Rendering, audio: AudioPlayer) {
+	constructor(rendering: Rendering) {
 		this.camera = rendering.camera;
 		this.rendering = rendering;
 

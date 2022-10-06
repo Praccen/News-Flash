@@ -1,11 +1,12 @@
 import Vec2 from "../Maths/Vec2.js";
 import GuiObject from "./GuiObject.js";
 
-export default class Button extends GuiObject {
+export default class Slider extends GuiObject {
 	position: Vec2;
 	textSize: number;
 
 	private inputNode: HTMLInputElement;
+	private label: HTMLLabelElement;
 
 	constructor() {
 		super("floating-div");
@@ -14,9 +15,12 @@ export default class Button extends GuiObject {
 
 		// make an input node and a label node
 		this.inputNode = document.createElement("input");
-		this.inputNode.type = "button";
-		this.inputNode.className = "button";
+		this.inputNode.type = "range";
 
+		this.label = document.createElement("label");
+		this.label.textContent = this.textString;
+
+		this.div.appendChild(this.label);
 		this.div.appendChild(this.inputNode);
 	}
 
@@ -28,15 +32,14 @@ export default class Button extends GuiObject {
 		return this.inputNode;
 	}
 
-	onClick(fn: any) {
-		this.inputNode.addEventListener("click", fn);
+	getValue(): number {
+		return Number(this.inputNode.value);
 	}
 
 	draw() {
 		this.position2D = this.position;
-		this.inputNode.value = this.textString;
 		this.fontSize = this.textSize;
-
+		this.label.textContent = this.textString;
 		this.drawObject();
 	}
 }

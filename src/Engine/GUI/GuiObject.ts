@@ -7,10 +7,13 @@ export default class GuiObject {
 	textString: string;
 	center: boolean;
 
+	removed: boolean;
+
 	private divContainerElement: HTMLElement;
 	protected div: HTMLDivElement;
 
-	constructor() {
+	constructor(cssClass: string) {
+		this.removed = false;
 		this.position2D = new Vec2();
 		this.fontSize = 42;
 		this.scaleWithWindow = true;
@@ -26,7 +29,7 @@ export default class GuiObject {
 		this.div = document.createElement("div");
 
 		// assign it a CSS class
-		this.div.className = "floating-div";
+		this.div.className = cssClass;
 
 		// add it to the divcontainer
 		this.divContainerElement.appendChild(this.div);
@@ -34,6 +37,15 @@ export default class GuiObject {
 
 	getElement(): HTMLDivElement {
 		return this.div;
+	}
+
+	setHidden(hidden: boolean) {
+		this.div.hidden = hidden;
+	}
+
+	remove() {
+		this.div.remove();
+		this.removed = true;
 	}
 
 	protected drawObject() {
@@ -57,4 +69,6 @@ export default class GuiObject {
 			this.div.style.transform = "translateX(-50%)";
 		}
 	}
+
+	draw() {};
 }

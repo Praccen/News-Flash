@@ -1,9 +1,6 @@
 import {
-	applicationStartTime,
-	input,
-	meshesRequestedVsLoaded,
+	input, StateAccessible,
 } from "../main.js";
-import Rendering from "../Engine/Rendering.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
 import ParticleSpawnerComponent from "../Engine/ECS/Components/ParticleSpawnerComponent.js";
@@ -11,7 +8,6 @@ import GraphicsComponent from "../Engine/ECS/Components/GraphicsComponent.js";
 import PositionComponent from "../Engine/ECS/Components/PositionComponent.js";
 import MovementComponent from "../Engine/ECS/Components/MovementComponent.js";
 import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
-import Checkbox from "../Engine/GUI/Checkbox.js";
 import TextObject3D from "../Engine/GUI/Text/TextObject3D.js";
 import Vec2 from "../Engine/Maths/Vec2.js";
 import Vec3 from "../Engine/Maths/Vec3.js";
@@ -19,14 +15,12 @@ import PointLight from "../Engine/Lighting/PointLight.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
+import State from "../Engine/State.js";
+import Rendering from "../Engine/Rendering.js";
 
-export default class Game {
+export default class Game extends State {
 	private rendering: Rendering;
 	private ecsManager: ECSManager;
-
-	private crtCheckbox: Checkbox;
-	private bloomCheckbox: Checkbox;
-	private shadowCheckbox: Checkbox;
 
 	private particleText: TextObject3D;
 	private particleSpawner: Entity;
@@ -35,30 +29,18 @@ export default class Game {
 	private knightEntity: Entity;
 
 	constructor(
-		gl: WebGL2RenderingContext,
-		rendering: Rendering,
-		ecsManager: ECSManager
+			sa: StateAccessible
 	) {
-		this.rendering = rendering;
-		this.ecsManager = ecsManager;
+		super();
+		this.rendering = sa.rendering;
+		this.ecsManager = sa.ecsManager;
 
-		// Load all textures to avoid loading mid game
+		// Textures
 		let smileyTexture =
 			"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png";
-		rendering.loadTextureToStore(smileyTexture);
 		let floorTexture =
 			"https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/371b6fdf-69a3-4fa2-9ff0-bd04d50f4b98/de8synv-6aad06ab-ed16-47fd-8898-d21028c571c4.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzM3MWI2ZmRmLTY5YTMtNGZhMi05ZmYwLWJkMDRkNTBmNGI5OFwvZGU4c3ludi02YWFkMDZhYi1lZDE2LTQ3ZmQtODg5OC1kMjEwMjhjNTcxYzQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.wa-oSVpeXEpWqfc_bexczFs33hDFvEGGAQD969J7Ugw";
-		rendering.loadTextureToStore(floorTexture);
-		let laserTexture =
-			"https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f04b32b4-58c3-4e24-a642-67320f0a66bb/ddwzap4-c0ad82e3-b949-479c-973c-11daaa55a554.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2YwNGIzMmI0LTU4YzMtNGUyNC1hNjQyLTY3MzIwZjBhNjZiYlwvZGR3emFwNC1jMGFkODJlMy1iOTQ5LTQ3OWMtOTczYy0xMWRhYWE1NWE1NTQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.vSK6b4_DsskmHsiVKQtXQAospMA6_WZ2BoFYrODpFKQ";
-		rendering.loadTextureToStore(laserTexture);
-		let boxTexture =
-			"https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
-		rendering.loadTextureToStore(boxTexture);
 		let fireTexture = "Assets/textures/fire.png";
-		rendering.loadTextureToStore(fireTexture);
-		let knightTexture = "Assets/textures/knight.png";
-		rendering.loadTextureToStore(knightTexture);
 
 		this.createFloorEntity(floorTexture);
 
@@ -88,7 +70,7 @@ export default class Game {
 
 		this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
-		rendering.getNewQuad(smileyTexture);
+		this.rendering.getNewQuad(smileyTexture);
 
 		this.particleText = this.rendering.getNew3DText();
 		this.particleText.textString = "This is a fire fountain";
@@ -96,33 +78,6 @@ export default class Game {
 		this.particleText.size = 100;
 		this.particleText.position = particleSpawnerPos;
 		this.particleText.center = true;
-
-		this.crtCheckbox = this.rendering.getNewCheckbox();
-		this.crtCheckbox.position.x = 0.8;
-		this.crtCheckbox.position.y = 0.1;
-		this.crtCheckbox.textString = "CRT-effect ";
-		this.crtCheckbox.getElement().style.color = "cyan";
-		this.crtCheckbox.getInputElement().style.accentColor = "red";
-
-		this.bloomCheckbox = this.rendering.getNewCheckbox();
-		this.bloomCheckbox.position.x = 0.8;
-		this.bloomCheckbox.position.y = 0.15;
-		this.bloomCheckbox.textString = "Bloom-effect ";
-		this.bloomCheckbox.getElement().style.color = "cyan";
-		this.bloomCheckbox.getInputElement().style.accentColor = "red";
-
-		this.shadowCheckbox = this.rendering.getNewCheckbox();
-		this.shadowCheckbox.position.x = 0.75;
-		this.shadowCheckbox.position.y = 0.2;
-		this.shadowCheckbox.textString = "Smaller shadows ";
-		this.shadowCheckbox.getElement().style.color = "cyan";
-		this.shadowCheckbox.getInputElement().style.accentColor = "red";
-
-		// let testButton = this.rendering.getNewButton();
-		// testButton.position.x = 0.5;
-		// testButton.position.y = 0.5;
-		// testButton.textString = "Test button";
-		// testButton.center = true;
 	}
 
 	async init() {
@@ -143,7 +98,7 @@ export default class Game {
 		let boxPosComp = new PositionComponent();
 		this.ecsManager.addComponent(this.boxEntity, new MovementComponent());
 		boxPosComp.position.setValues(-4.0, 0.0, 0.0);
-		// boxPosComp.rotation.setValues(0.0, 45.0, 0.0);
+		boxPosComp.rotation.setValues(0.0, 45.0, 0.0);
 		boxPosComp.scale.setValues(0.2, 0.2, 0.2);
 		this.ecsManager.addComponent(this.boxEntity, boxPosComp);
 
@@ -287,22 +242,22 @@ export default class Game {
 	update(dt: number) {
 		let moveVec: Vec3 = new Vec3();
 		let move = false;
-		if (input.keys["w"]) {
+		if (input.keys["w"] || input.keys["W"]) {
 			moveVec.add(this.rendering.camera.getDir());
 			move = true;
 		}
 
-		if (input.keys["s"]) {
+		if (input.keys["s"] || input.keys["S"]) {
 			moveVec.subtract(this.rendering.camera.getDir());
 			move = true;
 		}
 
-		if (input.keys["a"]) {
+		if (input.keys["a"] || input.keys["A"]) {
 			moveVec.subtract(this.rendering.camera.getRight());
 			move = true;
 		}
 
-		if (input.keys["d"]) {
+		if (input.keys["d"] || input.keys["D"]) {
 			moveVec.add(this.rendering.camera.getRight());
 			move = true;
 		}
@@ -370,16 +325,6 @@ export default class Game {
 			);
 		}
 
-		this.rendering.useCrt = this.crtCheckbox.getChecked();
-		this.rendering.useBloom = this.bloomCheckbox.getChecked();
-		if (this.shadowCheckbox.getChecked()) {
-			this.rendering.setShadowMappingResolution(400);
-			this.rendering.getDirectionalLight().lightProjectionBoxSideLength = 20.0;
-		} else {
-			this.rendering.setShadowMappingResolution(4096);
-			this.rendering.getDirectionalLight().lightProjectionBoxSideLength = 50.0;
-		}
-
 		let particleMovComp = <MovementComponent>(
 			this.particleSpawner.getComponent(ComponentTypeEnum.MOVEMENT)
 		);
@@ -395,7 +340,7 @@ export default class Game {
 			this.particleText.position = particlePosComp.position;
 		}
 
-		if (input.keys["e"]) {
+		if (input.keys["e"] || input.keys["E"]) {
 			let boxPosComp = <PositionComponent>(
 				this.boxEntity.getComponent(ComponentTypeEnum.POSITION)
 			);
@@ -409,6 +354,10 @@ export default class Game {
 			boxMovComp.velocity
 				.deepAssign(this.rendering.camera.getDir())
 				.multiply(15.0);
+		}
+
+		if (input.keys["p"] || input.keys["P"]) {
+			this.gotoState = 0;
 		}
 	}
 }
