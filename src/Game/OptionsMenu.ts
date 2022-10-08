@@ -3,8 +3,9 @@ import Button from "../Engine/GUI/Button.js";
 import Checkbox from "../Engine/GUI/Checkbox.js";
 import TextObject2D from "../Engine/GUI/Text/TextObject2D.js";
 import Slider from "../Engine/GUI/Slider.js";
-import { options, StateAccessible } from "../main.js";
-import State from "../Engine/State.js";
+import { options } from "./GameMachine.js";
+import State, { StatesEnum } from "../Engine/State.js";
+import { StateAccessible } from "./GameMachine.js";
 
 export default class OptionsMenu extends State {
 	private rendering: Rendering
@@ -20,9 +21,8 @@ export default class OptionsMenu extends State {
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = sa.rendering;
-		this.fpsDisplay = sa.fpsDisplay;
-
+		this.rendering = new Rendering();
+		
 		this.crtCB = this.rendering.getNewCheckbox();
 		// this.crtCB.center = true;
 		this.crtCB.position.x = 0.4;
@@ -78,9 +78,18 @@ export default class OptionsMenu extends State {
 
 		let self = this;
 		this.backButton.onClick(function () {
-			self.gotoState = 0;
+			self.gotoState = StatesEnum.MAINMENU;
 		});
+	}
 
+	async init() {
+		super.init();
+		this.rendering.show();
+	}
+
+	reset() {
+		super.reset();
+		this.rendering.hide();
 	}
 
 	update(dt: number) {
@@ -89,7 +98,11 @@ export default class OptionsMenu extends State {
 		options.useBloom = this.bloomCB.getChecked();
 		this.rendering.useBloom = options.useBloom;
 		options.showFps = this.fpsDisplayCB.getChecked();
-		this.fpsDisplay.setHidden(!options.showFps);
+		// this.fpsDisplay.setHidden(!options.showFps);
 		options.volume = this.volumeSlider.getValue() * 0.001;
+	}
+
+	draw() {
+		this.rendering.draw();
 	}
 }

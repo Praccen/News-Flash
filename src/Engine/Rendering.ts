@@ -1,5 +1,5 @@
-import { applicationStartTime, options } from "../main.js";
-
+import { gl, applicationStartTime, windowInfo} from "../main.js";
+import { options } from "../Game/GameMachine.js";
 import Framebuffer from "./Framebuffer.js";
 import ScreenQuad from "./Objects/ScreenQuad.js";
 import Quad from "./Objects/Quad.js";
@@ -28,6 +28,7 @@ import GaussianBlur from "./ShaderPrograms/PostProcessing/GaussianBlur.js";
 import GraphicsObject from "./Objects/GraphicsObject.js";
 import Slider from "./GUI/Slider.js";
 import GuiObject from "./GUI/GuiObject.js";
+import Progress from "./GUI/Progress.js";
 
 export default class Rendering {
 	// public
@@ -40,7 +41,6 @@ export default class Rendering {
 	// ---------------------------------
 
 	// private
-	private gl: WebGL2RenderingContext;
 	private textureStore: TextureStore;
 	private resolutionWidth: number;
 	private resolutionHeight: number;
@@ -103,49 +103,46 @@ export default class Rendering {
 	private guiObjects2D: Array<GuiObject>;
 	// -----------------------
 
-	constructor(gl: WebGL2RenderingContext) {
-		this.gl = gl;
-		this.textureStore = new TextureStore(gl);
+	constructor() {
+		this.textureStore = new TextureStore();
 		this.camera = new Camera(gl);
-		this.resolutionWidth = options.resolutionWidth;
-		this.resolutionHeight = options.resolutionHeight;
+		this.resolutionWidth = windowInfo.resolutionWidth;
+		this.resolutionHeight = windowInfo.resolutionHeight;
 
 		// ---- Simple shading ----
-		this.simpleShaderProgram = new SimpleShaderProgram(this.gl);
+		this.simpleShaderProgram = new SimpleShaderProgram(gl);
 		// ------------------------
 
 		// ---- Particles ----
-		this.particleShaderProgram = new ParticleShaderProgram(this.gl);
+		this.particleShaderProgram = new ParticleShaderProgram(gl);
 		this.particleSpawners = new Array<ParticleSpawner>();
 		// -------------------
 
 		// ---- Shadow mapping ----
 		this.shadowResolution = 4096;
 		this.shadowOffset = 20.0;
-		this.shadowPass = new ShadowPass(this.gl);
+		this.shadowPass = new ShadowPass(gl);
 		this.shadowBuffer = new Framebuffer(
-			this.gl,
 			this.shadowResolution,
 			this.shadowResolution,
 			true,
 			[]
-		); // [{internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE}]
+		); // [{internalFormat: gl.RGBA, dataStorageType: gl.UNSIGNED_BYTE}]
 		// ------------------------
 
 		// ---- Deferred rendering ----
-		this.geometryPass = new GeometryPass(this.gl);
-		this.lightingPass = new LightingPass(this.gl);
+		this.geometryPass = new GeometryPass(gl);
+		this.lightingPass = new LightingPass(gl);
 		this.gBuffer = new Framebuffer(
-			this.gl,
 			this.resolutionWidth,
 			this.resolutionHeight,
 			false,
 			[
-				{ internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT },
-				{ internalFormat: this.gl.RGBA32F, dataStorageType: this.gl.FLOAT },
+				{ internalFormat: gl.RGBA32F, dataStorageType: gl.FLOAT },
+				{ internalFormat: gl.RGBA32F, dataStorageType: gl.FLOAT },
 				{
-					internalFormat: this.gl.RGBA,
-					dataStorageType: this.gl.UNSIGNED_BYTE,
+					internalFormat: gl.RGBA,
+					dataStorageType: gl.UNSIGNED_BYTE,
 				},
 			]
 		);
@@ -156,7 +153,7 @@ export default class Rendering {
 		}
 		textureArray.push(this.shadowBuffer.depthTexture);
 		this.lightingQuad = new ScreenQuad(
-			this.gl,
+			gl,
 			this.lightingPass,
 			textureArray
 		);
@@ -165,65 +162,61 @@ export default class Rendering {
 		// ---- Post processing ----
 		// Crt effect
 		this.useCrt = options.useCrt;
-		this.crtShaderProgram = new CrtShaderProgram(this.gl);
+		this.crtShaderProgram = new CrtShaderProgram(gl);
 		this.crtFramebuffer = new Framebuffer(
-			this.gl,
 			this.resolutionWidth,
 			this.resolutionHeight,
 			false,
-			[{ internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE }]
+			[{ internalFormat: gl.RGBA, dataStorageType: gl.UNSIGNED_BYTE }]
 		);
 
 		// Bloom
 		this.useBloom = options.useBloom;
-		this.bloomExtraction = new BloomExtraction(this.gl);
+		this.bloomExtraction = new BloomExtraction(gl);
 		this.bloomExtractionInputFramebuffer = new Framebuffer(
-			this.gl,
 			this.resolutionWidth,
 			this.resolutionHeight,
 			false,
-			[{ internalFormat: this.gl.RGBA, dataStorageType: this.gl.UNSIGNED_BYTE }]
+			[{ internalFormat: gl.RGBA, dataStorageType: gl.UNSIGNED_BYTE }]
 		);
 		this.bloomExtractionOutputFramebuffer = new Framebuffer(
-			this.gl,
 			this.resolutionWidth,
 			this.resolutionHeight,
 			false,
 			[
 				{
-					internalFormat: this.gl.RGBA,
-					dataStorageType: this.gl.UNSIGNED_BYTE,
+					internalFormat: gl.RGBA,
+					dataStorageType: gl.UNSIGNED_BYTE,
 				},
 				{
-					internalFormat: this.gl.RGBA,
-					dataStorageType: this.gl.UNSIGNED_BYTE,
+					internalFormat: gl.RGBA,
+					dataStorageType: gl.UNSIGNED_BYTE,
 				},
 			]
 		);
-		this.gaussianBlur = new GaussianBlur(this.gl);
+		this.gaussianBlur = new GaussianBlur(gl);
 		this.pingPongFramebuffers = new Array<Framebuffer>(2);
 		this.bloomResolutionWidth = 1280;
 		this.bloomResolutionHeight = 720;
 		for (let i = 0; i < 2; i++) {
 			this.pingPongFramebuffers[i] = new Framebuffer(
-				this.gl,
 				this.bloomResolutionWidth,
 				this.bloomResolutionHeight,
 				false,
 				[
 					{
-						internalFormat: this.gl.RGBA,
-						dataStorageType: this.gl.UNSIGNED_BYTE,
+						internalFormat: gl.RGBA,
+						dataStorageType: gl.UNSIGNED_BYTE,
 					},
 				]
 			);
 		}
-		this.bloomBlending = new BloomBlending(this.gl);
+		this.bloomBlending = new BloomBlending(gl);
 
 		// Screen quad to output the finished image on
-		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(this.gl);
+		this.screenQuadShaderProgram = new ScreenQuadShaderProgram(gl);
 		this.screenQuad = new ScreenQuad(
-			this.gl,
+			gl,
 			this.screenQuadShaderProgram,
 			new Array<Texture>()
 		);
@@ -235,7 +228,7 @@ export default class Rendering {
 		// --------------------------
 
 		// ---- Lights ----
-		this.directionalLight = new DirectionalLight(this.gl, this.lightingPass);
+		this.directionalLight = new DirectionalLight(gl, this.lightingPass);
 		this.pointLights = new Array<PointLight>();
 		// ----------------
 
@@ -249,7 +242,7 @@ export default class Rendering {
 
 	initGL() {
 		this.clearColour = { r: 0.15, g: 0.1, b: 0.1, a: 1.0 };
-		this.gl.clearColor(
+		gl.clearColor(
 			this.clearColour.r,
 			this.clearColour.g,
 			this.clearColour.b,
@@ -257,15 +250,15 @@ export default class Rendering {
 		);
 
 		// Enable depth test
-		this.gl.enable(this.gl.DEPTH_TEST);
+		gl.enable(gl.DEPTH_TEST);
 
 		//Enable alpha blending
-		// this.gl.enable(this.gl.BLEND);
-		// this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-		this.gl.disable(this.gl.BLEND);
+		// gl.enable(gl.BLEND);
+		// gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.disable(gl.BLEND);
 
 		// Disable faceculling
-		this.gl.disable(this.gl.CULL_FACE);
+		gl.disable(gl.CULL_FACE);
 	}
 
 	clear() {
@@ -275,6 +268,26 @@ export default class Rendering {
 
 		for (let guiObject3D of this.guiObjects3D) {
 			guiObject3D.remove();
+		}
+	}
+
+	hide() {
+		for (let guiObject2D of this.guiObjects2D) {
+			guiObject2D.setHidden(true);
+		}
+
+		for (let guiObject3D of this.guiObjects3D) {
+			guiObject3D.setHidden(true);
+		}
+	}
+
+	show() {
+		for (let guiObject2D of this.guiObjects2D) {
+			guiObject2D.setHidden(false);
+		}
+
+		for (let guiObject3D of this.guiObjects3D) {
+			guiObject3D.setHidden(false);
 		}
 	}
 
@@ -306,7 +319,7 @@ export default class Rendering {
 	getNewQuad(texturePath: string): Quad {
 		const length = this.quads.push(
 			new Quad(
-				this.gl,
+				gl,
 				this.simpleShaderProgram,
 				this.textureStore.getTexture(texturePath)
 			)
@@ -317,7 +330,7 @@ export default class Rendering {
 	getNewPhongQuad(diffusePath: string, specularPath: string): PhongQuad {
 		const length = this.graphicObjects.push(
 			new PhongQuad(
-				this.gl,
+				gl,
 				this.geometryPass,
 				this.textureStore.getTexture(diffusePath),
 				this.textureStore.getTexture(specularPath)
@@ -336,7 +349,7 @@ export default class Rendering {
 
 		const length = this.graphicObjects.push(
 			new Mesh(
-				this.gl,
+				gl,
 				this.geometryPass,
 				objContent,
 				this.textureStore.getTexture(diffusePath),
@@ -349,7 +362,7 @@ export default class Rendering {
 
 	getNewPointLight(): PointLight {
 		const length = this.pointLights.push(
-			new PointLight(this.gl, this.lightingPass)
+			new PointLight(gl, this.lightingPass)
 		);
 		return this.pointLights[length - 1];
 	}
@@ -383,13 +396,18 @@ export default class Rendering {
 		return this.guiObjects2D[length - 1] as Slider;
 	}
 
+	getNewProgress(): Progress {
+		const length = this.guiObjects2D.push(new Progress());
+		return this.guiObjects2D[length - 1] as Progress;
+	}
+
 	getNewParticleSpawner(
 		texturePath: string,
 		numberOfStartingParticles: number = 0
 	): ParticleSpawner {
 		let length = this.particleSpawners.push(
 			new ParticleSpawner(
-				this.gl,
+				gl,
 				this.particleShaderProgram,
 				this.textureStore.getTexture(texturePath),
 				numberOfStartingParticles
@@ -413,15 +431,19 @@ export default class Rendering {
 		this.pointLights = this.pointLights.filter((l) => light !== l);
 	}
 
+	deleteParticleSpawner(particleSpawner: ParticleSpawner) {
+		this.particleSpawners = this.particleSpawners.filter((ps) => particleSpawner !== ps);
+	}
+
 	draw() {
-		this.gl.enable(this.gl.DEPTH_TEST);
+		gl.enable(gl.DEPTH_TEST);
 
 		// ---- Shadow pass ----
 		this.shadowPass.use();
-		this.gl.viewport(0, 0, this.shadowResolution, this.shadowResolution);
-		this.shadowBuffer.bind(this.gl.FRAMEBUFFER);
-		this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
-		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+		gl.viewport(0, 0, this.shadowResolution, this.shadowResolution);
+		this.shadowBuffer.bind(gl.FRAMEBUFFER);
+		gl.clearColor(1.0, 1.0, 1.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		//Set uniforms
 		this.directionalLight.calcAndSendLightSpaceMatrix(
@@ -441,16 +463,16 @@ export default class Rendering {
 			}
 		}
 
-		this.gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
+		gl.viewport(0.0, 0.0, this.resolutionWidth, this.resolutionHeight);
 		// ---------------------
 
 		// Bind gbuffer and clear that with 0,0,0,0 (the alpha = 0 is important to be able to identify fragments in the lighting pass that have not been written with geometry)
-		this.gBuffer.bind(this.gl.FRAMEBUFFER);
-		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-		this.gl.clear(
-			this.gl.COLOR_BUFFER_BIT |
-				this.gl.DEPTH_BUFFER_BIT |
-				this.gl.STENCIL_BUFFER_BIT
+		this.gBuffer.bind(gl.FRAMEBUFFER);
+		gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		gl.clear(
+			gl.COLOR_BUFFER_BIT |
+				gl.DEPTH_BUFFER_BIT |
+				gl.STENCIL_BUFFER_BIT
 		);
 
 		// ---- Geometry pass ----
@@ -467,33 +489,33 @@ export default class Rendering {
 
 		// Geometry pass over, appropriate framebuffer for post processing or render directly to screen.
 		if (this.useBloom) {
-			this.bloomExtractionInputFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+			this.bloomExtractionInputFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 		} else if (this.useCrt) {
-			this.crtFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+			this.crtFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 		} else {
-			this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+			gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 		}
 
 		// Clear the output with the actual clear colour we have set
-		this.gl.clearColor(
+		gl.clearColor(
 			this.clearColour.r,
 			this.clearColour.g,
 			this.clearColour.b,
 			this.clearColour.a
 		);
-		this.gl.clear(
-			this.gl.COLOR_BUFFER_BIT |
-				this.gl.DEPTH_BUFFER_BIT |
-				this.gl.STENCIL_BUFFER_BIT
+		gl.clear(
+			gl.COLOR_BUFFER_BIT |
+				gl.DEPTH_BUFFER_BIT |
+				gl.STENCIL_BUFFER_BIT
 		);
 
 		// Disable depth testing for screen quad(s) rendering
-		this.gl.disable(this.gl.DEPTH_TEST);
+		gl.disable(gl.DEPTH_TEST);
 
 		// ---- Lighting pass ----
 		this.lightingPass.use();
 
-		this.gl.uniform3fv(
+		gl.uniform3fv(
 			this.lightingPass.getUniformLocation("camPos")[0],
 			this.camera.getPosition().elements()
 		);
@@ -504,7 +526,7 @@ export default class Rendering {
 			this.lightingPass.getUniformLocation("lightSpaceMatrix")[0]
 		);
 		// Point lights
-		this.gl.uniform1i(
+		gl.uniform1i(
 			this.lightingPass.getUniformLocation("nrOfPointLights")[0],
 			this.pointLights.length
 		);
@@ -517,8 +539,8 @@ export default class Rendering {
 
 		// ---- Simple shaded ----
 		// Copy the depth buffer information from the gBuffer to the current depth buffer
-		this.gBuffer.bind(this.gl.READ_FRAMEBUFFER);
-		this.gl.blitFramebuffer(
+		this.gBuffer.bind(gl.READ_FRAMEBUFFER);
+		gl.blitFramebuffer(
 			0,
 			0,
 			this.resolutionWidth,
@@ -527,12 +549,12 @@ export default class Rendering {
 			0,
 			this.resolutionWidth,
 			this.resolutionHeight,
-			this.gl.DEPTH_BUFFER_BIT,
-			this.gl.NEAREST
+			gl.DEPTH_BUFFER_BIT,
+			gl.NEAREST
 		);
 
 		// Enable depth testing again
-		this.gl.enable(this.gl.DEPTH_TEST);
+		gl.enable(gl.DEPTH_TEST);
 
 		if (this.quads.length > 0) {
 			// Only do this if there is something to simple shade
@@ -549,16 +571,16 @@ export default class Rendering {
 		// -----------------------
 
 		// ---- Particles ----
-		this.gl.enable(this.gl.DEPTH_TEST);
+		gl.enable(gl.DEPTH_TEST);
 		this.particleShaderProgram.use();
 		this.camera.bindViewProjMatrix(
 			this.particleShaderProgram.getUniformLocation("viewProjMatrix")[0]
 		);
-		this.gl.uniform3fv(
+		gl.uniform3fv(
 			this.particleShaderProgram.getUniformLocation("cameraPos")[0],
 			this.camera.getPosition().elements()
 		);
-		this.gl.uniform1f(
+		gl.uniform1f(
 			this.particleShaderProgram.getUniformLocation("currentTime")[0],
 			(Date.now() - applicationStartTime) * 0.001
 		);
@@ -568,14 +590,14 @@ export default class Rendering {
 		// -------------------
 
 		// ---- Post processing ----
-		this.gl.disable(this.gl.DEPTH_TEST);
+		gl.disable(gl.DEPTH_TEST);
 		if (this.useBloom) {
-			this.bloomExtractionOutputFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+			this.bloomExtractionOutputFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 			this.bloomExtraction.use();
 			this.bloomExtractionInputFramebuffer.textures[0].bind(0);
 			this.screenQuad.draw(false);
 
-			this.gl.viewport(0, 0, this.bloomResolutionWidth, this.bloomResolutionHeight);
+			gl.viewport(0, 0, this.bloomResolutionWidth, this.bloomResolutionHeight);
 			// Blur the bright image (second of the two in bloomExtractionOutputFramebuffer)
 			let horizontal = true,
 				firstIteration = true;
@@ -583,9 +605,9 @@ export default class Rendering {
 			this.gaussianBlur.use();
 			for (let i = 0; i < amount; i++) {
 				this.pingPongFramebuffers[Number(horizontal)].bind(
-					this.gl.DRAW_FRAMEBUFFER
+					gl.DRAW_FRAMEBUFFER
 				);
-				this.gl.uniform1ui(
+				gl.uniform1ui(
 					this.gaussianBlur.getUniformLocation("horizontal")[0],
 					Number(horizontal)
 				);
@@ -601,7 +623,7 @@ export default class Rendering {
 			}
 
 			
-			this.gl.viewport(0, 0, this.resolutionWidth, this.resolutionHeight);
+			gl.viewport(0, 0, this.resolutionWidth, this.resolutionHeight);
 
 			// Combine the normal image with the blured bright image
 			this.bloomBlending.use();
@@ -610,16 +632,16 @@ export default class Rendering {
 
 			// Render result to screen or to crt framebuffer if doing crt effect after this.
 			if (this.useCrt) {
-				this.crtFramebuffer.bind(this.gl.DRAW_FRAMEBUFFER);
+				this.crtFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 			} else {
-				this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+				gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 			}
 			this.screenQuad.draw(false);
 		}
 
 		if (this.useCrt) {
 			// ---- Crt effect ----
-			this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+			gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 			this.crtShaderProgram.use();
 			this.crtFramebuffer.textures[0].bind(0);
 			this.screenQuad.draw(false);
@@ -649,7 +671,7 @@ export default class Rendering {
 	}
 
 	private renderTextureToScreen(texture: Texture) {
-		this.gl.bindFramebuffer(this.gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+		gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
 		this.screenQuadShaderProgram.use();
 		texture.bind();
 		this.screenQuad.draw(false);

@@ -1,17 +1,35 @@
-import Rendering from "./Rendering";
+export enum StatesEnum {
+	STAY,
+    LOADINGSCREEN,
+	MAINMENU,
+	OPTIONS,
+	GAME
+}
 
 export default class State {
     /**
-     * Set this to the 0 based index for the state you want the state machine to move to.
-     * Leave it at -1 to keep running the current state.
+     * Set this to the enum for the state you want the state machine to move to.
+     * Leave it at STAY to keep running the current state.
      */
-    gotoState: number;
+    gotoState: StatesEnum;
+    initialized: boolean;
 
 	constructor() {
-        this.gotoState = -1;
+        this.gotoState = StatesEnum.STAY;
+        this.initialized = false;
     }
 
-    async init() {}
+    async init() {
+        this.initialized = true;
+    }
+
+    reset() {
+        this.initialized = false;
+    }
 
 	update(dt: number) {}
+
+    prepareDraw(dt: number) {}
+
+    draw() {};
 }

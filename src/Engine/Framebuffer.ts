@@ -1,3 +1,4 @@
+import { gl } from "../main.js";
 import Texture from "./Textures/Texture.js";
 
 export default class Framebuffer {
@@ -6,14 +7,12 @@ export default class Framebuffer {
 	depthTexture: Texture;
 
 	// Private
-	private gl: WebGL2RenderingContext;
 	private rbo: WebGLRenderbuffer;
 	private fbo: WebGLFramebuffer;
 	private width: number;
 	private height: number;
 
 	constructor(
-		gl: WebGL2RenderingContext,
 		width: number,
 		height: number,
 		createDepthAttachment: boolean,
@@ -22,97 +21,94 @@ export default class Framebuffer {
 			dataStorageType: number;
 		}>
 	) {
-		this.gl = gl;
 		this.width = width;
 		this.height = height;
 
-		this.fbo = this.gl.createFramebuffer();
+		this.fbo = gl.createFramebuffer();
 		this.textures = new Array<Texture>(colourAttachments.length);
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
 
 		let attachments = new Array<any>();
 		for (let i = 0; i < colourAttachments.length; i++) {
 			this.textures[i] = new Texture(
-				this.gl,
 				false,
 				colourAttachments[i].internalFormat,
-				this.gl.RGBA,
+				gl.RGBA,
 				colourAttachments[i].dataStorageType
 			);
-			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures[i].texture);
+			gl.bindTexture(gl.TEXTURE_2D, this.textures[i].texture);
 			this.textures[i].setTextureData(null, this.width, this.height);
 			this.textures[i].setTexParameters(
-				this.gl.TEXTURE_MIN_FILTER,
-				this.gl.LINEAR
+				gl.TEXTURE_MIN_FILTER,
+				gl.LINEAR
 			);
 			this.textures[i].setTexParameters(
-				this.gl.TEXTURE_MAG_FILTER,
-				this.gl.LINEAR
+				gl.TEXTURE_MAG_FILTER,
+				gl.LINEAR
 			);
 			this.textures[i].setTexParameters(
-				this.gl.TEXTURE_WRAP_S,
-				this.gl.CLAMP_TO_EDGE
+				gl.TEXTURE_WRAP_S,
+				gl.CLAMP_TO_EDGE
 			);
 			this.textures[i].setTexParameters(
-				this.gl.TEXTURE_WRAP_T,
-				this.gl.CLAMP_TO_EDGE
+				gl.TEXTURE_WRAP_T,
+				gl.CLAMP_TO_EDGE
 			);
-			this.gl.framebufferTexture2D(
-				this.gl.FRAMEBUFFER,
-				this.gl.COLOR_ATTACHMENT0 + i,
-				this.gl.TEXTURE_2D,
+			gl.framebufferTexture2D(
+				gl.FRAMEBUFFER,
+				gl.COLOR_ATTACHMENT0 + i,
+				gl.TEXTURE_2D,
 				this.textures[i].texture,
 				0
 			);
-			attachments.push(this.gl.COLOR_ATTACHMENT0 + i);
+			attachments.push(gl.COLOR_ATTACHMENT0 + i);
 		}
 
-		this.gl.drawBuffers(attachments);
+		gl.drawBuffers(attachments);
 
 		// More choices here would be good, not only texture or renderbuffer
 		if (createDepthAttachment) {
 			this.depthTexture = new Texture(
-				this.gl,
 				false,
-				this.gl.DEPTH_COMPONENT32F,
-				this.gl.DEPTH_COMPONENT,
-				this.gl.FLOAT
+				gl.DEPTH_COMPONENT32F,
+				gl.DEPTH_COMPONENT,
+				gl.FLOAT
 			);
-			this.gl.bindTexture(this.gl.TEXTURE_2D, this.depthTexture.texture);
+			gl.bindTexture(gl.TEXTURE_2D, this.depthTexture.texture);
 			this.depthTexture.setTextureData(null, this.width, this.height);
-			this.gl.framebufferTexture2D(
-				this.gl.FRAMEBUFFER,
-				this.gl.DEPTH_ATTACHMENT,
-				this.gl.TEXTURE_2D,
+			gl.framebufferTexture2D(
+				gl.FRAMEBUFFER,
+				gl.DEPTH_ATTACHMENT,
+				gl.TEXTURE_2D,
 				this.depthTexture.texture,
 				0
 			);
 		} else {
-			this.rbo = this.gl.createRenderbuffer();
-			this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
-			this.gl.renderbufferStorage(
-				this.gl.RENDERBUFFER,
-				this.gl.DEPTH_STENCIL,
+			this.rbo = gl.createRenderbuffer();
+			gl.bindRenderbuffer(gl.RENDERBUFFER, this.rbo);
+			gl.renderbufferStorage(
+				gl.RENDERBUFFER,
+				gl.DEPTH_STENCIL,
 				this.width,
 				this.height
 			);
 
-			this.gl.framebufferRenderbuffer(
-				this.gl.FRAMEBUFFER,
-				this.gl.DEPTH_STENCIL_ATTACHMENT,
-				this.gl.RENDERBUFFER,
+			gl.framebufferRenderbuffer(
+				gl.FRAMEBUFFER,
+				gl.DEPTH_STENCIL_ATTACHMENT,
+				gl.RENDERBUFFER,
 				this.rbo
 			);
 		}
 
 		if (
-			this.gl.checkFramebufferStatus(this.gl.FRAMEBUFFER) !=
-			this.gl.FRAMEBUFFER_COMPLETE
+			gl.checkFramebufferStatus(gl.FRAMEBUFFER) !=
+			gl.FRAMEBUFFER_COMPLETE
 		) {
 			console.warn("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 		}
 
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
 	setProportions(width: number, height: number) {
@@ -126,19 +122,19 @@ export default class Framebuffer {
 		}
 
 		if (this.rbo) {
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fbo);
-			this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rbo);
-			this.gl.renderbufferStorage(
-				this.gl.RENDERBUFFER,
-				this.gl.DEPTH24_STENCIL8,
+			gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, this.rbo);
+			gl.renderbufferStorage(
+				gl.RENDERBUFFER,
+				gl.DEPTH24_STENCIL8,
 				width,
 				height
 			);
-			this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		}
 	}
 
 	bind(target: number) {
-		this.gl.bindFramebuffer(target, this.fbo);
+		gl.bindFramebuffer(target, this.fbo);
 	}
 }

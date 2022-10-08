@@ -11,7 +11,7 @@ export default class TextObject2D extends GuiObject {
 	constructor() {
 		super("floating-div");
 
-		this.position = new Vec3();
+		this.position = new Vec2();
 		this.size = 42;
 
 		// make a text node for its content

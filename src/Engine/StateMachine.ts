@@ -1,12 +1,11 @@
-import { gl, options, StateAccessible } from "../main.js";
-import ECSManager from "./ECS/ECSManager.js";
-import Rendering from "./Rendering.js";
-import State from "./State.js";
+import State, { StatesEnum } from "./State.js";
 
 export default class StateMachine {
-    states: Array<{stateType: any, minUpdateRate: number, state: State}>;
-    private currentState: number;
-    private stateAccessible: StateAccessible;
+    states: Map<StatesEnum, {stateType: any, minUpdateRate: number, state: State}>;
+	
+	protected fps: number;
+    protected currentState: StatesEnum;
+
     private firstLoop: boolean;
 
 	// Frame timer variables
@@ -16,42 +15,16 @@ export default class StateMachine {
 	private frameCounter = 0;
 	private dt = 0.0;
 
-    constructor(stateAccessible: StateAccessible) {
-        this.states = new Array<{stateType: any, minUpdateRate: number, state: State}>();
-        this.currentState = 0;
-        this.stateAccessible = stateAccessible;
+
+    constructor(startState: StatesEnum) {
+        this.states = new Map<StatesEnum, {stateType: any, minUpdateRate: number, state: State}>();
+        this.currentState = startState;
+        
         this.firstLoop = true;
     }
 
-    resetStates() {
-        if (this.stateAccessible.rendering) {
-			this.stateAccessible.rendering.clear();
-		}
-		this.stateAccessible.rendering = new Rendering(gl);
-		if (this.stateAccessible.fpsDisplay) {
-			this.stateAccessible.fpsDisplay.getElement().remove();
-		}
-
-		this.stateAccessible.audioPlayer.stopAll();
-		this.stateAccessible.ecsManager = new ECSManager(this.stateAccessible.rendering);
-
-		for (let state of this.states) {
-			state.state = null;
-		}
-		this.firstLoop = true;
-
-        this.stateAccessible.fpsDisplay = this.stateAccessible.rendering.getNew2DText();
-        this.stateAccessible.fpsDisplay.position.x = 0.01;
-        this.stateAccessible.fpsDisplay.position.y = 0.01;
-        this.stateAccessible.fpsDisplay.size = 18;
-        this.stateAccessible.fpsDisplay.scaleWithWindow = false;
-        this.stateAccessible.fpsDisplay.getElement().style.color = "lime";
-            
-        this.stateAccessible.fpsDisplay.setHidden(!options.showFps)
-    }
-
-    addState(stateType: any, minUpdateRate: number) {
-        this.states.push({stateType: stateType, minUpdateRate: minUpdateRate, state: null});
+    addState(stateEnum: StatesEnum, stateType: any, minUpdateRate: number, state: State) {
+        this.states.set(stateEnum, {stateType: stateType, minUpdateRate: minUpdateRate, state: state});
     }
 
     updateFrameTimers() {
@@ -63,10 +36,9 @@ export default class StateMachine {
 		this.fpsUpdateTimer += this.dt;
 
 		if (this.fpsUpdateTimer > 0.5) {
-			let fps = this.frameCounter / this.fpsUpdateTimer;
+			this.fps = this.frameCounter / this.fpsUpdateTimer;
 			this.fpsUpdateTimer -= 0.5;
 			this.frameCounter = 0;
-			this.stateAccessible.fpsDisplay.textString = "" + Math.round(fps);
 		}
 	}
 
@@ -87,7 +59,6 @@ export default class StateMachine {
 				}
 
 				state.update(minUpdateRate);
-				this.stateAccessible.ecsManager.update(minUpdateRate);
 				this.updateTimer -= minUpdateRate;
 				updatesSinceRender++;
 			}
@@ -96,43 +67,39 @@ export default class StateMachine {
 		if (updatesSinceRender == 0) {
 			// dt is faster than min update rate, or no min update rate is set
 			state.update(this.updateTimer);
-			this.stateAccessible.ecsManager.update(this.updateTimer);
 			this.updateTimer = 0.0;
 		}
 
-		this.stateAccessible.ecsManager.updateRenderingSystems(this.dt);
+		state.prepareDraw(this.dt);
 
 		if (!this.firstLoop) {
-			this.stateAccessible.rendering.draw();
+			state.draw();
 		}
 
 		this.firstLoop = false;
 	}
 
     async runCurrentState() {
-		if (this.currentState >= 0 || this.currentState < this.states.length) {	// Check that the current state is valid
-
-            // Create the state if it is not defined
-			if (!this.states[this.currentState].state) {
-				this.states[this.currentState].state = new this.states[this.currentState].stateType(this.stateAccessible) as State;
-				await this.states[this.currentState].state.init();
-			}
-
-            // Update the state
-			this.updateState(this.states[this.currentState].state, this.states[this.currentState].minUpdateRate);
-
-            // Check if we should change state
-			if (this.states[this.currentState].state.gotoState != -1) {
-				this.currentState = this.states[this.currentState].state.gotoState;
-                // Reset all states
-				this.resetStates();
-
-                // TODO: Add different ways to switch states, like for example, maybe we want to just have a state overlayed on top of another (pause menu). 
-                // Or we want to show a new state but keep the old one intact so we can move back to it at resume (this would require multiple render states as well)
-			}
-
-			requestAnimationFrame(this.runCurrentState.bind(this));
+		if (!this.states.get(this.currentState).state.initialized) {
+			this.states.get(this.currentState).state.init();
 		}
+
+		// Update the state
+		this.updateState(this.states.get(this.currentState).state, this.states.get(this.currentState).minUpdateRate);
+
+		// Check if we should change state
+		if (this.states.get(this.currentState).state.gotoState != StatesEnum.STAY) {
+			let oldState = this.currentState;
+			this.currentState = this.states.get(this.currentState).state.gotoState;
+			
+			this.states.get(oldState).state.reset();
+			this.states.get(oldState).state.gotoState = StatesEnum.STAY;
+
+			// TODO: Add different ways to switch states, like for example, maybe we want to just have a state overlayed on top of another (pause menu). 
+			// Or we want to show a new state but keep the old one intact so we can move back to it at resume (this would require multiple render states as well)
+		}
+
+		requestAnimationFrame(this.runCurrentState.bind(this));
 	}
 
     start() {

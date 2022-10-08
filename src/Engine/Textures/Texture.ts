@@ -1,11 +1,11 @@
+import { gl } from "../../main.js";
+
 export default class Texture {
 	// Public
 	width: number;
 	height: number;
 	texture: WebGLTexture;
 
-	// Private
-	private gl: WebGL2RenderingContext;
 	// private missingTextureData: Uint8Array;
 	private useMipMap: boolean;
 
@@ -14,13 +14,11 @@ export default class Texture {
 	private dataStorageType: number;
 
 	constructor(
-		gl: WebGL2RenderingContext,
 		useMipMap: boolean = true,
 		internalFormat: number = gl.RGBA,
 		format: number = gl.RGBA,
 		dataStorageType: number = gl.UNSIGNED_BYTE
 	) {
-		this.gl = gl;
 
 		// this.missingTextureData = new Uint8Array([
 		//     255, 255, 255, 255, 0, 0, 0, 255,
@@ -34,35 +32,35 @@ export default class Texture {
 		this.dataStorageType = dataStorageType;
 
 		// Generate texture
-		this.texture = this.gl.createTexture();
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+		this.texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
-		this.gl.texParameteri(
-			this.gl.TEXTURE_2D,
-			this.gl.TEXTURE_WRAP_S,
-			this.gl.REPEAT
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_WRAP_S,
+			gl.REPEAT
 		);
-		this.gl.texParameteri(
-			this.gl.TEXTURE_2D,
-			this.gl.TEXTURE_WRAP_T,
-			this.gl.REPEAT
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_WRAP_T,
+			gl.REPEAT
 		);
-		this.gl.texParameteri(
-			this.gl.TEXTURE_2D,
-			this.gl.TEXTURE_MIN_FILTER,
-			this.gl.NEAREST
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_MIN_FILTER,
+			gl.NEAREST
 		);
-		this.gl.texParameteri(
-			this.gl.TEXTURE_2D,
-			this.gl.TEXTURE_MAG_FILTER,
-			this.gl.NEAREST
+		gl.texParameteri(
+			gl.TEXTURE_2D,
+			gl.TEXTURE_MAG_FILTER,
+			gl.NEAREST
 		);
-		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		this.width = 1;
 		this.height = 1;
-		this.gl.texImage2D(
-			this.gl.TEXTURE_2D,
+		gl.texImage2D(
+			gl.TEXTURE_2D,
 			0,
 			this.internalFormat,
 			this.width,
@@ -73,15 +71,15 @@ export default class Texture {
 			null
 		);
 
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 
 	setTextureData(data: Uint8Array, width: number, height: number) {
 		this.width = width;
 		this.height = height;
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		this.gl.texImage2D(
-			this.gl.TEXTURE_2D,
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.texImage2D(
+			gl.TEXTURE_2D,
 			0,
 			this.internalFormat,
 			width,
@@ -92,14 +90,14 @@ export default class Texture {
 			data
 		);
 		if (this.useMipMap) {
-			this.gl.generateMipmap(this.gl.TEXTURE_2D);
-			this.gl.texParameteri(
-				this.gl.TEXTURE_2D,
-				this.gl.TEXTURE_MIN_FILTER,
-				this.gl.LINEAR_MIPMAP_LINEAR
+			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.texParameteri(
+				gl.TEXTURE_2D,
+				gl.TEXTURE_MIN_FILTER,
+				gl.LINEAR_MIPMAP_LINEAR
 			);
 		}
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 
 	updateTextureSubData(
@@ -110,9 +108,9 @@ export default class Texture {
 		height: number
 	): boolean {
 		if (xOffset + width <= this.width && yOffset + height <= this.height) {
-			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-			this.gl.texSubImage2D(
-				this.gl.TEXTURE_2D,
+			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.texSubImage2D(
+				gl.TEXTURE_2D,
 				0,
 				xOffset,
 				yOffset,
@@ -123,14 +121,14 @@ export default class Texture {
 				data
 			);
 			if (this.useMipMap) {
-				this.gl.generateMipmap(this.gl.TEXTURE_2D);
-				this.gl.texParameteri(
-					this.gl.TEXTURE_2D,
-					this.gl.TEXTURE_MIN_FILTER,
-					this.gl.LINEAR_MIPMAP_LINEAR
+				gl.generateMipmap(gl.TEXTURE_2D);
+				gl.texParameteri(
+					gl.TEXTURE_2D,
+					gl.TEXTURE_MIN_FILTER,
+					gl.LINEAR_MIPMAP_LINEAR
 				);
 			}
-			this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+			gl.bindTexture(gl.TEXTURE_2D, null);
 			return true;
 		}
 
@@ -139,8 +137,8 @@ export default class Texture {
 	}
 
 	bind(textureIndex: number = 0) {
-		this.gl.activeTexture(this.gl.TEXTURE0 + textureIndex);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+		gl.activeTexture(gl.TEXTURE0 + textureIndex);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	}
 
 	loadFromFile(URL: string) {
@@ -152,9 +150,9 @@ export default class Texture {
 			// Now that the image has loaded copy it to the texture and save the width/height.
 			self.width = image.width;
 			self.height = image.height;
-			self.gl.bindTexture(self.gl.TEXTURE_2D, self.texture);
-			self.gl.texImage2D(
-				self.gl.TEXTURE_2D,
+			gl.bindTexture(gl.TEXTURE_2D, self.texture);
+			gl.texImage2D(
+				gl.TEXTURE_2D,
 				0,
 				self.internalFormat,
 				self.format,
@@ -162,20 +160,20 @@ export default class Texture {
 				image
 			);
 			if (self.useMipMap) {
-				self.gl.generateMipmap(self.gl.TEXTURE_2D);
-				self.gl.texParameteri(
-					self.gl.TEXTURE_2D,
-					self.gl.TEXTURE_MIN_FILTER,
-					self.gl.LINEAR_MIPMAP_LINEAR
+				gl.generateMipmap(gl.TEXTURE_2D);
+				gl.texParameteri(
+					gl.TEXTURE_2D,
+					gl.TEXTURE_MIN_FILTER,
+					gl.LINEAR_MIPMAP_LINEAR
 				);
 			}
 		});
 	}
 
 	setTexParameters(a: number, b: number) {
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		this.gl.texParameteri(this.gl.TEXTURE_2D, a, b);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.texParameteri(gl.TEXTURE_2D, a, b);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 }
 

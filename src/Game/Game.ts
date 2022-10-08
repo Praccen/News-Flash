@@ -1,6 +1,3 @@
-import {
-	input, StateAccessible,
-} from "../main.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
 import ParticleSpawnerComponent from "../Engine/ECS/Components/ParticleSpawnerComponent.js";
@@ -15,8 +12,9 @@ import PointLight from "../Engine/Lighting/PointLight.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
-import State from "../Engine/State.js";
+import State, { StatesEnum } from "../Engine/State.js";
 import Rendering from "../Engine/Rendering.js";
+import { input, StateAccessible } from "./GameMachine.js";
 
 export default class Game extends State {
 	private rendering: Rendering;
@@ -32,8 +30,9 @@ export default class Game extends State {
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = sa.rendering;
-		this.ecsManager = sa.ecsManager;
+		this.rendering = new Rendering();
+
+		this.ecsManager = new ECSManager(this.rendering);
 
 		// Textures
 		let smileyTexture =
@@ -80,7 +79,7 @@ export default class Game extends State {
 		this.particleText.center = true;
 	}
 
-	async init() {
+	async load() {
 		// ---- Box ----
 		let boxTexture =
 			"https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg";
@@ -141,6 +140,16 @@ export default class Game extends State {
 		knightMeshCollisionComp.updateTransformMatrix(knightMesh.modelMatrix);
 		this.ecsManager.addComponent(this.knightEntity, knightMeshCollisionComp);
 		// ----------------
+	}
+
+	async init() {
+		super.init();
+		this.rendering.show();
+	}
+
+	reset() {
+		super.reset();
+		this.rendering.hide();
 	}
 
 	createFloorEntity(texturePath: string) {
@@ -357,7 +366,17 @@ export default class Game extends State {
 		}
 
 		if (input.keys["p"] || input.keys["P"]) {
-			this.gotoState = 0;
+			this.gotoState = StatesEnum.MAINMENU;
 		}
+
+		this.ecsManager.update(dt);
+	}
+
+	prepareDraw(dt: number): void {
+		this.ecsManager.updateRenderingSystems(dt);
+	}
+
+	draw() {
+		this.rendering.draw();
 	}
 }
