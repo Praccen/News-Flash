@@ -436,6 +436,10 @@ export default class Rendering {
 	}
 
 	draw() {
+		if (this.resolutionWidth != windowInfo.resolutionWidth || this.resolutionHeight != windowInfo.resolutionHeight) {
+			this.reportCanvasResize(windowInfo.resolutionWidth, windowInfo.resolutionHeight);
+		}
+
 		gl.enable(gl.DEPTH_TEST);
 
 		// ---- Shadow pass ----

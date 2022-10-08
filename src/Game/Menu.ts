@@ -1,7 +1,7 @@
 import Rendering from "../Engine/Rendering.js";
 import Button from "../Engine/GUI/Button.js";
 import State, { StatesEnum } from "../Engine/State.js";
-import { StateAccessible } from "./GameMachine.js";
+import { options, StateAccessible } from "./GameMachine.js";
 
 export default class Menu extends State {
 	private rendering: Rendering
@@ -50,6 +50,8 @@ export default class Menu extends State {
 	async init() {
 		super.init();
 		this.rendering.show();
+		this.rendering.useCrt = options.useCrt;
+		this.rendering.useBloom = options.useBloom;
 	}
 
 	reset() {

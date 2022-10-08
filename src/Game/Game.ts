@@ -14,7 +14,7 @@ import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.
 import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
 import State, { StatesEnum } from "../Engine/State.js";
 import Rendering from "../Engine/Rendering.js";
-import { input, StateAccessible } from "./GameMachine.js";
+import { input, options, StateAccessible } from "./GameMachine.js";
 
 export default class Game extends State {
 	private rendering: Rendering;
@@ -145,6 +145,8 @@ export default class Game extends State {
 	async init() {
 		super.init();
 		this.rendering.show();
+		this.rendering.useCrt = options.useCrt;
+		this.rendering.useBloom = options.useBloom;
 	}
 
 	reset() {

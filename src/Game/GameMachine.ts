@@ -42,5 +42,7 @@ export default class GameMachine extends StateMachine {
         this.addState(StatesEnum.MAINMENU, Menu, 1.0/60.0, new Menu(this.stateAccessible));
         this.addState(StatesEnum.OPTIONS, OptionsMenu, 1.0/60.0, new OptionsMenu(this.stateAccessible));
         this.addState(StatesEnum.GAME, Game, 1.0/144.0, new Game(this.stateAccessible));
+
+        (<Game>(this.states.get(StatesEnum.GAME).state)).load();
     }
 }
