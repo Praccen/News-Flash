@@ -15,6 +15,7 @@ import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionCompon
 import State, { StatesEnum } from "../Engine/State.js";
 import Rendering from "../Engine/Rendering.js";
 import { input, options, StateAccessible } from "./GameMachine.js";
+import PointLightComponent from "../Engine/ECS/Components/PointLightComponent.js";
 
 export default class Game extends State {
 	private rendering: Rendering;
@@ -247,6 +248,12 @@ export default class Game extends State {
 		let particleComp = new ParticleSpawnerComponent(particleSpawner);
 		particleComp.lifeTime = lifeTime;
 		this.ecsManager.addComponent(entity, particleComp);
+
+		let particleLight = this.rendering.getNewPointLight();
+		particleLight.colour.setValues(0.5, 0.25, 0.0);
+		let particleLightComp = new PointLightComponent(particleLight);
+		particleLightComp.posOffset.setValues(0.0, 0.3, 0.0);
+		this.ecsManager.addComponent(entity, particleLightComp);
 		return entity;
 	}
 

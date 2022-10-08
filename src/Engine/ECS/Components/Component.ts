@@ -5,6 +5,7 @@ export enum ComponentTypeEnum {
 	MESHCOLLISION,
 	MOVEMENT,
 	PARTICLESPAWNER,
+	POINTLIGHT,
 	POSITION,
 }
 
