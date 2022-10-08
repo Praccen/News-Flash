@@ -13,7 +13,7 @@ export default class Menu extends State {
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = new Rendering();
+		this.rendering = new Rendering(sa.textureStore);
 
 		this.startButton = this.rendering.getNewButton();
 		this.startButton.position.x = 0.5;

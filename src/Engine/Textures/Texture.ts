@@ -6,6 +6,8 @@ export default class Texture {
 	height: number;
 	texture: WebGLTexture;
 
+	loadedFromFile: boolean;
+
 	// private missingTextureData: Uint8Array;
 	private useMipMap: boolean;
 
@@ -98,6 +100,8 @@ export default class Texture {
 			);
 		}
 		gl.bindTexture(gl.TEXTURE_2D, null);
+
+		this.loadedFromFile = false;
 	}
 
 	updateTextureSubData(
@@ -167,6 +171,7 @@ export default class Texture {
 					gl.LINEAR_MIPMAP_LINEAR
 				);
 			}
+			self.loadedFromFile = true;
 		});
 	}
 

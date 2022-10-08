@@ -3,6 +3,7 @@ import Progress from "../Engine/GUI/Progress.js";
 import State, { StatesEnum } from "../Engine/State.js";
 import TextObject2D from "../Engine/GUI/Text/TextObject2D.js";
 import { StateAccessible } from "./GameMachine.js";
+import Texture from "../Engine/Textures/Texture.js";
 
 export default class LoadingScreen extends State {
 	private rendering: Rendering
@@ -10,12 +11,15 @@ export default class LoadingScreen extends State {
     private text: TextObject2D;
 	private progressBar: Progress;
     private progress: number;
+	private timer: number;
+
+	private texturesToLoad: Texture[];
 
 	constructor(
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = new Rendering();
+		this.rendering = new Rendering(sa.textureStore);
 
 		// Load all textures to avoid loading mid game
 		let textures = [
@@ -25,8 +29,10 @@ export default class LoadingScreen extends State {
 			"Assets/textures/fire.png",
 			"Assets/textures/knight.png",
 		];
+
+		this.texturesToLoad = new Array<Texture>();
 		for (const texFile of textures) {
-			this.rendering.loadTextureToStore(texFile);
+			this.texturesToLoad.push(this.rendering.getTextureFromStore(texFile));
 		}
 
 		this.text = this.rendering.getNew2DText();
@@ -45,11 +51,12 @@ export default class LoadingScreen extends State {
         this.progressBar.getProgressElement().max = 1.0;
         this.progressBar.getProgressElement().value = 0.0;
         this.progress = 0;
+		this.timer = 0;
 	}
 
 	async init() {
 		super.init();
-		this.progress = 0;
+		this.rendering.show()
 	}
 
 	reset() {
@@ -58,11 +65,20 @@ export default class LoadingScreen extends State {
 	}
 
 	update(dt: number) {
-        this.progress += dt / 0.5;
+		let loadedTextures = 0;
+		for (let tex of this.texturesToLoad) {
+			if (tex.loadedFromFile) {
+				loadedTextures++;
+			}
+		}
+
+		this.timer += dt / 0.5;
+
+        this.progress = Math.min(loadedTextures / this.texturesToLoad.length, this.timer);
         this.progressBar.getProgressElement().value = this.progress;
 		this.text.textString = "Loading assets: " + Math.ceil((this.progress * 100)) + "%";
 
-        if (this.progress > 1.0) {
+        if (this.progress >= 1.0) {
             this.gotoState = StatesEnum.MAINMENU;
         }
 	}

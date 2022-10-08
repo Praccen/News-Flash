@@ -103,8 +103,8 @@ export default class Rendering {
 	private guiObjects2D: Array<GuiObject>;
 	// -----------------------
 
-	constructor() {
-		this.textureStore = new TextureStore();
+	constructor(textureStore: TextureStore) {
+		this.textureStore = textureStore;
 		this.camera = new Camera(gl);
 		this.resolutionWidth = windowInfo.resolutionWidth;
 		this.resolutionHeight = windowInfo.resolutionHeight;

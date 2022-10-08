@@ -1,10 +1,8 @@
 import AudioPlayer from "../Engine/Audio/AudioPlayer.js";
-import ECSManager from "../Engine/ECS/ECSManager.js";
-import TextObject2D from "../Engine/GUI/Text/TextObject2D.js";
 import Input from "../Engine/Input/Input.js";
-import Rendering from "../Engine/Rendering.js";
 import { StatesEnum } from "../Engine/State.js";
 import StateMachine from "../Engine/StateMachine.js";
+import TextureStore from "../Engine/Textures/TextureStore.js";
 import Game from "./Game.js";
 import LoadingScreen from "./LoadingScreen.js";
 import Menu from "./Menu.js";
@@ -23,6 +21,7 @@ export let options = {
  * These are the variables available to all the states
  */
  export class StateAccessible {
+    textureStore: TextureStore;
 	// fpsDisplay: TextObject2D;
 	audioPlayer: AudioPlayer;
 }
@@ -33,6 +32,7 @@ export default class GameMachine extends StateMachine {
     constructor() {
         super(StatesEnum.LOADINGSCREEN);
         this.stateAccessible = {
+            textureStore: new TextureStore(),
 			// fpsDisplay: null,
 			audioPlayer: new AudioPlayer()
 		};

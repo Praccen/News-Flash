@@ -21,7 +21,7 @@ export default class OptionsMenu extends State {
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = new Rendering();
+		this.rendering = new Rendering(sa.textureStore);
 		
 		this.crtCB = this.rendering.getNewCheckbox();
 		// this.crtCB.center = true;

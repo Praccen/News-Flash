@@ -30,7 +30,7 @@ export default class Game extends State {
 			sa: StateAccessible
 	) {
 		super();
-		this.rendering = new Rendering();
+		this.rendering = new Rendering(sa.textureStore);
 
 		this.ecsManager = new ECSManager(this.rendering);
 
