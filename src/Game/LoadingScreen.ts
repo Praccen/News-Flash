@@ -74,11 +74,11 @@ export default class LoadingScreen extends State {
 
 		this.timer += dt / 0.5;
 
-        this.progress = Math.min(loadedTextures / this.texturesToLoad.length, this.timer);
+        this.progress = loadedTextures / this.texturesToLoad.length;
         this.progressBar.getProgressElement().value = this.progress;
 		this.text.textString = "Loading assets: " + Math.ceil((this.progress * 100)) + "%";
 
-        if (this.progress >= 1.0) {
+        if (this.progress >= 1.0 && this.timer >= 1.0) {
             this.gotoState = StatesEnum.MAINMENU;
         }
 	}
