@@ -3,7 +3,7 @@ import State, { StatesEnum } from "./State.js";
 export default class StateMachine {
     states: Map<StatesEnum, {stateType: any, minUpdateRate: number, state: State}>;
 	
-	protected fps: number;
+	protected fps: number = 0;
     protected currentState: StatesEnum;
 
     private firstLoop: boolean;

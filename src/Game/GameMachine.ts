@@ -1,5 +1,7 @@
 import AudioPlayer from "../Engine/Audio/AudioPlayer.js";
+import TextObject2D from "../Engine/GUI/Text/TextObject2D.js";
 import Input from "../Engine/Input/Input.js";
+import Rendering from "../Engine/Rendering.js";
 import { StatesEnum } from "../Engine/State.js";
 import StateMachine from "../Engine/StateMachine.js";
 import TextureStore from "../Engine/Textures/TextureStore.js";
@@ -29,6 +31,9 @@ export let options = {
 export default class GameMachine extends StateMachine {
     stateAccessible: StateAccessible;
 
+    private rendering: Rendering;
+    private fpsDisplay: TextObject2D;
+
     constructor() {
         super(StatesEnum.LOADINGSCREEN);
         this.stateAccessible = {
@@ -44,5 +49,20 @@ export default class GameMachine extends StateMachine {
         this.addState(StatesEnum.GAME, Game, 1.0/144.0, new Game(this.stateAccessible));
 
         (<Game>(this.states.get(StatesEnum.GAME).state)).load();
+
+        this.rendering = new Rendering(this.stateAccessible.textureStore);
+        this.fpsDisplay = this.rendering.getNew2DText();
+        this.fpsDisplay.position.x = 0.01;
+		this.fpsDisplay.position.y = 0.01;
+		this.fpsDisplay.size = 18;
+		this.fpsDisplay.scaleWithWindow = false;
+		this.fpsDisplay.getElement().style.color = "lime";
     }
+
+    async runCurrentState() {
+        this.fpsDisplay.setHidden(!options.showFps);
+		this.fpsDisplay.textString = Math.round(this.fps) + "";
+        this.rendering.draw();
+        super.runCurrentState();
+	}
 }
