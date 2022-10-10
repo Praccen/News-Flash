@@ -25,6 +25,7 @@ export default class StateMachine {
 
     addState(stateEnum: StatesEnum, stateType: any, minUpdateRate: number, state: State) {
         this.states.set(stateEnum, {stateType: stateType, minUpdateRate: minUpdateRate, state: state});
+		this.states.get(stateEnum).state.reset();
     }
 
     updateFrameTimers() {
