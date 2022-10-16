@@ -260,22 +260,22 @@ export default class Game extends State {
 	update(dt: number) {
 		let moveVec: Vec3 = new Vec3();
 		let move = false;
-		if (input.keys["w"] || input.keys["W"]) {
+		if (input.keys["W"]) {
 			moveVec.add(this.rendering.camera.getDir());
 			move = true;
 		}
 
-		if (input.keys["s"] || input.keys["S"]) {
+		if (input.keys["S"]) {
 			moveVec.subtract(this.rendering.camera.getDir());
 			move = true;
 		}
 
-		if (input.keys["a"] || input.keys["A"]) {
+		if (input.keys["A"]) {
 			moveVec.subtract(this.rendering.camera.getRight());
 			move = true;
 		}
 
-		if (input.keys["d"] || input.keys["D"]) {
+		if (input.keys["D"]) {
 			moveVec.add(this.rendering.camera.getRight());
 			move = true;
 		}
@@ -285,7 +285,7 @@ export default class Game extends State {
 			move = true;
 		}
 
-		if (input.keys["Shift"]) {
+		if (input.keys["SHIFT"]) {
 			moveVec.subtract(new Vec3({ x: 0.0, y: 1.0, z: 0.0 }));
 			move = true;
 		}
@@ -299,22 +299,22 @@ export default class Game extends State {
 
 		let rotVec: Vec2 = new Vec2({ x: 0.0, y: 0.0 });
 		let rotate = false;
-		if (input.keys["ArrowUp"]) {
+		if (input.keys["ARROWUP"]) {
 			rotVec.x += 1.0;
 			rotate = true;
 		}
 
-		if (input.keys["ArrowDown"]) {
+		if (input.keys["ARROWDOWN"]) {
 			rotVec.x -= 1.0;
 			rotate = true;
 		}
 
-		if (input.keys["ArrowLeft"]) {
+		if (input.keys["ARROWLEFT"]) {
 			rotVec.y += 1.0;
 			rotate = true;
 		}
 
-		if (input.keys["ArrowRight"]) {
+		if (input.keys["ARROWRIGHT"]) {
 			rotVec.y -= 1.0;
 			rotate = true;
 		}
@@ -358,7 +358,7 @@ export default class Game extends State {
 			this.particleText.position = particlePosComp.position;
 		}
 
-		if (input.keys["e"] || input.keys["E"]) {
+		if (input.keys["E"]) {
 			let boxPosComp = <PositionComponent>(
 				this.boxEntity.getComponent(ComponentTypeEnum.POSITION)
 			);
@@ -374,7 +374,7 @@ export default class Game extends State {
 				.multiply(15.0);
 		}
 
-		if (input.keys["p"] || input.keys["P"]) {
+		if (input.keys["P"]) {
 			this.gotoState = StatesEnum.MAINMENU;
 		}
 

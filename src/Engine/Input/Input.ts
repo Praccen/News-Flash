@@ -20,12 +20,12 @@ export default class Input {
 		// https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values <-- for key codes
 		let self = this;
 		document.addEventListener("keydown", function (event) {
-			self.keys[event.key] = true;
+			self.keys[event.key.toUpperCase()] = true;
 			self.drawHud = false;
 		});
 
 		document.addEventListener("keyup", function (event) {
-			self.keys[event.key] = false;
+			self.keys[event.key.toUpperCase()] = false;
 			self.drawHud = false;
 		});
 
