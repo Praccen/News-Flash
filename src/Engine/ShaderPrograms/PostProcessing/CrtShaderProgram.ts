@@ -1,5 +1,6 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+import { gl } from "../../../main.js";
 
 const crtFragmentShaderSrc: string = `#version 300 es
 precision highp float;
@@ -154,9 +155,9 @@ void main() {
 }
 `;
 
-export default class CrtShaderProgram extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
-		super(gl, "CrtShaderProgram", screenQuadVertexSrc, crtFragmentShaderSrc);
+class CrtShaderProgram extends ShaderProgram {
+	constructor() {
+		super("CrtShaderProgram", screenQuadVertexSrc, crtFragmentShaderSrc);
 
 		this.setUniformLocation("screenTexture");
 	}
@@ -164,10 +165,16 @@ export default class CrtShaderProgram extends ShaderProgram {
 	setupVertexAttributePointers() {
 		// Change if input layout changes in shaders
 		const stride = 4 * 4;
-		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, stride, 2 * 4);
+		gl.enableVertexAttribArray(1);
 	}
+}
+
+export let crtShaderProgram = null;
+
+export let createCrtShaderProgram = function() {
+  crtShaderProgram = new CrtShaderProgram();
 }

@@ -32,6 +32,22 @@ export default class Matrix3 {
 		return this;
 	}
 
+	toMatrix4(): Matrix4 {
+		let retMat = new Matrix4(null);
+
+		retMat.elements[0] = this.elements[0];
+		retMat.elements[4] = this.elements[3];
+		retMat.elements[8] = this.elements[6];
+		retMat.elements[1] = this.elements[1];
+		retMat.elements[5] = this.elements[4];
+		retMat.elements[9] = this.elements[7];
+		retMat.elements[2] = this.elements[2];
+		retMat.elements[6] = this.elements[5];
+		retMat.elements[10] = this.elements[8];
+
+		return retMat;
+	}
+
 	multiplyVec3(vec: Vec3): Vec3 {
 		let e = this.elements;
 		let v = new Vec3();
@@ -39,7 +55,6 @@ export default class Matrix3 {
 		v.x = vec.x * e[0] + vec.y * e[3] + vec.z * e[6];
 		v.y = vec.x * e[1] + vec.y * e[4] + vec.z * e[7];
 		v.z = vec.x * e[2] + vec.y * e[5] + vec.z * e[8];
-
 		return v;
 	}
 
@@ -110,8 +125,13 @@ export default class Matrix3 {
 	}
 
 	invert(): Matrix3 {
-		let adj = this.adj();
 		let determinant = this.determinant();
+
+		if (determinant == 0.0) {
+			return this;
+		}
+
+		let adj = this.adj();
 
 		for (let i = 0; i < 9; i++) {
 			this.elements[i] = adj.elements[i] / determinant;

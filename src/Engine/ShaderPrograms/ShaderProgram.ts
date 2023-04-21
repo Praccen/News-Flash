@@ -1,17 +1,16 @@
+import { gl } from "../../main.js";
+
 export default class ShaderProgram {
 	// Protected
-	protected gl: WebGL2RenderingContext;
 	protected shaderProgram: WebGLProgram;
 	protected uniformBindings: Map<string, WebGLUniformLocation>;
 
 	constructor(
-		gl: WebGL2RenderingContext,
 		shaderProgramName: string,
 		vertexShaderName: string,
 		fragmentShaderName: string,
 		debugShaderCompilation: boolean = false
 	) {
-		this.gl = gl;
 		this.shaderProgram = null;
 		this.loadShaders(
 			shaderProgramName,
@@ -30,77 +29,77 @@ export default class ShaderProgram {
 	) {
 		// link shaders
 		if (this.shaderProgram != null) {
-			this.gl.deleteProgram(this.shaderProgram); // Delete in case this is not the first time this shader is created.
+			gl.deleteProgram(this.shaderProgram); // Delete in case this is not the first time this shader is created.
 		}
 
 		console.log("Compiling shader program: " + shaderProgramName);
 
 		// vertex shader
-		const vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
-		this.gl.shaderSource(vertexShader, vertexShaderString);
-		this.gl.compileShader(vertexShader);
+		const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, vertexShaderString);
+		gl.compileShader(vertexShader);
 
 		// Check for shader compile errors
 		if (
-			!this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS) ||
+			!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS) ||
 			debugShaderCompilation
 		) {
 			console.log(
 				"Vertex shader compiled successfully: " +
-					this.gl.getShaderParameter(vertexShader, this.gl.COMPILE_STATUS)
+					gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)
 			);
 			console.log(
 				"Vertex shader compiler log: \n" +
-					this.gl.getShaderInfoLog(vertexShader)
+					gl.getShaderInfoLog(vertexShader)
 			);
 		}
 
 		// fragment shader
-		const fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
-		this.gl.shaderSource(fragmentShader, fragmentShaderString);
-		this.gl.compileShader(fragmentShader);
+		const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, fragmentShaderString);
+		gl.compileShader(fragmentShader);
 
 		// Check for shader compile errors
 		if (
-			!this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS) ||
+			!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS) ||
 			debugShaderCompilation
 		) {
 			console.log(
 				"Fragment shader compiled successfully: " +
-					this.gl.getShaderParameter(fragmentShader, this.gl.COMPILE_STATUS)
+					gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)
 			);
 			console.log(
 				"Fragment shader compiler log: \n" +
-					this.gl.getShaderInfoLog(fragmentShader)
+					gl.getShaderInfoLog(fragmentShader)
 			);
 		}
 
-		this.shaderProgram = this.gl.createProgram();
+		this.shaderProgram = gl.createProgram();
 
-		this.gl.attachShader(this.shaderProgram, vertexShader);
-		this.gl.attachShader(this.shaderProgram, fragmentShader);
-		this.gl.linkProgram(this.shaderProgram);
+		gl.attachShader(this.shaderProgram, vertexShader);
+		gl.attachShader(this.shaderProgram, fragmentShader);
+		gl.linkProgram(this.shaderProgram);
 
 		// Check for linking errors?
-		let linkedShaders = this.gl.getProgramParameter(
+		let linkedShaders = gl.getProgramParameter(
 			this.shaderProgram,
-			this.gl.LINK_STATUS
+			gl.LINK_STATUS
 		);
 		if (!linkedShaders || debugShaderCompilation) {
 			console.log("Linked shaders successfully: " + linkedShaders);
 			console.log(
 				"Linking shaders log: \n" +
-					this.gl.getProgramInfoLog(this.shaderProgram)
+					gl.getProgramInfoLog(this.shaderProgram)
 			);
 		}
 
 		// Delete shaders now that they have been made into a program
-		this.gl.deleteShader(vertexShader);
-		this.gl.deleteShader(fragmentShader);
+		gl.deleteShader(vertexShader);
+		gl.deleteShader(fragmentShader);
 	}
 
 	use() {
-		this.gl.useProgram(this.shaderProgram);
+		gl.useProgram(this.shaderProgram);
 	}
 
 	setupVertexAttributePointers() {
@@ -112,7 +111,7 @@ export default class ShaderProgram {
 	setUniformLocation(uniformName: string) {
 		this.uniformBindings.set(
 			uniformName,
-			this.gl.getUniformLocation(this.shaderProgram, uniformName)
+			gl.getUniformLocation(this.shaderProgram, uniformName)
 		);
 	}
 

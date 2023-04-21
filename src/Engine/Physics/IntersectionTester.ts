@@ -1,6 +1,7 @@
 import { SAT } from "../Maths/SAT.js";
 import Vec3 from "../Maths/Vec3.js";
 import IntersectionInformation from "./IntersectionInformation.js";
+import Ray from "./Shapes/Ray.js";
 import Shape from "./Shapes/Shape.js";
 
 export module IntersectionTester {
@@ -67,7 +68,9 @@ export module IntersectionTester {
 						new IntersectionInformation(
 							tempIntersectionAxis,
 							tempIntersectionDepth.depth,
-							SAT.getIntersectionPoint(shapeA, shapeB, tempIntersectionAxis)
+							SAT.getIntersectionPoint(shapeA, shapeB, tempIntersectionAxis),
+							shapeA,
+							shapeB
 						)
 					);
 				}
@@ -75,5 +78,31 @@ export module IntersectionTester {
 		}
 
 		return intersecting;
+	}
+
+	/**
+	 * Finds the closest ray cast hit between a ray and an array of shapes
+	 * @param ray Ray shape
+	 * @param shapeArray shape array to cast against
+	 * @param maxDistance The furthest allowed hit
+	 * @param breakOnFirstHit If the first hit should be returned immediately 
+	 * @returns the closest hit
+	 */
+	export function doRayCast(ray: Ray, shapeArray: Array<Shape>, maxDistance: number = Infinity, breakOnFirstHit: boolean = false): number {
+		let closestHit = -1.0;
+
+		for (const shape of shapeArray) {
+			let dist = SAT.getContinousIntersection3D(ray, shape, ray.getDir(), new Vec3([0.0, 0.0, 0.0]), maxDistance);
+			if (dist >= 0.0 && (dist < closestHit || closestHit < 0)) {
+				closestHit = dist;
+				maxDistance = closestHit;
+
+				if (breakOnFirstHit) {
+					return closestHit;
+				}
+			}
+		}
+
+		return closestHit;
 	}
 }

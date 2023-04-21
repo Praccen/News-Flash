@@ -1,4 +1,4 @@
-import Rendering from "../Rendering.js";
+import Rendering from "../Rendering/Rendering.js";
 import { Component, ComponentTypeEnum } from "./Components/Component.js";
 
 export default class Entity {

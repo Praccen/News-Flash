@@ -1,3 +1,4 @@
+import { gl } from "../../main.js";
 import ShaderProgram from "./ShaderProgram.js";
 
 const simpleVertexShaderSrc: string = `#version 300 es
@@ -56,10 +57,9 @@ void main()
     FragColor.a = 1.0f; // Since we use screen door transparency, do not use alpha value
 }`;
 
-export default class SimpleShaderProgram extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
+class SimpleShaderProgram extends ShaderProgram {
+	constructor() {
 		super(
-			gl,
 			"SimpleShaderProgram",
 			simpleVertexShaderSrc,
 			simpleFragmentShaderSrc
@@ -73,19 +73,25 @@ export default class SimpleShaderProgram extends ShaderProgram {
 		this.setUniformLocation("texture0");
 		this.setUniformLocation("useTexture");
 
-		this.gl.uniform1i(this.uniformBindings["texture0"], 0);
+		gl.uniform1i(this.uniformBindings["texture0"], 0);
 	}
 
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 9 * 4;
-		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 4, this.gl.FLOAT, false, stride, 3 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 4, gl.FLOAT, false, stride, 3 * 4);
+		gl.enableVertexAttribArray(1);
 
-		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 7 * 4);
-		this.gl.enableVertexAttribArray(2);
+		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, stride, 7 * 4);
+		gl.enableVertexAttribArray(2);
 	}
+}
+
+export let simpleShaderProgram = null;
+
+export let createSimpleShaderProgram = function() {
+	simpleShaderProgram = new SimpleShaderProgram();
 }

@@ -8,18 +8,19 @@ export default class Texture {
 
 	loadedFromFile: boolean;
 
-	// private missingTextureData: Uint8Array;
-	private useMipMap: boolean;
+	protected useMipMap: boolean;
 
-	private internalFormat: number;
-	private format: number;
-	private dataStorageType: number;
+	protected internalFormat: number;
+	protected format: number;
+	protected dataStorageType: number;
+	protected textureTarget: number;
 
 	constructor(
 		useMipMap: boolean = true,
 		internalFormat: number = gl.RGBA,
 		format: number = gl.RGBA,
-		dataStorageType: number = gl.UNSIGNED_BYTE
+		dataStorageType: number = gl.UNSIGNED_BYTE,
+		textureTarget: number = gl.TEXTURE_2D
 	) {
 
 		// this.missingTextureData = new Uint8Array([
@@ -32,56 +33,47 @@ export default class Texture {
 		this.internalFormat = internalFormat;
 		this.format = format;
 		this.dataStorageType = dataStorageType;
+		this.textureTarget = textureTarget;
 
 		// Generate texture
 		this.texture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.bindTexture(this.textureTarget, this.texture);
 
+		// Set texture parameters
 		gl.texParameteri(
-			gl.TEXTURE_2D,
+			this.textureTarget,
 			gl.TEXTURE_WRAP_S,
 			gl.REPEAT
 		);
 		gl.texParameteri(
-			gl.TEXTURE_2D,
+			this.textureTarget,
 			gl.TEXTURE_WRAP_T,
 			gl.REPEAT
 		);
 		gl.texParameteri(
-			gl.TEXTURE_2D,
+			this.textureTarget,
 			gl.TEXTURE_MIN_FILTER,
 			gl.NEAREST
 		);
 		gl.texParameteri(
-			gl.TEXTURE_2D,
+			this.textureTarget,
 			gl.TEXTURE_MAG_FILTER,
 			gl.NEAREST
 		);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-		this.width = 1;
-		this.height = 1;
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			this.internalFormat,
-			this.width,
-			this.height,
-			0,
-			this.format,
-			this.dataStorageType,
-			null
-		);
+		// Make a 1 by 1 empty texture
+		this.setTextureData(null, 1, 1);
 
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.bindTexture(this.textureTarget, null);
 	}
 
 	setTextureData(data: Uint8Array, width: number, height: number) {
 		this.width = width;
 		this.height = height;
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.bindTexture(this.textureTarget, this.texture);
 		gl.texImage2D(
-			gl.TEXTURE_2D,
+			this.textureTarget,
 			0,
 			this.internalFormat,
 			width,
@@ -92,57 +84,21 @@ export default class Texture {
 			data
 		);
 		if (this.useMipMap) {
-			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.generateMipmap(this.textureTarget);
 			gl.texParameteri(
-				gl.TEXTURE_2D,
+				this.textureTarget,
 				gl.TEXTURE_MIN_FILTER,
 				gl.LINEAR_MIPMAP_LINEAR
 			);
 		}
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.bindTexture(this.textureTarget, null);
 
 		this.loadedFromFile = false;
 	}
 
-	updateTextureSubData(
-		data: Uint8Array,
-		xOffset: number,
-		yOffset: number,
-		width: number,
-		height: number
-	): boolean {
-		if (xOffset + width <= this.width && yOffset + height <= this.height) {
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			gl.texSubImage2D(
-				gl.TEXTURE_2D,
-				0,
-				xOffset,
-				yOffset,
-				width,
-				height,
-				this.internalFormat,
-				this.dataStorageType,
-				data
-			);
-			if (this.useMipMap) {
-				gl.generateMipmap(gl.TEXTURE_2D);
-				gl.texParameteri(
-					gl.TEXTURE_2D,
-					gl.TEXTURE_MIN_FILTER,
-					gl.LINEAR_MIPMAP_LINEAR
-				);
-			}
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			return true;
-		}
-
-		console.log("Tried to update texture sub data outside of bounds\n");
-		return false;
-	}
-
 	bind(textureIndex: number = 0) {
 		gl.activeTexture(gl.TEXTURE0 + textureIndex);
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.bindTexture(this.textureTarget, this.texture);
 	}
 
 	loadFromFile(URL: string) {
@@ -154,9 +110,9 @@ export default class Texture {
 			// Now that the image has loaded copy it to the texture and save the width/height.
 			self.width = image.width;
 			self.height = image.height;
-			gl.bindTexture(gl.TEXTURE_2D, self.texture);
+			gl.bindTexture(self.textureTarget, self.texture);
 			gl.texImage2D(
-				gl.TEXTURE_2D,
+				self.textureTarget,
 				0,
 				self.internalFormat,
 				self.format,
@@ -164,9 +120,9 @@ export default class Texture {
 				image
 			);
 			if (self.useMipMap) {
-				gl.generateMipmap(gl.TEXTURE_2D);
+				gl.generateMipmap(self.textureTarget);
 				gl.texParameteri(
-					gl.TEXTURE_2D,
+					self.textureTarget,
 					gl.TEXTURE_MIN_FILTER,
 					gl.LINEAR_MIPMAP_LINEAR
 				);
@@ -175,10 +131,10 @@ export default class Texture {
 		});
 	}
 
-	setTexParameters(a: number, b: number) {
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
-		gl.texParameteri(gl.TEXTURE_2D, a, b);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+	setTexParameterI(a: number, b: number) {
+		gl.bindTexture(this.textureTarget, this.texture);
+		gl.texParameteri(this.textureTarget, a, b);
+		gl.bindTexture(this.textureTarget, null);
 	}
 }
 

@@ -1,7 +1,23 @@
 import Vec3 from "../../Maths/Vec3.js";
 
 export default class Shape {
-	constructor() {}
+	margin: number;
+
+	constructor() {
+		this.margin = 0.0;
+	}
+
+	setUpdateNeeded() {
+		
+	}
+
+	setTransformMatrix(matrix: Matrix4) {
+		
+	}
+
+	getOriginalVertices(): Array<Vec3> {
+		return null;
+	}
 
 	getTransformedVertices(): Array<Vec3> {
 		return null;

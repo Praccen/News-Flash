@@ -3,11 +3,13 @@ export enum StatesEnum {
     LOADINGSCREEN,
 	MAINMENU,
 	OPTIONS,
-	GAME
+    CONTROLS,
+	GAME,
+    DEBUGMODE
 }
 
 export default class State {
-    /**
+    /*
      * Set this to the enum for the state you want the state machine to move to.
      * Leave it at STAY to keep running the current state.
      */
@@ -26,6 +28,8 @@ export default class State {
     reset() {
         this.initialized = false;
     }
+
+    onExit(e: BeforeUnloadEvent) {}
 
 	update(dt: number) {}
 

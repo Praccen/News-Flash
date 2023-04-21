@@ -1,3 +1,4 @@
+import { gl } from "../../main.js";
 import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
@@ -12,25 +13,25 @@ export default class DirectionalLight {
 	private shaderProgram: ShaderProgram;
 
 	constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram) {
-		this.gl = gl;
+		gl = gl;
 		this.shaderProgram = shaderProgram;
 
-		this.direction = new Vec3({ x: 0.0, y: -1.0, z: -0.5 });
-		this.colour = new Vec3({ x: 0.2, y: 0.2, z: 0.2 });
+		this.direction = new Vec3([0.0, -1.0, -0.5]);
+		this.colour = new Vec3([0.2, 0.2, 0.2]);
 		this.ambientMultiplier = 0.1;
 		this.lightProjectionBoxSideLength = 50.0;
 	}
 
 	bind() {
-		this.gl.uniform3fv(
+		gl.uniform3fv(
 			this.shaderProgram.getUniformLocation("directionalLight.direction")[0],
-			this.direction.normalize().elements()
+			this.direction.normalize()
 		);
-		this.gl.uniform3fv(
+		gl.uniform3fv(
 			this.shaderProgram.getUniformLocation("directionalLight.colour")[0],
-			this.colour.elements()
+			this.colour
 		);
-		this.gl.uniform1f(
+		gl.uniform1f(
 			this.shaderProgram.getUniformLocation(
 				"directionalLight.ambientMultiplier"
 			)[0],
@@ -66,6 +67,6 @@ export default class DirectionalLight {
 			0.0
 		); // This will make it impossible to have exactly straight down shadows, but I'm fine with that
 		lightSpaceMatrix = lightSpaceMatrix.concat(lightView); // Multiply with view
-		this.gl.uniformMatrix4fv(uniformLocation, false, lightSpaceMatrix.elements);
+		gl.uniformMatrix4fv(uniformLocation, false, lightSpaceMatrix.elements);
 	}
 }

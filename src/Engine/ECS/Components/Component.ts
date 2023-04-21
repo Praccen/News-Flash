@@ -1,5 +1,6 @@
 export enum ComponentTypeEnum {
 	BOUNDINGBOX,
+	CAMERAFOCUS,
 	COLLISION,
 	GRAPHICS,
 	MESHCOLLISION,
@@ -7,6 +8,7 @@ export enum ComponentTypeEnum {
 	PARTICLESPAWNER,
 	POINTLIGHT,
 	POSITION,
+	POSITIONPARENT
 }
 
 export class Component {

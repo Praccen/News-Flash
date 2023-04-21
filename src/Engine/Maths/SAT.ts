@@ -16,7 +16,8 @@ export module SAT {
 		overlapVector: Vec3,
 		shapeAVertices: Array<Vec3>,
 		shapeBVertices: Array<Vec3>,
-		reverse: { value: boolean }
+		reverse: { value: boolean },
+		margin: number
 	): number {
 		let maxA = overlapVector.dot(shapeAVertices[0]);
 		let minA = maxA;
@@ -47,7 +48,7 @@ export module SAT {
 
 		let overlap1 = maxB - minA;
 		let overlap2 = maxA - minB;
-		if (overlap1 >= 0.0 && overlap2 >= 0.0) {
+		if (overlap1 >= -margin && overlap2 >= -margin) {
 			if (overlap1 > overlap2) {
 				reverse.value = true;
 				return overlap2;
@@ -58,6 +59,81 @@ export module SAT {
 		}
 
 		return -1.0;
+	}
+
+	/**
+	 * Finds if two sets of vertices will overlap along an axis given their relative speed within the time frame (time input object).
+	 * Will alter the first collision time and last collision time in the times object
+	 * @param testVec The axis for overlap
+	 * @param shapeAVertices Vertices for shape A 
+	 * @param shapeBVertices Vertices for shape B
+	 * @param relativeVelocity Relative velocity between the shapes
+	 * @param times Times object which contains - first, last, max. Max is how soon the overlap has to happen to count.
+	 * @returns If an overlap happens within the timeframe (times.max)
+	 */
+	export function getContinousOverlap(testVec: Vec3, shapeAVertices: Array<Vec3>, shapeBVertices: Array<Vec3>, relativeVelocity: Vec3, times: {first: number, last: number, max: number}): boolean {
+		let minA = Infinity, minB = Infinity;
+		let maxA = -Infinity, maxB = -Infinity;
+
+		let tempDot = 0.0;
+
+		for (const vert of shapeAVertices) {
+			tempDot = vert.dot(testVec);
+
+			minA = Math.min(minA, tempDot);
+			maxA = Math.max(maxA, tempDot);
+		}
+
+		for (const vert of shapeBVertices) {
+			tempDot = vert.dot(testVec);
+
+			minB = Math.min(minB, tempDot);
+			maxB = Math.max(maxB, tempDot);
+		}
+
+		//Following found here: https://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
+
+		let T: number;
+		let speed = testVec.dot(relativeVelocity);
+
+		if (maxB <= minA) {
+			if (speed <= 0.0) { // Interval (B) initially on ‘left’ of interval (A)
+				return false; // Intervals moving apart
+			}
+
+			T = (minA - maxB) / speed;
+			if (T > times.first) { times.first = T; }
+			if (times.first > times.max) { return false; } // Early exit
+
+			T = (maxA - minB) / speed;
+			if (T < times.last) { times.last = T; }
+			if (times.first > times.last) { return false; } // Early exit
+		}
+		else if (maxA <= minB) { // Interval (B) initially on ‘right’ of interval (A)
+			if (speed >= 0.0) { return false; } // Intervals moving apart
+
+			T = (maxA - minB) / speed;
+			if (T > times.first) { times.first = T; }
+			if (times.first > times.max) { return false; } // Early exit
+
+			T = (minA - maxB) / speed;
+			if (T < times.last) { times.last = T; }
+			if (times.first > times.last) { return false; } // Early exit
+		}
+		else { // Interval (A) and interval (B) overlap
+			if (speed > 0.0) {
+				T = (maxA - minB) / speed;
+				if (T < times.last) { times.last = T; }
+				if (times.first > times.last) { return false; } // Early exit
+			}
+			else if (speed < 0.0) {
+				T = (minA - maxB) / speed;
+				if (T < times.last) { times.last = T; }
+				if (times.first > times.last) { return false; } // Early exit
+			}
+		}
+		
+		return true;
 	}
 
 	/**
@@ -187,14 +263,11 @@ export module SAT {
 
 		let shapeAVertices = shapeA.getTransformedVertices();
 		let shapeBVertices = shapeB.getTransformedVertices();
-
-		let reverse = { value: false };
-		let overlap: number;
-
-		let shapeANormals = shapeA.getTransformedNormals();
-		for (let normal of shapeANormals) {
-			reverse = { value: false };
-			overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse);
+		
+		// Check normal and update intersection depth and axis if shallower than previous
+		let checkNormal = function(normal: Vec3): boolean {
+			let reverse = { value: false };
+			let overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse, shapeA.margin + shapeB.margin);
 
 			if (overlap < 0.0) {
 				return false;
@@ -206,28 +279,25 @@ export module SAT {
 				if (reverse.value) {
 					intersectionAxis.flip();
 				}
+			}
+			return true;
+		}
+		
+		let shapeANormals = shapeA.getTransformedNormals();
+		for (let normal of shapeANormals) {
+			if (!checkNormal(normal)) {
+				return false;
 			}
 		}
 
 		let shapeBNormals = shapeB.getTransformedNormals();
 		for (let normal of shapeBNormals) {
-			reverse = { value: false };
-			overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse);
-
-			if (overlap < 0.0) {
+			if (!checkNormal(normal)) {
 				return false;
-			}
-
-			if (overlap < intersectionDepth.depth) {
-				intersectionDepth.depth = overlap;
-				intersectionAxis.deepAssign(normal);
-				if (reverse.value) {
-					intersectionAxis.flip();
-				}
 			}
 		}
 
-		// The triangles are intersecting along both normals
+		// The shapes are intersecting along all normals
 		// Two cases are possible;
 		// 1. The shapes are flat and coplanar -> We need to test the shapes in "2d", projected on the plane they are on
 		// 2. The shapes are not flat and coplanar -> We need to test the cross products of all the edges of ShapeA with the edges of ShapeB
@@ -247,46 +317,14 @@ export module SAT {
 				// Coplanar
 				// Test the edge normals for all edges
 				for (const AEdgeNormal of shapeA.getTransformedEdgeNormals()) {
-					reverse = { value: false };
-					overlap = SAT.getOverlap(
-						AEdgeNormal,
-						shapeAVertices,
-						shapeBVertices,
-						reverse
-					);
-
-					if (overlap < 0.0) {
+					if (!checkNormal(AEdgeNormal)) {
 						return false;
-					}
-
-					if (overlap < intersectionDepth.depth) {
-						intersectionDepth.depth = overlap;
-						intersectionAxis.deepAssign(shapeBNormals[0]);
-						if (reverse.value) {
-							intersectionAxis.flip();
-						}
 					}
 				}
 
 				for (const BEdgeNormal of shapeB.getTransformedEdgeNormals()) {
-					reverse = { value: false };
-					overlap = SAT.getOverlap(
-						BEdgeNormal,
-						shapeAVertices,
-						shapeBVertices,
-						reverse
-					);
-
-					if (overlap < 0.0) {
+					if (!checkNormal(BEdgeNormal)) {
 						return false;
-					}
-
-					if (overlap < intersectionDepth.depth) {
-						intersectionDepth.depth = overlap;
-						intersectionAxis.deepAssign(shapeBNormals[0]);
-						if (reverse.value) {
-							intersectionAxis.flip();
-						}
 					}
 				}
 
@@ -295,41 +333,115 @@ export module SAT {
 			}
 		}
 
-		// Not coplanar
-		let testVec = new Vec3();
-
 		// Calculate cross vectors of edges and test along the results
 		for (const e1 of shapeA.getTransformedEdges()) {
 			for (const e2 of shapeB.getTransformedEdges()) {
 				const dotProd = e1.dot(e2);
 				if (dotProd < 0.99 && dotProd > -0.99) {
+					let testVec = new Vec3();
 					testVec.deepAssign(e1);
 					testVec.cross(e2).normalize();
-
-					reverse = { value: false };
-					overlap = SAT.getOverlap(
-						testVec,
-						shapeAVertices,
-						shapeBVertices,
-						reverse
-					);
-
-					if (overlap < 0.0) {
+					if (!checkNormal(testVec)) {
 						return false;
-					}
-
-					if (overlap < intersectionDepth.depth) {
-						intersectionDepth.depth = overlap;
-						intersectionAxis.deepAssign(testVec);
-						if (reverse.value) {
-							intersectionAxis.flip();
-						}
 					}
 				}
 			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check when an intersection will occur (if it happens before timeMax).  
+	 * @param shapeA 
+	 * @param shapeB 
+	 * @param velocityA 
+	 * @param velocityB 
+	 * @param timeMax 
+	 * @returns Returns time of intersection if there is one within timeMax, otherwise returns -1.0
+	 */
+	export function getContinousIntersection3D(
+		shapeA: Shape,
+		shapeB: Shape,
+		velocityA: Vec3,
+		velocityB: Vec3,
+		timeMax: number
+	): number {
+
+		// Treat shapeA as stationary and shapeB as moving
+		let relativeVel = new Vec3(velocityB).subtract(velocityA);
+
+		let times = {first: 0.0, last: Infinity, max: timeMax};
+
+		let shapeAVertices = shapeA.getTransformedVertices();
+		let shapeBVertices = shapeB.getTransformedVertices();
+		
+		let shapeANormals = shapeA.getTransformedNormals();
+		for (let normal of shapeANormals) {
+			if (!getContinousOverlap(normal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+				return -1.0;
+			}
+		}
+
+		let shapeBNormals = shapeB.getTransformedNormals();
+		for (let normal of shapeBNormals) {
+			if (!getContinousOverlap(normal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+				return -1.0;
+			}
+		}
+
+		// The shapes are intersecting along all normals
+		// Two cases are possible;
+		// 1. The shapes are flat and coplanar -> We need to test the shapes in "2d", projected on the plane they are on
+		// 2. The shapes are not flat and coplanar -> We need to test the cross products of all the edges of ShapeA with the edges of ShapeB
+
+		// Lets start with the coplanar possibility, which can be checked by seeing if both shapes have only one normal, and the two shapes normals are perpendicular
+		// Side note; If the normals are perpendicular, but the shapes are not coplanar, the previous tests would have found a seperating axis, so we wouldn't have gotten here
+
+		if (shapeANormals.length == 1 && shapeBNormals.length == 1) {
+			// Coplanar possible
+			let crossVector = new Vec3(shapeANormals[0]).cross(shapeBNormals[0]);
+
+			if (
+				crossVector.x == 0.0 &&
+				crossVector.y == 0.0 &&
+				crossVector.z == 0.0
+			) {
+				// Coplanar
+				// Test the edge normals for all edges
+				for (const AEdgeNormal of shapeA.getTransformedEdgeNormals()) {
+					if (!getContinousOverlap(AEdgeNormal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+						return -1.0;
+					}
+				}
+
+				for (const BEdgeNormal of shapeB.getTransformedEdgeNormals()) {
+					if (!getContinousOverlap(BEdgeNormal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+						return -1.0;
+					}
+				}
+
+				// There is an intersection, return it
+				return times.first;
+			}
+		}
+
+		// Calculate cross vectors of edges and test along the results
+		for (const e1 of shapeA.getTransformedEdges()) {
+			for (const e2 of shapeB.getTransformedEdges()) {
+				const dotProd = e1.dot(e2);
+				if (dotProd < 0.99 && dotProd > -0.99) {
+					let testVec = new Vec3();
+					testVec.deepAssign(e1);
+					testVec.cross(e2).normalize();
+					if (!getContinousOverlap(testVec, shapeAVertices, shapeBVertices, relativeVel, times)) {
+						return -1.0;
+					}
+				}
+			}
+		}
+
+		return times.first;
 	}
 
 	export function runUnitTests() {
@@ -358,8 +470,8 @@ export module SAT {
 
 		// prettier-ignore
 		let positiveTests: {t1Index: number, t2Index:number, depth: number, axis: Vec3, strictDirection: boolean}[] = [
-            {t1Index: 0, t2Index: 1, depth: 0.1, axis: new Vec3({x: 0.0, y: 0.0, z: -1.0}), strictDirection: true},
-            {t1Index: 0, t2Index: 3, depth: 0.0, axis: new Vec3({x: 0.0, y: 0.0, z: 1.0}), strictDirection: false},
+            {t1Index: 0, t2Index: 1, depth: 0.1, axis: new Vec3([0.0, 0.0, -1.0]), strictDirection: true},
+            {t1Index: 0, t2Index: 3, depth: 0.0, axis: new Vec3([0.0, 0.0, 1.0]), strictDirection: false},
         ]
 
 		// prettier-ignore
@@ -372,11 +484,11 @@ export module SAT {
 		let vertexPositions = new Array<Vec3>();
 		for (let i = 0; i < vertexCoords.length; i += 3) {
 			vertexPositions.push(
-				new Vec3({
-					x: vertexCoords[i],
-					y: vertexCoords[i + 1],
-					z: vertexCoords[i + 2],
-				})
+				new Vec3([
+					vertexCoords[i],
+					vertexCoords[i + 1],
+					vertexCoords[i + 2],
+				])
 			);
 		}
 
@@ -419,7 +531,7 @@ export module SAT {
 			} else if (
 				!intersectionAxis
 					.cross(positiveTests[i].axis)
-					.compare({ x: 0.0, y: 0.0, z: 0.0 })
+					.compare([0.0, 0.0, 0.0 ])
 			) {
 				// Only check that the axises are perpendicular
 				alert("Intersection test returned wrong intersection axis!");
@@ -450,7 +562,7 @@ export module SAT {
 			} else if (
 				!intersectionAxis
 					.cross(positiveTests[i].axis)
-					.compare({ x: 0.0, y: 0.0, z: 0.0 })
+					.compare([0.0, 0.0, 0.0])
 			) {
 				// Only check that the axises are perpendicular
 				alert("Intersection test returned wrong intersection axis!");

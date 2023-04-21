@@ -66,7 +66,7 @@ export default class GuiObject {
 		}
 
 		if (this.center) {
-			this.div.style.transform = "translateX(-50%)";
+			this.div.style.transform = "translate(-50%,-50%)";
 		}
 	}
 

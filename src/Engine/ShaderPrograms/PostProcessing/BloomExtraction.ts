@@ -1,5 +1,6 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+import { gl } from "../../../main.js";
 
 const bloomExtractionFragmentSrc: string = `#version 300 es
 precision highp float;
@@ -24,10 +25,9 @@ void main() {
     }
 }`;
 
-export default class BloomExtraction extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
+class BloomExtraction extends ShaderProgram {
+	constructor() {
 		super(
-			gl,
 			"BloomExtraction",
 			screenQuadVertexSrc,
 			bloomExtractionFragmentSrc
@@ -37,16 +37,22 @@ export default class BloomExtraction extends ShaderProgram {
 
 		this.setUniformLocation("inputTexture");
 
-		this.gl.uniform1i(this.getUniformLocation("inputTexture")[0], 0);
+		gl.uniform1i(this.getUniformLocation("inputTexture")[0], 0);
 	}
 
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 4 * 4;
-		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, stride, 2 * 4);
+		gl.enableVertexAttribArray(1);
 	}
+}
+
+export let bloomExtraction = null;
+
+export let createBloomExtraction = function() {
+	bloomExtraction = new BloomExtraction();
 }

@@ -1,10 +1,10 @@
-import GraphicsObject from "../../Objects/GraphicsObject.js";
+import GraphicsBundle from "../../Objects/GraphicsBundle.js";
 import { Component, ComponentTypeEnum } from "./Component.js";
 
 export default class GraphicsComponent extends Component {
-	object: GraphicsObject;
+	object: GraphicsBundle;
 
-	constructor(object: GraphicsObject) {
+	constructor(object: GraphicsBundle) {
 		super(ComponentTypeEnum.GRAPHICS);
 		this.object = object;
 	}

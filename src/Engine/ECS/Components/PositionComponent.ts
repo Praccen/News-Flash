@@ -5,31 +5,30 @@ export default class PositionComponent extends Component {
 	position: Vec3;
 	rotation: Vec3;
 	scale: Vec3;
+	origin: Vec3;
 
-	constructor(pos?: Vec3) {
-		super(ComponentTypeEnum.POSITION);
-		if (pos) {
-			this.position = new Vec3(pos);
-		} else {
-			this.position = new Vec3();
-		}
+	constructor(componentType?: ComponentTypeEnum) {
+		super(componentType? componentType: ComponentTypeEnum.POSITION);
+		
+		this.position = new Vec3();
 		this.rotation = new Vec3();
-		this.scale = new Vec3({ x: 1.0, y: 1.0, z: 1.0 });
+		this.scale = new Vec3([1.0, 1.0, 1.0]);
+		this.origin = new Vec3();
 	}
 
 	calculateMatrix(matrix: Matrix4) {
-		matrix.setIdentity();
 		matrix.translate(this.position.x, this.position.y, this.position.z);
 		if (this.rotation.length2() > 0.0000001) {
 			let normRotation = new Vec3(this.rotation);
 			normRotation.normalize();
 			matrix.rotate(
-				this.rotation.length(),
+				this.rotation.len(),
 				normRotation.x,
 				normRotation.y,
 				normRotation.z
 			);
 		}
 		matrix.scale(this.scale.x, this.scale.y, this.scale.z);
+		matrix.translate(-this.origin.x, -this.origin.y, -this.origin.z);
 	}
 }

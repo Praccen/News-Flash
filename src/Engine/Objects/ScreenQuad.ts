@@ -1,6 +1,7 @@
 import GraphicsObject from "./GraphicsObject.js";
 import Texture from "../Textures/Texture.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
+import { gl } from "../../main.js";
 
 export default class ScreenQuad extends GraphicsObject {
 	textures: Array<Texture>;
@@ -10,11 +11,10 @@ export default class ScreenQuad extends GraphicsObject {
 	private indices: Int32Array;
 
 	constructor(
-		gl: WebGL2RenderingContext,
 		shaderProgram: ShaderProgram,
 		textures: Array<Texture>
 	) {
-		super(gl, shaderProgram);
+		super(shaderProgram);
 
 		// prettier-ignore
 		this.vertices = new Float32Array([ 
@@ -37,8 +37,8 @@ export default class ScreenQuad extends GraphicsObject {
 		this.textures = textures;
 
 		for (let texture of this.textures) {
-			texture.setTexParameters(this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-			texture.setTexParameters(this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+			texture.setTexParameterI(gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			texture.setTexParameterI(gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		}
 	}
 
@@ -51,6 +51,6 @@ export default class ScreenQuad extends GraphicsObject {
 			}
 		}
 
-		this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_INT, 0);
+		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
 	}
 }

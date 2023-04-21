@@ -49,14 +49,14 @@ export default class OBB extends Shape {
 	 */
 	setMinAndMaxVectors(minVec: Vec3, maxVec: Vec3) {
 		this.originalNormals.length = 0;
-		this.originalNormals.push(new Vec3({ x: 1.0, y: 0.0, z: 0.0 }));
-		this.originalNormals.push(new Vec3({ x: 0.0, y: 1.0, z: 0.0 }));
-		this.originalNormals.push(new Vec3({ x: 0.0, y: 0.0, z: 1.0 }));
+		this.originalNormals.push(new Vec3([1.0, 0.0, 0.0]));
+		this.originalNormals.push(new Vec3([0.0, 1.0, 0.0]));
+		this.originalNormals.push(new Vec3([0.0, 0.0, 1.0]));
 
 		this.originalVertices.length = 0;
 
 		for (let i = 0; i < 8; i++) {
-			this.originalVertices.push(new Vec3({ x: 0.0, y: 0.0, z: 0.0 }));
+			this.originalVertices.push(new Vec3([0.0, 0.0, 0.0]));
 		}
 
 		this.originalVertices[0].deepAssign(minVec);
@@ -90,17 +90,15 @@ export default class OBB extends Shape {
 			for (const originalVertex of this.originalVertices) {
 				let transformedVertex = this.transformMatrix.multiplyVector4(
 					new Vector4([
-						originalVertex.x,
-						originalVertex.y,
-						originalVertex.z,
+						...originalVertex,
 						1.0,
 					])
 				);
-				let transformedVertexVec3 = new Vec3({
-					x: transformedVertex.elements[0],
-					y: transformedVertex.elements[1],
-					z: transformedVertex.elements[2],
-				});
+				let transformedVertexVec3 = new Vec3([
+					transformedVertex.elements[0],
+					transformedVertex.elements[1],
+					transformedVertex.elements[2],
+				]);
 				this.transformedVertices.push(transformedVertexVec3);
 			}
 			this.verticesNeedsUpdate = false;
@@ -111,6 +109,25 @@ export default class OBB extends Shape {
 	getTransformedNormals(): Array<Vec3> {
 		if (this.normalsNeedsUpdate) {
 			this.transformedNormals.length = 0;
+
+			// this.transformedNormals.push(
+			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
+			// 	new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
+			// 	).normalize()
+			// );
+
+			// this.transformedNormals.push(
+			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
+			// 	new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[0])
+			// 	).normalize()
+			// );
+
+			// this.transformedNormals.push(
+			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[2]).cross(
+			// 	new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
+			// 	).normalize()
+			// );
+
 			let tempMatrix = new Matrix3();
 			tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
 			for (const originalNormal of this.originalNormals) {
@@ -130,5 +147,9 @@ export default class OBB extends Shape {
 
 	getTransformedEdgeNormals(): Array<Vec3> {
 		return this.getTransformedNormals();
+	}
+
+	getTransformMatrix(): Matrix4 {
+		return this.transformMatrix;
 	}
 }

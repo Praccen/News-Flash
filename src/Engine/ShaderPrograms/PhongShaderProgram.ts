@@ -1,5 +1,6 @@
 import ShaderProgram from "./ShaderProgram.js";
 import { pointLightsToAllocate } from "./DeferredRendering/LightingPass.js";
+import { gl } from "../../main.js";
 
 const phongVertexShaderSrc: string = `#version 300 es
 // If inputs change, also update PhongShaderProgram::setupVertexAttributePointers to match
@@ -155,10 +156,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 	return lighting;
 }`;
 
-export default class PhongShaderProgram extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
+class PhongShaderProgram extends ShaderProgram {
+	constructor() {
 		super(
-			gl,
 			"PhongShaderProgram",
 			phongVertexShaderSrc,
 			phongFragmentShaderSrc
@@ -173,8 +173,8 @@ export default class PhongShaderProgram extends ShaderProgram {
 		this.setUniformLocation("material.diffuse");
 		this.setUniformLocation("material.specular");
 
-		this.gl.uniform1i(this.getUniformLocation("material.diffuse"), 0);
-		this.gl.uniform1i(this.getUniformLocation("material.specular"), 1);
+		gl.uniform1i(this.getUniformLocation("material.diffuse")[0], 0);
+		gl.uniform1i(this.getUniformLocation("material.specular")[0], 1);
 
 		for (let i = 0; i < pointLightsToAllocate; i++) {
 			this.setUniformLocation("pointLights[" + i + "].position");
@@ -195,13 +195,19 @@ export default class PhongShaderProgram extends ShaderProgram {
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 8 * 4;
-		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, stride, 3 * 4);
+		gl.enableVertexAttribArray(1);
 
-		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
-		this.gl.enableVertexAttribArray(2);
+		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, stride, 6 * 4);
+		gl.enableVertexAttribArray(2);
 	}
+}
+
+export let phongShaderProgram = null
+
+export let createPhongShaderProgram = function() {
+	phongShaderProgram = new PhongShaderProgram();
 }

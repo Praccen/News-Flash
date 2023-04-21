@@ -1,22 +1,17 @@
+import { gl } from "../../main.js";
 import Vec3 from "../Maths/Vec3.js";
 import Triangle from "../Physics/Shapes/Triangle.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class GraphicsObject {
-	modelMatrix: Matrix4;
-	textureMatrix: Matrix4;
-
-	// Protected
-	protected gl: WebGL2RenderingContext;
-	protected shaderProgram: ShaderProgram;
+	shaderProgram: ShaderProgram;
 
 	// Private
 	private VAO: WebGLVertexArrayObject;
 	private VBO: WebGLBuffer;
 	private EBO: WebGLBuffer;
 
-	constructor(gl: WebGL2RenderingContext, shaderProgram: ShaderProgram) {
-		this.gl = gl;
+	constructor(shaderProgram: ShaderProgram) {
 		this.shaderProgram = shaderProgram;
 
 		this.VAO = null;
@@ -28,45 +23,45 @@ export default class GraphicsObject {
 
 	init() {
 		// Create buffers
-		this.VAO = this.gl.createVertexArray();
-		this.VBO = this.gl.createBuffer();
-		this.EBO = this.gl.createBuffer();
+		this.VAO = gl.createVertexArray();
+		this.VBO = gl.createBuffer();
+		this.EBO = gl.createBuffer();
 
 		// Bind buffers
-		this.gl.bindVertexArray(this.VAO);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
+		gl.bindVertexArray(this.VAO);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
 
 		this.shaderProgram.setupVertexAttributePointers();
 
-		this.gl.bindVertexArray(null);
+		gl.bindVertexArray(null);
 	}
 
-	changeShaderProgram(shaderProgram) {
-		this.shaderProgram = shaderProgram;
-	}
+	// changeShaderProgram(shaderProgram) {
+	// 	this.shaderProgram = shaderProgram;
+	// }
 
 	bindVAO() {
-		this.gl.bindVertexArray(this.VAO);
+		gl.bindVertexArray(this.VAO);
 	}
 
 	unbindVAO() {
-		this.gl.bindVertexArray(null);
+		gl.bindVertexArray(null);
 	}
 
 	setVertexData(data: Float32Array) {
-		this.gl.bindVertexArray(this.VAO);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.VBO);
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
-		this.gl.bindVertexArray(null);
+		gl.bindVertexArray(this.VAO);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.VBO);
+		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+		gl.bindVertexArray(null);
 	}
 
 	setIndexData(data: Int32Array) {
-		this.gl.bindVertexArray(this.VAO);
+		gl.bindVertexArray(this.VAO);
 
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.EBO);
-		this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, data, this.gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.EBO);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		this.gl.bindVertexArray(null);
+		gl.bindVertexArray(null);
 	}
 
 	setupTriangles(triangles: Array<Triangle>) {}

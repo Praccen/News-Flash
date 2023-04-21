@@ -1,3 +1,4 @@
+import { gl } from "../../main.js";
 import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
@@ -17,11 +18,11 @@ export default class PointLight {
 		gl: WebGL2RenderingContext,
 		shaderProgram: ShaderProgram
 	) {
-		this.gl = gl;
+		gl = gl;
 		this.shaderProgram = shaderProgram;
 
-		this.position = new Vec3({ x: 0.0, y: 0.0, z: 0.0 });
-		this.colour = new Vec3({ x: 1.0, y: 1.0, z: 1.0 });
+		this.position = new Vec3([0.0, 0.0, 0.0]);
+		this.colour = new Vec3([1.0, 1.0, 1.0]);
 
 		this.constant = 1.0;
 		this.linear = 0.07;
@@ -34,32 +35,32 @@ export default class PointLight {
 			"pointLights[" + lightIndex + "].position"
 		);
 		if (ul[1]) {
-			this.gl.uniform3fv(ul[0], this.position.elements());
+			gl.uniform3fv(ul[0], this.position);
 		}
 		ul = this.shaderProgram.getUniformLocation(
 			"pointLights[" + lightIndex + "].colour"
 		);
 		if (ul[1]) {
-			this.gl.uniform3fv(ul[0], this.colour.elements());
+			gl.uniform3fv(ul[0], this.colour);
 		}
 
 		ul = this.shaderProgram.getUniformLocation(
 			"pointLights[" + lightIndex + "].constant"
 		);
 		if (ul[1]) {
-			this.gl.uniform1f(ul[0], this.constant);
+			gl.uniform1f(ul[0], this.constant);
 		}
 		ul = this.shaderProgram.getUniformLocation(
 			"pointLights[" + lightIndex + "].linear"
 		);
 		if (ul[1]) {
-			this.gl.uniform1f(ul[0], this.linear);
+			gl.uniform1f(ul[0], this.linear);
 		}
 		ul = this.shaderProgram.getUniformLocation(
 			"pointLights[" + lightIndex + "].quadratic"
 		);
 		if (ul[1]) {
-			this.gl.uniform1f(ul[0], this.quadratic);
+			gl.uniform1f(ul[0], this.quadratic);
 		}
 	}
 }

@@ -1,3 +1,4 @@
+import { gl } from "../../../main.js";
 import ShaderProgram from "../ShaderProgram.js";
 
 const shadowVertexShaderSrc: string = `#version 300 es
@@ -18,7 +19,7 @@ void main()
 	texCoords = vec2(textureMatrix * vec4(inTexCoords, 0.0, 1.0));
 }`;
 
-const shadowFragmentShaderSrc: string = `#version 300 es
+export const shadowFragmentShaderSrc: string = `#version 300 es
 precision highp float;
 
 in vec2 texCoords;
@@ -46,9 +47,9 @@ void main()
     //final_colour = vec4(1.0, 1.0, 1.0, 1.0);
 }`;
 
-export default class ShadowPass extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
-		super(gl, "ShadowPass", shadowVertexShaderSrc, shadowFragmentShaderSrc);
+class ShadowPass extends ShaderProgram {
+	constructor() {
+		super("ShadowPass", shadowVertexShaderSrc, shadowFragmentShaderSrc);
 
 		this.use();
 
@@ -60,13 +61,19 @@ export default class ShadowPass extends ShaderProgram {
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 8 * 4;
-		this.gl.vertexAttribPointer(0, 3, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 3, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 3, this.gl.FLOAT, false, stride, 3 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 3, gl.FLOAT, false, stride, 3 * 4);
+		gl.enableVertexAttribArray(1);
 
-		this.gl.vertexAttribPointer(2, 2, this.gl.FLOAT, false, stride, 6 * 4);
-		this.gl.enableVertexAttribArray(2);
+		gl.vertexAttribPointer(2, 2, gl.FLOAT, false, stride, 6 * 4);
+		gl.enableVertexAttribArray(2);
 	}
+}
+
+export let shadowPass = null;
+
+export let createShadowPass = function() {
+	shadowPass = new ShadowPass();
 }

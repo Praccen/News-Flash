@@ -1,3 +1,4 @@
+import { gl } from "../../main.js";
 import ShaderProgram from "./ShaderProgram.js";
 
 export const screenQuadVertexSrc: string = `#version 300 es
@@ -27,10 +28,9 @@ void main() {
 }
 `;
 
-export default class ScreenQuadShaderProgram extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
+class ScreenQuadShaderProgram extends ShaderProgram {
+	constructor() {
 		super(
-			gl,
 			"ScreenQuadShaderProgram",
 			screenQuadVertexSrc,
 			screenQuadFragmentSrc
@@ -38,16 +38,22 @@ export default class ScreenQuadShaderProgram extends ShaderProgram {
 
 		this.setUniformLocation("screenTexture");
 
-		this.gl.uniform1i(this.uniformBindings["screenTexture"], 0);
+		gl.uniform1i(this.uniformBindings["screenTexture"], 0);
 	}
 
 	setupVertexAttributePointers() {
 		// Change if input layout changes in shaders
 		const stride = 4 * 4;
-		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, stride, 2 * 4);
+		gl.enableVertexAttribArray(1);
 	}
+}
+
+export let screenQuadShaderProgram = null;
+
+export let createScreenQuadShaderProgram = function() {
+	screenQuadShaderProgram = new ScreenQuadShaderProgram();
 }

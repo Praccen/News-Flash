@@ -1,5 +1,5 @@
 import { gl } from "../main.js";
-import Texture from "./Textures/Texture.js";
+import Texture from "Textures/Texture.js";
 
 export default class Framebuffer {
 	// Public
@@ -7,50 +7,62 @@ export default class Framebuffer {
 	depthTexture: Texture;
 
 	// Private
-	private rbo: WebGLRenderbuffer;
-	private fbo: WebGLFramebuffer;
-	private width: number;
-	private height: number;
+	protected rbo: WebGLRenderbuffer;
+	protected fbo: WebGLFramebuffer;
+	protected width: number;
+	protected height: number;
 
+	/**
+	 * 
+	 * @param width - width of framebuffer textures
+	 * @param height - height of framebuffer textures
+	 * @param textures - colour attachment textures, send empty array if no colour attachments should be used
+	 * @param depthTexture - depth attachment texture, send null if no depth attachment (an rbo will be created instead)
+	 */
 	constructor(
 		width: number,
 		height: number,
-		createDepthAttachment: boolean,
-		colourAttachments: Array<{
-			internalFormat: number;
-			dataStorageType: number;
-		}>
+		textures: Array<Texture>,
+		depthTexture: Texture
 	) {
 		this.width = width;
 		this.height = height;
 
+		this.textures = textures;
+		this.depthTexture = depthTexture;
+
 		this.fbo = gl.createFramebuffer();
-		this.textures = new Array<Texture>(colourAttachments.length);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
 
+		this.setupAttachments();
+
+		if (
+			gl.checkFramebufferStatus(gl.FRAMEBUFFER) !=
+			gl.FRAMEBUFFER_COMPLETE
+		) {
+			console.warn("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+		}
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+
+	protected setupAttachments() {
 		let attachments = new Array<any>();
-		for (let i = 0; i < colourAttachments.length; i++) {
-			this.textures[i] = new Texture(
-				false,
-				colourAttachments[i].internalFormat,
-				gl.RGBA,
-				colourAttachments[i].dataStorageType
-			);
-			gl.bindTexture(gl.TEXTURE_2D, this.textures[i].texture);
+		for (let i = 0; i < this.textures.length; i++) {
 			this.textures[i].setTextureData(null, this.width, this.height);
-			this.textures[i].setTexParameters(
+			this.textures[i].setTexParameterI(
 				gl.TEXTURE_MIN_FILTER,
 				gl.LINEAR
 			);
-			this.textures[i].setTexParameters(
+			this.textures[i].setTexParameterI(
 				gl.TEXTURE_MAG_FILTER,
 				gl.LINEAR
 			);
-			this.textures[i].setTexParameters(
+			this.textures[i].setTexParameterI(
 				gl.TEXTURE_WRAP_S,
 				gl.CLAMP_TO_EDGE
 			);
-			this.textures[i].setTexParameters(
+			this.textures[i].setTexParameterI(
 				gl.TEXTURE_WRAP_T,
 				gl.CLAMP_TO_EDGE
 			);
@@ -67,15 +79,9 @@ export default class Framebuffer {
 		gl.drawBuffers(attachments);
 
 		// More choices here would be good, not only texture or renderbuffer
-		if (createDepthAttachment) {
-			this.depthTexture = new Texture(
-				false,
-				gl.DEPTH_COMPONENT32F,
-				gl.DEPTH_COMPONENT,
-				gl.FLOAT
-			);
-			gl.bindTexture(gl.TEXTURE_2D, this.depthTexture.texture);
+		if (this.depthTexture != undefined) {
 			this.depthTexture.setTextureData(null, this.width, this.height);
+
 			gl.framebufferTexture2D(
 				gl.FRAMEBUFFER,
 				gl.DEPTH_ATTACHMENT,
@@ -100,15 +106,6 @@ export default class Framebuffer {
 				this.rbo
 			);
 		}
-
-		if (
-			gl.checkFramebufferStatus(gl.FRAMEBUFFER) !=
-			gl.FRAMEBUFFER_COMPLETE
-		) {
-			console.warn("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-		}
-
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
 	setProportions(width: number, height: number) {

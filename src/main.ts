@@ -1,5 +1,19 @@
 import { SAT } from "./Engine/Maths/SAT.js";
 import GameMachine from "./Game/GameMachine.js";
+import { createGeometryPass } from "./Engine/ShaderPrograms/DeferredRendering/GeometryPass.js";
+import { createLightingPass } from "./Engine/ShaderPrograms/DeferredRendering/LightingPass.js";
+import { createParticleShaderProgram } from "./Engine/ShaderPrograms/ParticleShaderProgram.js";
+import { createGrassShaderProgram } from "./Engine/ShaderPrograms/GrassShaderProgram.js";
+import { createPhongShaderProgram } from "./Engine/ShaderPrograms/PhongShaderProgram.js";
+import { createBloomBlending } from "./Engine/ShaderPrograms/PostProcessing/BloomBlending.js";
+import { createBloomExtraction } from "./Engine/ShaderPrograms/PostProcessing/BloomExtraction.js";
+import { createCrtShaderProgram } from "./Engine/ShaderPrograms/PostProcessing/CrtShaderProgram.js";
+import { createGaussianBlur } from "./Engine/ShaderPrograms/PostProcessing/GaussianBlur.js";
+import { createScreenQuadShaderProgram } from "./Engine/ShaderPrograms/ScreenQuadShaderProgram.js";
+import { createShadowPass } from "./Engine/ShaderPrograms/ShadowMapping/ShadowPass.js";
+import { createSimpleShaderProgram } from "./Engine/ShaderPrograms/SimpleShaderProgram.js";
+import { createGrassShadowPass } from "./Engine/ShaderPrograms/ShadowMapping/GrassShadowPass.js";
+import { createSkyboxShaderProgram } from "./Engine/ShaderPrograms/Skybox/SkyboxShaderProgram.js";
 
 SAT.runUnitTests();
 
@@ -8,7 +22,9 @@ export let gl: WebGL2RenderingContext;
 export let applicationStartTime = Date.now();
 export let windowInfo =  {
 	resolutionWidth: 1920,
-	resolutionHeight: 1080
+	resolutionHeight: 1080,
+	paddingX: 0,
+	paddingY: 0
 }
 
 function initWebGL(): WebGL2RenderingContext{
@@ -61,12 +77,12 @@ function resize(gl: WebGL2RenderingContext) {
 	let newGameY = (innerWindowSize.height - newGameHeight) / 2;
 
 	// Center the game by setting the padding of the game
-	gl.canvas.style.padding = newGameY + "px " + newGameX + "px";
+	(gl.canvas as HTMLCanvasElement).style.padding = newGameY + "px " + newGameX + "px";
 	guicontainer.style.padding = newGameY + "px " + newGameX + "px";
 
 	// Resize game
-	gl.canvas.style.width = newGameWidth + "px";
-	gl.canvas.style.height = newGameHeight + "px";
+	(gl.canvas as HTMLCanvasElement).style.width = newGameWidth + "px";
+	(gl.canvas as HTMLCanvasElement).style.height = newGameHeight + "px";
 	gl.canvas.width = newGameWidth;
 	gl.canvas.height = newGameHeight;
 
@@ -76,6 +92,25 @@ function resize(gl: WebGL2RenderingContext) {
 	// Update the windowInfo resolution
 	windowInfo.resolutionWidth = newGameWidth;
 	windowInfo.resolutionHeight = newGameHeight;
+	windowInfo.paddingX = newGameX;
+	windowInfo.paddingY = newGameY;
+}
+
+function createShaders() {
+	createGeometryPass();
+	createLightingPass();
+	createBloomBlending();
+	createBloomExtraction();
+	createCrtShaderProgram();
+	createGaussianBlur();
+	createShadowPass();
+	createGrassShadowPass();
+	createParticleShaderProgram();
+	createGrassShaderProgram();
+	createPhongShaderProgram();
+	createScreenQuadShaderProgram();
+	createSimpleShaderProgram();
+	createSkyboxShaderProgram();
 }
 
 let gameMachine: GameMachine;
@@ -87,6 +122,9 @@ window.onload = async () => {
 	// Set up webgl
 	gl = initWebGL();
 
+	// Create all shaders
+	createShaders();
+
 	gameMachine = new GameMachine();
 
 	// Resize to fit the current window
@@ -97,7 +135,9 @@ window.onload = async () => {
 		resize(gl);
 	});
 
-	console.log("Everything is ready.");
+	window.addEventListener("beforeunload", function(e: BeforeUnloadEvent) {
+		gameMachine.onExit(e);
+	});
 
 	// Start the state machine
 	gameMachine.start();

@@ -1,3 +1,4 @@
+import { gl } from "../../main.js";
 import ShaderProgram from "./ShaderProgram.js";
 
 const particleVertexShaderSrc: string = `#version 300 es
@@ -73,10 +74,9 @@ void main()
     FragColor.a = 1.0f; // Since we use screen door transparency, do not use alpha value
 }`;
 
-export default class ParticleShaderProgram extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
+class ParticleShaderProgram extends ShaderProgram {
+	constructor() {
 		super(
-			gl,
 			"ParticleShaderProgram",
 			particleVertexShaderSrc,
 			particleFragmentShaderSrc,
@@ -86,7 +86,7 @@ export default class ParticleShaderProgram extends ShaderProgram {
 		this.use();
 
 		this.setUniformLocation("texture0");
-		this.gl.uniform1i(this.getUniformLocation("texture0")[0], 0);
+		gl.uniform1i(this.getUniformLocation("texture0")[0], 0);
 
 		this.setUniformLocation("viewProjMatrix");
 		this.setUniformLocation("cameraPos");
@@ -98,37 +98,43 @@ export default class ParticleShaderProgram extends ShaderProgram {
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 4 * 4;
-		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, stride, 2 * 4);
+		gl.enableVertexAttribArray(1);
 	}
 
 	setupInstancedVertexAttributePointers(): void {
 		const stride = 11 * 4;
-		this.gl.vertexAttribPointer(2, 3, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(2);
-		this.gl.vertexAttribDivisor(2, 1);
+		gl.vertexAttribPointer(2, 3, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(2);
+		gl.vertexAttribDivisor(2, 1);
 
-		this.gl.vertexAttribPointer(3, 1, this.gl.FLOAT, false, stride, 3 * 4);
-		this.gl.enableVertexAttribArray(3);
-		this.gl.vertexAttribDivisor(3, 1);
+		gl.vertexAttribPointer(3, 1, gl.FLOAT, false, stride, 3 * 4);
+		gl.enableVertexAttribArray(3);
+		gl.vertexAttribDivisor(3, 1);
 
-		this.gl.vertexAttribPointer(4, 3, this.gl.FLOAT, false, stride, 4 * 4);
-		this.gl.enableVertexAttribArray(4);
-		this.gl.vertexAttribDivisor(4, 1);
+		gl.vertexAttribPointer(4, 3, gl.FLOAT, false, stride, 4 * 4);
+		gl.enableVertexAttribArray(4);
+		gl.vertexAttribDivisor(4, 1);
 
-		this.gl.vertexAttribPointer(5, 1, this.gl.FLOAT, false, stride, 7 * 4);
-		this.gl.enableVertexAttribArray(5);
-		this.gl.vertexAttribDivisor(5, 1);
+		gl.vertexAttribPointer(5, 1, gl.FLOAT, false, stride, 7 * 4);
+		gl.enableVertexAttribArray(5);
+		gl.vertexAttribDivisor(5, 1);
 
-		this.gl.vertexAttribPointer(6, 3, this.gl.FLOAT, false, stride, 8 * 4);
-		this.gl.enableVertexAttribArray(6);
-		this.gl.vertexAttribDivisor(6, 1);
+		gl.vertexAttribPointer(6, 3, gl.FLOAT, false, stride, 8 * 4);
+		gl.enableVertexAttribArray(6);
+		gl.vertexAttribDivisor(6, 1);
 
-		// this.gl.vertexAttribPointer(7, 1, this.gl.FLOAT, false, stride, 11 * 4);
-		// this.gl.enableVertexAttribArray(7);
-		// this.gl.vertexAttribDivisor(7, 1);
+		// gl.vertexAttribPointer(7, 1, gl.FLOAT, false, stride, 11 * 4);
+		// gl.enableVertexAttribArray(7);
+		// gl.vertexAttribDivisor(7, 1);
 	}
+}
+
+export let particleShaderProgram: ParticleShaderProgram = null;
+
+export let createParticleShaderProgram = function() {
+	particleShaderProgram = new ParticleShaderProgram();
 }

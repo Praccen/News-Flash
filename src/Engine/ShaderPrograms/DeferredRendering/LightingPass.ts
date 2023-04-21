@@ -1,5 +1,6 @@
 import ShaderProgram from "../ShaderProgram.js";
 import { screenQuadVertexSrc } from "../ScreenQuadShaderProgram.js";
+import { gl } from "../../../main.js";
 
 export let pointLightsToAllocate: number = 100;
 
@@ -158,9 +159,9 @@ float CalcShadow(vec4 lightSpaceFragPos, vec3 normal) {
     return shadow;
 }`;
 
-export default class LightingPass extends ShaderProgram {
-	constructor(gl: WebGL2RenderingContext) {
-		super(gl, "LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
+class LightingPass extends ShaderProgram {
+	constructor() {
+		super("LightingPass", screenQuadVertexSrc, lightingFragmentShaderSrc);
 
 		this.use();
 
@@ -169,10 +170,10 @@ export default class LightingPass extends ShaderProgram {
 		this.setUniformLocation("gColourSpec");
 		this.setUniformLocation("depthMap");
 
-		this.gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
-		this.gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
-		this.gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
-		this.gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
+		gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
+		gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
+		gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
+		gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
 
 		for (let i = 0; i < pointLightsToAllocate; i++) {
 			this.setUniformLocation("pointLights[" + i + "].position");
@@ -194,10 +195,16 @@ export default class LightingPass extends ShaderProgram {
 	setupVertexAttributePointers(): void {
 		// Change if input layout changes in shaders
 		const stride = 4 * 4;
-		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
-		this.gl.enableVertexAttribArray(0);
+		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, stride, 0);
+		gl.enableVertexAttribArray(0);
 
-		this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
-		this.gl.enableVertexAttribArray(1);
+		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, stride, 2 * 4);
+		gl.enableVertexAttribArray(1);
 	}
+}
+
+export let lightingPass = null;
+
+export let createLightingPass = function() {
+	lightingPass = new LightingPass();
 }

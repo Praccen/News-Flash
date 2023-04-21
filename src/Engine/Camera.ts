@@ -1,3 +1,5 @@
+import { gl } from "../main.js";
+import Matrix3 from "./Maths/Matrix3.js";
 import Vec3 from "./Maths/Vec3.js";
 
 export default class Camera {
@@ -13,11 +15,11 @@ export default class Camera {
 	private viewProjMatrix: Matrix4;
 
 	constructor(gl: WebGL2RenderingContext) {
-		this.gl = gl;
+		gl = gl;
 
 		// ----View----
 		this.pos = new Vec3();
-		this.dir = new Vec3({ x: 0.0, y: 0.0, z: -1.0 });
+		this.dir = new Vec3([0.0, 0.0, -1.0]);
 		this.viewMatrix = new Matrix4(null);
 		this.viewMatrixNeedsUpdate = true;
 		// ------------
@@ -32,9 +34,19 @@ export default class Camera {
 		this.viewProjMatrix = new Matrix4(null);
 	}
 
-	getViewProjMatrix() {
+	getViewProjMatrix(): Matrix4 {
 		this.updateViewProjMatrix();
 		return this.viewProjMatrix;
+	}
+
+	getViewMatrix(): Matrix4 {
+		this.updateViewProjMatrix();
+		return this.viewMatrix;
+	}
+
+	getProjectionMatrix(): Matrix4 {
+		this.updateViewProjMatrix();
+		return this.projectionMatrix;
 	}
 
 	getPosition(): Vec3 {
@@ -47,7 +59,7 @@ export default class Camera {
 
 	getRight(): Vec3 {
 		let returnVec: Vec3 = new Vec3(this.dir);
-		let upVec: Vec3 = new Vec3({ x: 0.0, y: 1.0, z: 0.0 });
+		let upVec: Vec3 = new Vec3([0.0, 1.0, 0.0]);
 		returnVec.cross(upVec);
 		returnVec.normalize();
 		return returnVec;
@@ -117,13 +129,26 @@ export default class Camera {
 		}
 	}
 
-	bindViewProjMatrix(uniformLocation: WebGLUniformLocation) {
+	bindViewProjMatrix(uniformLocation: WebGLUniformLocation, skybox: boolean = false) {
 		this.updateViewProjMatrix();
 
-		this.gl.uniformMatrix4fv(
-			uniformLocation,
-			false,
-			this.viewProjMatrix.elements
-		);
+		if (skybox) {
+			let tempViewProj = new Matrix4(this.projectionMatrix);
+			let tempViewMatrix = new Matrix3().fromMatrix4(this.viewMatrix).toMatrix4();
+			tempViewProj.concat(tempViewMatrix);
+
+			gl.uniformMatrix4fv(
+				uniformLocation,
+				false,
+				tempViewProj.elements
+			);
+		}
+		else {
+			gl.uniformMatrix4fv(
+				uniformLocation,
+				false,
+				this.viewProjMatrix.elements
+			);
+		}		
 	}
 }

@@ -82,7 +82,7 @@ export default class StateMachine {
 
     async runCurrentState() {
 		if (!this.states.get(this.currentState).state.initialized) {
-			this.states.get(this.currentState).state.init();
+			await this.states.get(this.currentState).state.init();
 		}
 
 		// Update the state
@@ -97,7 +97,6 @@ export default class StateMachine {
 			this.states.get(oldState).state.gotoState = StatesEnum.STAY;
 
 			// TODO: Add different ways to switch states, like for example, maybe we want to just have a state overlayed on top of another (pause menu). 
-			// Or we want to show a new state but keep the old one intact so we can move back to it at resume (this would require multiple render states as well)
 		}
 
 		requestAnimationFrame(this.runCurrentState.bind(this));

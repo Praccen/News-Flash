@@ -17,8 +17,8 @@ export default class BoundingBoxComponent extends Component {
 	 * @param graphicsObj The graphics object
 	 */
 	setup(graphicsObj: GraphicsObject) {
-		let minVec = new Vec3({ x: Infinity, y: Infinity, z: Infinity });
-		let maxVec = new Vec3({ x: -Infinity, y: -Infinity, z: -Infinity });
+		let minVec = new Vec3([Infinity, Infinity, Infinity]);
+		let maxVec = new Vec3([-Infinity, -Infinity, -Infinity]);
 
 		let vertices = graphicsObj.getVertexPositions();
 

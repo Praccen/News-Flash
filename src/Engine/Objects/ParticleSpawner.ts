@@ -1,4 +1,4 @@
-import { applicationStartTime } from "../../main.js";
+import { applicationStartTime, gl } from "../../main.js";
 
 import GraphicsObject from "./GraphicsObject.js";
 import Texture from "../Textures/Texture.js";
@@ -17,22 +17,21 @@ export default class ParticleSpawner extends GraphicsObject {
 	private instanceVBO: WebGLBuffer;
 
 	constructor(
-		gl: WebGL2RenderingContext,
 		shaderProgram: ShaderProgram,
 		texture: Texture,
 		numberOfStartingParticles: number = 0
 	) {
-		super(gl, shaderProgram);
+		super(shaderProgram);
 
 		this.texture = texture;
 
 		this.bindVAO();
-		this.instanceVBO = this.gl.createBuffer();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceVBO);
-		this.gl.bufferData(
-			this.gl.ARRAY_BUFFER,
+		this.instanceVBO = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceVBO);
+		gl.bufferData(
+			gl.ARRAY_BUFFER,
 			numberOfStartingParticles * 11 * 4,
-			this.gl.DYNAMIC_DRAW
+			gl.DYNAMIC_DRAW
 		);
 		shaderProgram.setupInstancedVertexAttributePointers();
 		this.unbindVAO();
@@ -65,11 +64,11 @@ export default class ParticleSpawner extends GraphicsObject {
 		this.numParticles = amount;
 
 		this.bindVAO();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceVBO);
-		this.gl.bufferData(
-			this.gl.ARRAY_BUFFER,
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceVBO);
+		gl.bufferData(
+			gl.ARRAY_BUFFER,
 			this.numParticles * 11 * 4,
-			this.gl.DYNAMIC_DRAW
+			gl.DYNAMIC_DRAW
 		);
 		this.unbindVAO();
 	}
@@ -114,7 +113,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		}
 		this.bufferSubDataUpdate(
 			particleIndex * 11,
-			new Float32Array(position.elements())
+			new Float32Array(position)
 		);
 		return true;
 	}
@@ -133,7 +132,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		}
 		this.bufferSubDataUpdate(
 			particleIndex * 11 + 4,
-			new Float32Array(vel.elements())
+			new Float32Array(vel)
 		);
 		return true;
 	}
@@ -163,7 +162,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		}
 		this.bufferSubDataUpdate(
 			particleIndex * 11 + 8,
-			new Float32Array(acc.elements())
+			new Float32Array(acc)
 		);
 		return true;
 	}
@@ -173,8 +172,8 @@ export default class ParticleSpawner extends GraphicsObject {
 			return false;
 		}
 		this.bindVAO();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.instanceVBO);
-		this.gl.bufferSubData(this.gl.ARRAY_BUFFER, start * 4, data);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceVBO);
+		gl.bufferSubData(gl.ARRAY_BUFFER, start * 4, data);
 		this.unbindVAO();
 		return true;
 	}
@@ -183,19 +182,19 @@ export default class ParticleSpawner extends GraphicsObject {
 		this.bindVAO();
 
 		this.texture.bind(0);
-		this.gl.uniform1f(
+		gl.uniform1f(
 			this.shaderProgram.getUniformLocation("fadePerSecond")[0],
 			this.fadePerSecond
 		);
-		this.gl.uniform1f(
+		gl.uniform1f(
 			this.shaderProgram.getUniformLocation("sizeChangePerSecond")[0],
 			this.sizeChangePerSecond
 		);
 
-		this.gl.drawElementsInstanced(
-			this.gl.TRIANGLES,
+		gl.drawElementsInstanced(
+			gl.TRIANGLES,
 			6,
-			this.gl.UNSIGNED_INT,
+			gl.UNSIGNED_INT,
 			0,
 			this.getNumberOfParticles()
 		);

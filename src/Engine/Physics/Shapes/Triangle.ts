@@ -39,8 +39,8 @@ export default class Triangle extends Shape {
 		this.originalVertices.push(vertex2);
 		this.originalVertices.push(vertex3);
 		this.originalNormal.deepAssign(
-			new Vec3(vertex2)
-				.subtract(vertex1)
+			new Vec3(vertex1)
+				.subtract(vertex2)
 				.cross(new Vec3(vertex3).subtract(vertex2))
 				.normalize()
 		);
@@ -66,6 +66,10 @@ export default class Triangle extends Shape {
 		this.edgeNormalsNeedsUpdate = true;
 	}
 
+	getOriginalVertices(): Array<Vec3> {
+		return this.originalVertices;
+	}
+
 	getTransformedVertices(): Array<Vec3> {
 		if (this.verticesNeedsUpdate) {
 			this.transformedVertices.length = 0;
@@ -73,17 +77,14 @@ export default class Triangle extends Shape {
 			for (const originalVertex of this.originalVertices) {
 				let transformedVertex = this.transformMatrix.multiplyVector4(
 					new Vector4([
-						originalVertex.x,
-						originalVertex.y,
-						originalVertex.z,
+						...originalVertex,
 						1.0,
 					])
 				);
-				let transformedVertexVec3 = new Vec3({
-					x: transformedVertex.elements[0],
-					y: transformedVertex.elements[1],
-					z: transformedVertex.elements[2],
-				});
+				let transformedVertexVec3 = new Vec3([
+					transformedVertex.elements[0], 
+					transformedVertex.elements[1], 
+					transformedVertex.elements[2]]);
 				this.transformedVertices.push(transformedVertexVec3);
 			}
 			this.verticesNeedsUpdate = false;
@@ -93,12 +94,26 @@ export default class Triangle extends Shape {
 
 	getTransformedNormals(): Array<Vec3> {
 		if (this.normalNeedsUpdate) {
-			let tempMatrix = new Matrix3();
-			tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
+			this.transformedNormals.length = 0;
+			this.getTransformedVertices();
+			this.transformedNormals.push(new Vec3(this.transformedVertices[0])
+			.subtract(this.transformedVertices[1])
+			.cross(new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[1]))
+			.normalize());
+			
 
-			this.transformedNormals[0] = tempMatrix
-				.multiplyVec3(this.originalNormal)
-				.normalize();
+			// let tempMatrix = new Matrix3();	
+			// tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
+
+			// this.transformedNormals.length = 0;
+			// this.transformedNormals.push(tempMatrix
+			// 	.multiplyVec3(this.originalNormal)
+			// 	.normalize());
+
+			// NO IDEA WHY THIS IS NEEDED BUT IT IS :(
+			this.transformedNormals[0].x *= -1.0;
+			this.transformedNormals[0].z *= -1.0;
+
 			this.normalNeedsUpdate = false;
 		}
 		return this.transformedNormals;

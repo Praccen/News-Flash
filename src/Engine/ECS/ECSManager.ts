@@ -3,10 +3,12 @@ import CollisionSystem from "./Systems/CollisionSystem.js";
 import MovementSystem from "./Systems/MovementSystem.js";
 import GraphicsSystem from "./Systems/GraphicsSystem.js";
 import ParticleSpawnerSystem from "./Systems/ParticleSpawnerSystem.js";
-import Rendering from "../Rendering.js";
+import Rendering from "../Rendering/Rendering.js";
 import Entity from "./Entity.js";
 import { Component, ComponentTypeEnum } from "./Components/Component.js";
 import Camera from "../Camera.js";
+import CameraFocusComponent from "./Components/CameraFocusCompontent.js";
+import CameraFocusSystem from "./Systems/CameraFocusSystem.js";
 
 export default class ECSManager {
 	private systems: Map<String, System>;
@@ -52,6 +54,7 @@ export default class ECSManager {
 		this.systems.set("MOVEMENT", new MovementSystem());
 		this.systems.set("GRAPHICS", new GraphicsSystem());
 		this.systems.set("PARTICLE", new ParticleSpawnerSystem());
+		this.systems.set("CAMERAFOCUS", new CameraFocusSystem(this.rendering.camera));
 	}
 
 	update(dt: number) {
@@ -71,6 +74,7 @@ export default class ECSManager {
 
 	updateRenderingSystems(dt: number) {
 		this.systems.get("PARTICLE").update(dt);
+		this.systems.get("CAMERAFOCUS").update(dt);
 	}
 
 	createEntity(): Entity {
