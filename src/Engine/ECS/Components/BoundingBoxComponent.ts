@@ -1,6 +1,6 @@
 import Vec3 from "../../Maths/Vec3.js";
 import GraphicsObject from "../../Objects/GraphicsObject.js";
-import OBB from "../../Physics/Shapes/Obb.js";
+import OBB from "../../Physics/Shapes/OBB.js";
 import { Component, ComponentTypeEnum } from "./Component.js";
 
 export default class BoundingBoxComponent extends Component {
