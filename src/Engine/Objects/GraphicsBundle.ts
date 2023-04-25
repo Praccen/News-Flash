@@ -9,12 +9,21 @@ export default class GraphicsBundle {
 
     diffuse: Texture;
 	specular: Texture;
+	emission: Texture;
 
     graphicsObject: GraphicsObject;
 
-	constructor(diffuse: Texture, specular: Texture, graphicsObject: GraphicsObject) {
+	constructor(diffuse: Texture, specular: Texture, graphicsObject: GraphicsObject, emissionMap?: Texture) {
         this.diffuse = diffuse;
         this.specular = specular;
+
+		if (emissionMap != undefined) {
+			this.emission = emissionMap;
+		}
+		else {
+			this.emission = new Texture();
+			this.emission.setTextureData(new Uint8Array([0.0, 0.0, 0.0, 0.0]), 1, 1);
+		}
 
 		this.modelMatrix = new Matrix4(null);
 		this.textureMatrix = new Matrix4(null);
@@ -22,11 +31,12 @@ export default class GraphicsBundle {
         this.graphicsObject = graphicsObject;
 	}
 
-	draw(bindSpecular: boolean = true) {
+	draw(bindSpecialTextures: boolean = true) {
         this.diffuse.bind(0);
 
-		if (bindSpecular) {
+		if (bindSpecialTextures) {
 			this.specular.bind(1);
+			this.emission.bind(2);
 		}
 
 		let modelReturn: [WebGLUniformLocation, boolean] =

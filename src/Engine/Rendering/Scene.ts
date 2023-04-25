@@ -140,17 +140,17 @@ export default class Scene {
 		this.particleSpawners = this.particleSpawners.filter((ps) => particleSpawner !== ps);
 	}
 
-	renderScene(shaderProgram: ShaderProgram, bindSpecular: boolean = true) {
+	renderScene(shaderProgram: ShaderProgram, bindSpecialTextures: boolean = true) {
 		for (let bundle of this.graphicBundles) {
 			bundle.graphicsObject.shaderProgram = shaderProgram;
-			bundle.draw(bindSpecular);
+			bundle.draw(bindSpecialTextures);
 		}
 	}
 
-	renderGrass(shaderProgram: ShaderProgram, bindSpecular: boolean = true) {
+	renderGrass(shaderProgram: ShaderProgram, bindSpecialTextures: boolean = true) {
 		for (let bundle of this.grassSpawners) {
 			bundle.graphicsObject.shaderProgram = shaderProgram;
-			bundle.draw(bindSpecular);
+			bundle.draw(bindSpecialTextures);
 		}
 	}
 }

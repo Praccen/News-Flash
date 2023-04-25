@@ -38,13 +38,14 @@ in vec3 fragPos;
 in vec3 fragNormal;
 in vec2 texCoords;
 
-layout (location = 0) out vec4 gPosition;
+layout (location = 0) out vec4 gPositionEmission;
 layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gColourSpec;
 
 struct Material {
 	sampler2D diffuse;
 	sampler2D specular;
+	sampler2D emission;
 };
 
 uniform Material material;
@@ -67,7 +68,8 @@ void main() {
 	gColourSpec.rgb = texture(material.diffuse, texCoords).rgb;
     gColourSpec.a = texture(material.specular, texCoords).r;
 	
-	gPosition = vec4(fragPos, 1.0);
+	gPositionEmission.rgb = fragPos;
+	gPositionEmission.a = texture(material.emission, texCoords).r;
 	gNormal = vec4(fragNormal, 1.0);
 }`;
 
@@ -87,9 +89,11 @@ class GeometryPass extends ShaderProgram {
 
 		this.setUniformLocation("material.diffuse");
 		this.setUniformLocation("material.specular");
+		this.setUniformLocation("material.emission");
 
 		gl.uniform1i(this.getUniformLocation("material.diffuse")[0], 0);
 		gl.uniform1i(this.getUniformLocation("material.specular")[0], 1);
+		gl.uniform1i(this.getUniformLocation("material.emission")[0], 2);
 	}
 
 	setupVertexAttributePointers(): void {

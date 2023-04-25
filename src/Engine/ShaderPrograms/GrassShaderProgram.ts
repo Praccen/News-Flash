@@ -57,9 +57,11 @@ class GrassShaderProgram extends ShaderProgram {
 		
 		this.setUniformLocation("material.diffuse");
 		this.setUniformLocation("material.specular");
+		this.setUniformLocation("material.emission");
 
 		gl.uniform1i(this.getUniformLocation("material.diffuse")[0], 0);
 		gl.uniform1i(this.getUniformLocation("material.specular")[0], 1);
+		gl.uniform1i(this.getUniformLocation("material.emission")[0], 2);
 	}
 
 	setupVertexAttributePointers(): void {

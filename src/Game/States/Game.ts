@@ -314,9 +314,14 @@ export default class Game extends State {
 		let texturePathColour = "Assets/textures/GrassStraw.png";
 		let texturePathSpec = "Assets/textures/GrassStraw_Spec.png";
 
+		let bundle =  this.scene.getNewGrassSpawner(texturePathColour, texturePathSpec, this.grassStrawsPerSpawner);
+		if (Math.random() > 0.5) {
+			bundle.emission = this.stateAccessible.textureStore.getTexture("Assets/textures/GrassStraw_Spec.png");
+		}
+
 		this.grassSpawners.push(
 			{
-				spawner: this.scene.getNewGrassSpawner(texturePathColour, texturePathSpec, this.grassStrawsPerSpawner).graphicsObject as GrassSpawner, 
+				spawner: bundle.graphicsObject as GrassSpawner, 
 				offset: new Vec2([offsetX, offsetY])
 			}
 		);	

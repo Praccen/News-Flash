@@ -12,7 +12,7 @@ in vec2 texCoords;
 
 out vec4 final_colour;
 
-uniform sampler2D gPosition;
+uniform sampler2D gPositionEmission;
 uniform sampler2D gNormal;
 uniform sampler2D gColourSpec;
 uniform sampler2D depthMap;
@@ -53,11 +53,12 @@ void main() {
 		discard;
 	}
 	
-	vec3 fragPos = texture(gPosition, texCoords).rgb;
+	vec3 fragPos = texture(gPositionEmission, texCoords).rgb;
 	vec3 fragNormal = fragNormalWithAlpha.rgb;
 	float shininess = 32.0f;
 	vec3 diffuse = texture(gColourSpec, texCoords).rgb;
 	float specular = texture(gColourSpec, texCoords).a;
+	float emission = texture(gPositionEmission, texCoords).a;
 	vec4 lightSpaceFragPos = (lightSpaceMatrix * vec4(fragPos, 1.0f));
 	
 	vec3 cameraDir = normalize(camPos - fragPos); //Direction vector from fragment to camera
@@ -72,7 +73,7 @@ void main() {
 		result += CalcPointLight(pointLights[i], fragNormal, fragPos, cameraDir, diffuse, specular, shininess);
 	}
 
-	final_colour = vec4(result, 1.0f); // Set colour of fragment. Since we use screen door transparency, do not use alpha value
+	final_colour = vec4(result * (1.0 - emission) + diffuse * emission, 1.0f); // Set colour of fragment. Since we use screen door transparency, do not use alpha value
 }
 
 // Calculates the colour when using a directional light
@@ -165,12 +166,12 @@ class LightingPass extends ShaderProgram {
 
 		this.use();
 
-		this.setUniformLocation("gPosition");
+		this.setUniformLocation("gPositionEmission");
 		this.setUniformLocation("gNormal");
 		this.setUniformLocation("gColourSpec");
 		this.setUniformLocation("depthMap");
 
-		gl.uniform1i(this.getUniformLocation("gPosition")[0], 0);
+		gl.uniform1i(this.getUniformLocation("gPositionEmission")[0], 0);
 		gl.uniform1i(this.getUniformLocation("gNormal")[0], 1);
 		gl.uniform1i(this.getUniformLocation("gColourSpec")[0], 2);
 		gl.uniform1i(this.getUniformLocation("depthMap")[0], 3);
