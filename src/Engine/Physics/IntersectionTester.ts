@@ -85,14 +85,25 @@ export module IntersectionTester {
 	 * @param ray Ray shape
 	 * @param shapeArray shape array to cast against
 	 * @param maxDistance The furthest allowed hit
-	 * @param breakOnFirstHit If the first hit should be returned immediately 
+	 * @param breakOnFirstHit If the first hit should be returned immediately
 	 * @returns the closest hit
 	 */
-	export function doRayCast(ray: Ray, shapeArray: Array<Shape>, maxDistance: number = Infinity, breakOnFirstHit: boolean = false): number {
+	export function doRayCast(
+		ray: Ray,
+		shapeArray: Array<Shape>,
+		maxDistance: number = Infinity,
+		breakOnFirstHit: boolean = false
+	): number {
 		let closestHit = -1.0;
 
 		for (const shape of shapeArray) {
-			let dist = SAT.getContinousIntersection3D(ray, shape, ray.getDir(), new Vec3([0.0, 0.0, 0.0]), maxDistance);
+			let dist = SAT.getContinousIntersection3D(
+				ray,
+				shape,
+				ray.getDir(),
+				new Vec3([0.0, 0.0, 0.0]),
+				maxDistance
+			);
 			if (dist >= 0.0 && (dist < closestHit || closestHit < 0)) {
 				closestHit = dist;
 				maxDistance = closestHit;

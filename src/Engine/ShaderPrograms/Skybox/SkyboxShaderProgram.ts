@@ -33,11 +33,7 @@ void main() {
 
 class SkyboxShaderProgram extends ShaderProgram {
 	constructor() {
-		super(
-			"SkyboxShaderProgram",
-			skyboxVertexSrc,
-			skyboxFragmentSrc
-		);
+		super("SkyboxShaderProgram", skyboxVertexSrc, skyboxFragmentSrc);
 
 		this.setUniformLocation("skybox");
 		gl.uniform1i(this.uniformBindings["skybox"], 0);
@@ -55,6 +51,6 @@ class SkyboxShaderProgram extends ShaderProgram {
 
 export let skyboxShaderProgram = null;
 
-export let createSkyboxShaderProgram = function() {
+export let createSkyboxShaderProgram = function () {
 	skyboxShaderProgram = new SkyboxShaderProgram();
-}
+};

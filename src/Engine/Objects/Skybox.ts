@@ -12,10 +12,7 @@ export default class Skybox extends GraphicsObject {
 	private vertices: Float32Array;
 	private indices: Int32Array;
 
-	constructor(
-		shaderProgram: ShaderProgram,
-		texture: CubeMap
-	) {
+	constructor(shaderProgram: ShaderProgram, texture: CubeMap) {
 		super(shaderProgram);
 
 		// prettier-ignore

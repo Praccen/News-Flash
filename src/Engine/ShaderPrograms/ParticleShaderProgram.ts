@@ -135,6 +135,6 @@ class ParticleShaderProgram extends ShaderProgram {
 
 export let particleShaderProgram: ParticleShaderProgram = null;
 
-export let createParticleShaderProgram = function() {
+export let createParticleShaderProgram = function () {
 	particleShaderProgram = new ParticleShaderProgram();
-}
+};

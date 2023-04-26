@@ -19,7 +19,7 @@ export module CollisionSolver {
 					continue;
 				}
 			}
-			
+
 			if (inf.depth > maxDepth) {
 				resultingVec.deepAssign(inf.axis);
 				maxDepth = inf.depth;

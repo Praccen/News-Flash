@@ -7,9 +7,7 @@ export default class Menu extends State {
 	// private rendering: Rendering
 	private overlayRendering: OverlayRendering;
 
-	constructor(
-			sa: StateAccessible
-	) {
+	constructor(sa: StateAccessible) {
 		super();
 		// this.rendering = new Rendering(sa.textureStore, sa.meshStore);
 		this.overlayRendering = new OverlayRendering();
@@ -48,7 +46,6 @@ export default class Menu extends State {
 			startButton.textString = "Resume";
 		});
 
-
 		let optionsButton = this.overlayRendering.getNewButton();
 		optionsButton.position.x = 0.5;
 		optionsButton.position.y = 0.7;
@@ -75,9 +72,7 @@ export default class Menu extends State {
 		this.overlayRendering.hide();
 	}
 
-	update(dt: number) {
-		
-	}
+	update(dt: number) {}
 
 	draw() {
 		this.overlayRendering.draw();

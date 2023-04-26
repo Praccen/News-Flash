@@ -6,31 +6,29 @@ import ScreenQuad from "../../Objects/ScreenQuad.js";
 import { screenQuadShaderProgram } from "../../ShaderPrograms/ScreenQuadShaderProgram.js";
 
 export default class CRTRenderPass {
-    private screenQuad: ScreenQuad;
-    outputFramebuffer: Framebuffer;
+	private screenQuad: ScreenQuad;
+	outputFramebuffer: Framebuffer;
 
-    constructor(inputTextures: Texture[]) {
+	constructor(inputTextures: Texture[]) {
+		this.screenQuad = new ScreenQuad(screenQuadShaderProgram, inputTextures);
+		this.outputFramebuffer = null;
+	}
 
-        this.screenQuad = new ScreenQuad(screenQuadShaderProgram, inputTextures);
-        this.outputFramebuffer = null;
-    }
+	private bindFramebuffers() {
+		if (this.outputFramebuffer == undefined) {
+			gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+		} else {
+			this.outputFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
+		}
+	}
 
-    private bindFramebuffers() {
-        if (this.outputFramebuffer == undefined) {
-            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
-        }
-        else {
-            this.outputFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
-        }
-    }
-
-    draw() {
-        this.bindFramebuffers();
-	    gl.disable(gl.DEPTH_TEST);
-       // ---- Crt effect ----
-        crtShaderProgram.use();
-        this.screenQuad.draw(true);
-        // --------------------
-        gl.enable(gl.DEPTH_TEST);
-    }
+	draw() {
+		this.bindFramebuffers();
+		gl.disable(gl.DEPTH_TEST);
+		// ---- Crt effect ----
+		crtShaderProgram.use();
+		this.screenQuad.draw(true);
+		// --------------------
+		gl.enable(gl.DEPTH_TEST);
+	}
 }

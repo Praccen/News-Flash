@@ -22,7 +22,6 @@ export default class Texture {
 		dataStorageType: number = gl.UNSIGNED_BYTE,
 		textureTarget: number = gl.TEXTURE_2D
 	) {
-
 		// this.missingTextureData = new Uint8Array([
 		//     255, 255, 255, 255, 0, 0, 0, 255,
 		//     0, 0, 0, 255, 255, 255, 255, 255
@@ -40,26 +39,10 @@ export default class Texture {
 		gl.bindTexture(this.textureTarget, this.texture);
 
 		// Set texture parameters
-		gl.texParameteri(
-			this.textureTarget,
-			gl.TEXTURE_WRAP_S,
-			gl.REPEAT
-		);
-		gl.texParameteri(
-			this.textureTarget,
-			gl.TEXTURE_WRAP_T,
-			gl.REPEAT
-		);
-		gl.texParameteri(
-			this.textureTarget,
-			gl.TEXTURE_MIN_FILTER,
-			gl.NEAREST
-		);
-		gl.texParameteri(
-			this.textureTarget,
-			gl.TEXTURE_MAG_FILTER,
-			gl.NEAREST
-		);
+		gl.texParameteri(this.textureTarget, gl.TEXTURE_WRAP_S, gl.REPEAT);
+		gl.texParameteri(this.textureTarget, gl.TEXTURE_WRAP_T, gl.REPEAT);
+		gl.texParameteri(this.textureTarget, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(this.textureTarget, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 		// Make a 1 by 1 empty texture

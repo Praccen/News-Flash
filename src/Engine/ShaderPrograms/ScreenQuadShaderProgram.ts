@@ -54,6 +54,6 @@ class ScreenQuadShaderProgram extends ShaderProgram {
 
 export let screenQuadShaderProgram = null;
 
-export let createScreenQuadShaderProgram = function() {
+export let createScreenQuadShaderProgram = function () {
 	screenQuadShaderProgram = new ScreenQuadShaderProgram();
-}
+};

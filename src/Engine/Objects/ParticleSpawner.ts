@@ -65,11 +65,7 @@ export default class ParticleSpawner extends GraphicsObject {
 
 		this.bindVAO();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceVBO);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			this.numParticles * 11 * 4,
-			gl.DYNAMIC_DRAW
-		);
+		gl.bufferData(gl.ARRAY_BUFFER, this.numParticles * 11 * 4, gl.DYNAMIC_DRAW);
 		this.unbindVAO();
 	}
 
@@ -111,10 +107,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		if (particleIndex > this.numParticles) {
 			return false;
 		}
-		this.bufferSubDataUpdate(
-			particleIndex * 11,
-			new Float32Array(position)
-		);
+		this.bufferSubDataUpdate(particleIndex * 11, new Float32Array(position));
 		return true;
 	}
 
@@ -130,10 +123,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		if (particleIndex > this.numParticles) {
 			return false;
 		}
-		this.bufferSubDataUpdate(
-			particleIndex * 11 + 4,
-			new Float32Array(vel)
-		);
+		this.bufferSubDataUpdate(particleIndex * 11 + 4, new Float32Array(vel));
 		return true;
 	}
 
@@ -160,10 +150,7 @@ export default class ParticleSpawner extends GraphicsObject {
 		if (particleIndex > this.numParticles) {
 			return false;
 		}
-		this.bufferSubDataUpdate(
-			particleIndex * 11 + 8,
-			new Float32Array(acc)
-		);
+		this.bufferSubDataUpdate(particleIndex * 11 + 8, new Float32Array(acc));
 		return true;
 	}
 

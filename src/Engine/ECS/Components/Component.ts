@@ -8,7 +8,7 @@ export enum ComponentTypeEnum {
 	PARTICLESPAWNER,
 	POINTLIGHT,
 	POSITION,
-	POSITIONPARENT
+	POSITIONPARENT,
 }
 
 export class Component {

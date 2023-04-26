@@ -65,15 +65,23 @@ export module SAT {
 	 * Finds if two sets of vertices will overlap along an axis given their relative speed within the time frame (time input object).
 	 * Will alter the first collision time and last collision time in the times object
 	 * @param testVec The axis for overlap
-	 * @param shapeAVertices Vertices for shape A 
+	 * @param shapeAVertices Vertices for shape A
 	 * @param shapeBVertices Vertices for shape B
 	 * @param relativeVelocity Relative velocity between the shapes
 	 * @param times Times object which contains - first, last, max. Max is how soon the overlap has to happen to count.
 	 * @returns If an overlap happens within the timeframe (times.max)
 	 */
-	export function getContinousOverlap(testVec: Vec3, shapeAVertices: Array<Vec3>, shapeBVertices: Array<Vec3>, relativeVelocity: Vec3, times: {first: number, last: number, max: number}): boolean {
-		let minA = Infinity, minB = Infinity;
-		let maxA = -Infinity, maxB = -Infinity;
+	export function getContinousOverlap(
+		testVec: Vec3,
+		shapeAVertices: Array<Vec3>,
+		shapeBVertices: Array<Vec3>,
+		relativeVelocity: Vec3,
+		times: { first: number; last: number; max: number }
+	): boolean {
+		let minA = Infinity,
+			minB = Infinity;
+		let maxA = -Infinity,
+			maxB = -Infinity;
 
 		let tempDot = 0.0;
 
@@ -97,42 +105,68 @@ export module SAT {
 		let speed = testVec.dot(relativeVelocity);
 
 		if (maxB <= minA) {
-			if (speed <= 0.0) { // Interval (B) initially on ‘left’ of interval (A)
+			if (speed <= 0.0) {
+				// Interval (B) initially on ‘left’ of interval (A)
 				return false; // Intervals moving apart
 			}
 
 			T = (minA - maxB) / speed;
-			if (T > times.first) { times.first = T; }
-			if (times.first > times.max) { return false; } // Early exit
+			if (T > times.first) {
+				times.first = T;
+			}
+			if (times.first > times.max) {
+				return false;
+			} // Early exit
 
 			T = (maxA - minB) / speed;
-			if (T < times.last) { times.last = T; }
-			if (times.first > times.last) { return false; } // Early exit
-		}
-		else if (maxA <= minB) { // Interval (B) initially on ‘right’ of interval (A)
-			if (speed >= 0.0) { return false; } // Intervals moving apart
+			if (T < times.last) {
+				times.last = T;
+			}
+			if (times.first > times.last) {
+				return false;
+			} // Early exit
+		} else if (maxA <= minB) {
+			// Interval (B) initially on ‘right’ of interval (A)
+			if (speed >= 0.0) {
+				return false;
+			} // Intervals moving apart
 
 			T = (maxA - minB) / speed;
-			if (T > times.first) { times.first = T; }
-			if (times.first > times.max) { return false; } // Early exit
+			if (T > times.first) {
+				times.first = T;
+			}
+			if (times.first > times.max) {
+				return false;
+			} // Early exit
 
 			T = (minA - maxB) / speed;
-			if (T < times.last) { times.last = T; }
-			if (times.first > times.last) { return false; } // Early exit
-		}
-		else { // Interval (A) and interval (B) overlap
+			if (T < times.last) {
+				times.last = T;
+			}
+			if (times.first > times.last) {
+				return false;
+			} // Early exit
+		} else {
+			// Interval (A) and interval (B) overlap
 			if (speed > 0.0) {
 				T = (maxA - minB) / speed;
-				if (T < times.last) { times.last = T; }
-				if (times.first > times.last) { return false; } // Early exit
-			}
-			else if (speed < 0.0) {
+				if (T < times.last) {
+					times.last = T;
+				}
+				if (times.first > times.last) {
+					return false;
+				} // Early exit
+			} else if (speed < 0.0) {
 				T = (minA - maxB) / speed;
-				if (T < times.last) { times.last = T; }
-				if (times.first > times.last) { return false; } // Early exit
+				if (T < times.last) {
+					times.last = T;
+				}
+				if (times.first > times.last) {
+					return false;
+				} // Early exit
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -263,11 +297,17 @@ export module SAT {
 
 		let shapeAVertices = shapeA.getTransformedVertices();
 		let shapeBVertices = shapeB.getTransformedVertices();
-		
+
 		// Check normal and update intersection depth and axis if shallower than previous
-		let checkNormal = function(normal: Vec3): boolean {
+		let checkNormal = function (normal: Vec3): boolean {
 			let reverse = { value: false };
-			let overlap = SAT.getOverlap(normal, shapeAVertices, shapeBVertices, reverse, shapeA.margin + shapeB.margin);
+			let overlap = SAT.getOverlap(
+				normal,
+				shapeAVertices,
+				shapeBVertices,
+				reverse,
+				shapeA.margin + shapeB.margin
+			);
 
 			if (overlap < 0.0) {
 				return false;
@@ -281,8 +321,8 @@ export module SAT {
 				}
 			}
 			return true;
-		}
-		
+		};
+
 		let shapeANormals = shapeA.getTransformedNormals();
 		for (let normal of shapeANormals) {
 			if (!checkNormal(normal)) {
@@ -352,12 +392,12 @@ export module SAT {
 	}
 
 	/**
-	 * Check when an intersection will occur (if it happens before timeMax).  
-	 * @param shapeA 
-	 * @param shapeB 
-	 * @param velocityA 
-	 * @param velocityB 
-	 * @param timeMax 
+	 * Check when an intersection will occur (if it happens before timeMax).
+	 * @param shapeA
+	 * @param shapeB
+	 * @param velocityA
+	 * @param velocityB
+	 * @param timeMax
 	 * @returns Returns time of intersection if there is one within timeMax, otherwise returns -1.0
 	 */
 	export function getContinousIntersection3D(
@@ -367,25 +407,40 @@ export module SAT {
 		velocityB: Vec3,
 		timeMax: number
 	): number {
-
 		// Treat shapeA as stationary and shapeB as moving
 		let relativeVel = new Vec3(velocityB).subtract(velocityA);
 
-		let times = {first: 0.0, last: Infinity, max: timeMax};
+		let times = { first: 0.0, last: Infinity, max: timeMax };
 
 		let shapeAVertices = shapeA.getTransformedVertices();
 		let shapeBVertices = shapeB.getTransformedVertices();
-		
+
 		let shapeANormals = shapeA.getTransformedNormals();
 		for (let normal of shapeANormals) {
-			if (!getContinousOverlap(normal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+			if (
+				!getContinousOverlap(
+					normal,
+					shapeAVertices,
+					shapeBVertices,
+					relativeVel,
+					times
+				)
+			) {
 				return -1.0;
 			}
 		}
 
 		let shapeBNormals = shapeB.getTransformedNormals();
 		for (let normal of shapeBNormals) {
-			if (!getContinousOverlap(normal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+			if (
+				!getContinousOverlap(
+					normal,
+					shapeAVertices,
+					shapeBVertices,
+					relativeVel,
+					times
+				)
+			) {
 				return -1.0;
 			}
 		}
@@ -410,13 +465,29 @@ export module SAT {
 				// Coplanar
 				// Test the edge normals for all edges
 				for (const AEdgeNormal of shapeA.getTransformedEdgeNormals()) {
-					if (!getContinousOverlap(AEdgeNormal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+					if (
+						!getContinousOverlap(
+							AEdgeNormal,
+							shapeAVertices,
+							shapeBVertices,
+							relativeVel,
+							times
+						)
+					) {
 						return -1.0;
 					}
 				}
 
 				for (const BEdgeNormal of shapeB.getTransformedEdgeNormals()) {
-					if (!getContinousOverlap(BEdgeNormal, shapeAVertices, shapeBVertices, relativeVel, times)) {
+					if (
+						!getContinousOverlap(
+							BEdgeNormal,
+							shapeAVertices,
+							shapeBVertices,
+							relativeVel,
+							times
+						)
+					) {
 						return -1.0;
 					}
 				}
@@ -434,7 +505,15 @@ export module SAT {
 					let testVec = new Vec3();
 					testVec.deepAssign(e1);
 					testVec.cross(e2).normalize();
-					if (!getContinousOverlap(testVec, shapeAVertices, shapeBVertices, relativeVel, times)) {
+					if (
+						!getContinousOverlap(
+							testVec,
+							shapeAVertices,
+							shapeBVertices,
+							relativeVel,
+							times
+						)
+					) {
 						return -1.0;
 					}
 				}
@@ -484,11 +563,7 @@ export module SAT {
 		let vertexPositions = new Array<Vec3>();
 		for (let i = 0; i < vertexCoords.length; i += 3) {
 			vertexPositions.push(
-				new Vec3([
-					vertexCoords[i],
-					vertexCoords[i + 1],
-					vertexCoords[i + 2],
-				])
+				new Vec3([vertexCoords[i], vertexCoords[i + 1], vertexCoords[i + 2]])
 			);
 		}
 
@@ -529,9 +604,7 @@ export module SAT {
 					debugger;
 				}
 			} else if (
-				!intersectionAxis
-					.cross(positiveTests[i].axis)
-					.compare([0.0, 0.0, 0.0 ])
+				!intersectionAxis.cross(positiveTests[i].axis).compare([0.0, 0.0, 0.0])
 			) {
 				// Only check that the axises are perpendicular
 				alert("Intersection test returned wrong intersection axis!");
@@ -560,9 +633,7 @@ export module SAT {
 					debugger;
 				}
 			} else if (
-				!intersectionAxis
-					.cross(positiveTests[i].axis)
-					.compare([0.0, 0.0, 0.0])
+				!intersectionAxis.cross(positiveTests[i].axis).compare([0.0, 0.0, 0.0])
 			) {
 				// Only check that the axises are perpendicular
 				alert("Intersection test returned wrong intersection axis!");

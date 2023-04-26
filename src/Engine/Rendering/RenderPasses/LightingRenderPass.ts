@@ -7,19 +7,19 @@ import Texture from "../../Textures/Texture.js";
 import Scene from "../Scene.js";
 
 export default class LightingRenderPass {
-    private screenQuad: ScreenQuad;
-    
-    outputFramebuffer: Framebuffer;
+	private screenQuad: ScreenQuad;
 
-    constructor(inputTextures: Texture[]) {
-        this.screenQuad = new ScreenQuad(lightingPass, inputTextures)
-    }
+	outputFramebuffer: Framebuffer;
 
-    setResolution(x: number, y: number) {
-        this.outputFramebuffer.setProportions(x, y);
-    }
+	constructor(inputTextures: Texture[]) {
+		this.screenQuad = new ScreenQuad(lightingPass, inputTextures);
+	}
 
-    draw(scene: Scene, camera: Camera) {
+	setResolution(x: number, y: number) {
+		this.outputFramebuffer.setProportions(x, y);
+	}
+
+	draw(scene: Scene, camera: Camera) {
 		// Disable depth testing for screen quad(s) rendering
 		gl.disable(gl.DEPTH_TEST);
 
@@ -50,5 +50,5 @@ export default class LightingRenderPass {
 
 		// Enable depth test again
 		gl.enable(gl.DEPTH_TEST);
-    }
+	}
 }

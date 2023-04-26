@@ -20,13 +20,13 @@ export default class Ray extends Shape {
 		this.dir.deepAssign(dir).normalize();
 	}
 
-    getDir(): Vec3 {
-        return this.dir;
-    }
+	getDir(): Vec3 {
+		return this.dir;
+	}
 
 	setStartAndDir(start: Vec3, dir: Vec3) {
 		this.start.deepAssign(start);
-        this.dir.deepAssign(dir).normalize();
+		this.dir.deepAssign(dir).normalize();
 	}
 
 	getTransformedVertices(): Array<Vec3> {

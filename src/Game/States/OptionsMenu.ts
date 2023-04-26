@@ -7,7 +7,7 @@ import { StateAccessible } from "../GameMachine.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
 
 export default class OptionsMenu extends State {
-	private overlayRendering: OverlayRendering
+	private overlayRendering: OverlayRendering;
 
 	private backButton: Button;
 	private crtCB: Checkbox;
@@ -17,12 +17,10 @@ export default class OptionsMenu extends State {
 	private volumeSlider: Slider;
 	private controlsButton: Button;
 
-	constructor(
-			sa: StateAccessible
-	) {
+	constructor(sa: StateAccessible) {
 		super();
 		this.overlayRendering = new OverlayRendering();
-		
+
 		this.crtCB = this.overlayRendering.getNewCheckbox();
 		this.crtCB.position.x = 0.4;
 		this.crtCB.position.y = 0.3;

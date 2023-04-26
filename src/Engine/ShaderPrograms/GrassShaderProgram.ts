@@ -54,7 +54,7 @@ class GrassShaderProgram extends ShaderProgram {
 		this.setUniformLocation("viewProjMatrix");
 		this.setUniformLocation("cameraPos");
 		this.setUniformLocation("currentTime");
-		
+
 		this.setUniformLocation("material.diffuse");
 		this.setUniformLocation("material.specular");
 		this.setUniformLocation("material.emission");
@@ -92,6 +92,6 @@ class GrassShaderProgram extends ShaderProgram {
 
 export let grassShaderProgram: GrassShaderProgram = null;
 
-export let createGrassShaderProgram = function() {
+export let createGrassShaderProgram = function () {
 	grassShaderProgram = new GrassShaderProgram();
-}
+};

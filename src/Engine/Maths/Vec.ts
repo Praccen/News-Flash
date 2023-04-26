@@ -1,5 +1,4 @@
 export default class Vec extends Array<number> {
-
 	constructor(size: number, base?: number[]) {
 		super(size);
 		if (base) {
@@ -27,12 +26,12 @@ export default class Vec extends Array<number> {
 
 	compare(other: number[]): boolean {
 		let returnVal = true;
-        this.iterate((i: number) => {
-            if (this[i] != other[i]) {
-                returnVal = false;
+		this.iterate((i: number) => {
+			if (this[i] != other[i]) {
+				returnVal = false;
 				return;
-            }
-        });
+			}
+		});
 		return returnVal;
 	}
 
@@ -41,10 +40,10 @@ export default class Vec extends Array<number> {
 	}
 
 	length2(): number {
-        let returnVal = 0;
-        this.iterate((i: number) => {
-            returnVal += Math.pow(this[i], 2);
-        });
+		let returnVal = 0;
+		this.iterate((i: number) => {
+			returnVal += Math.pow(this[i], 2);
+		});
 		return returnVal;
 	}
 
@@ -64,7 +63,7 @@ export default class Vec extends Array<number> {
 
 	dot(otherVec: number[]): number {
 		let dot = 0.0;
-		this.iterate((i:number) => {
+		this.iterate((i: number) => {
 			dot += this[i] * otherVec[i];
 		});
 		return dot;

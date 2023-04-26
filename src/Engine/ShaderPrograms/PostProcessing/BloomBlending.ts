@@ -59,6 +59,6 @@ class BloomBlending extends ShaderProgram {
 
 export let bloomBlending = null;
 
-export let createBloomBlending = function() {
+export let createBloomBlending = function () {
 	bloomBlending = new BloomBlending();
-}
+};

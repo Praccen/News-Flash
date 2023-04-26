@@ -13,7 +13,6 @@ export default class GraphicsSystem extends System {
 
 	update(dt: number) {
 		for (const e of this.entities) {
-
 			let posComp = <PositionComponent>(
 				e.getComponent(ComponentTypeEnum.POSITION)
 			);
@@ -33,7 +32,7 @@ export default class GraphicsSystem extends System {
 					posParentComp.calculateMatrix(graphComp.object.modelMatrix);
 					posParentComp.matrix.set(graphComp.object.modelMatrix);
 				}
-				
+
 				posComp.calculateMatrix(graphComp.object.modelMatrix);
 			}
 
@@ -45,7 +44,7 @@ export default class GraphicsSystem extends System {
 				pointLightComp.pointLight.position
 					.deepAssign(posComp.position)
 					.add(pointLightComp.posOffset);
-				
+
 				if (posParentComp) {
 					pointLightComp.pointLight.position.add(posParentComp.position);
 				}

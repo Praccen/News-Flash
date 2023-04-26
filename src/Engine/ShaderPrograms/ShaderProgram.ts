@@ -49,8 +49,7 @@ export default class ShaderProgram {
 					gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)
 			);
 			console.log(
-				"Vertex shader compiler log: \n" +
-					gl.getShaderInfoLog(vertexShader)
+				"Vertex shader compiler log: \n" + gl.getShaderInfoLog(vertexShader)
 			);
 		}
 
@@ -69,8 +68,7 @@ export default class ShaderProgram {
 					gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)
 			);
 			console.log(
-				"Fragment shader compiler log: \n" +
-					gl.getShaderInfoLog(fragmentShader)
+				"Fragment shader compiler log: \n" + gl.getShaderInfoLog(fragmentShader)
 			);
 		}
 
@@ -88,8 +86,7 @@ export default class ShaderProgram {
 		if (!linkedShaders || debugShaderCompilation) {
 			console.log("Linked shaders successfully: " + linkedShaders);
 			console.log(
-				"Linking shaders log: \n" +
-					gl.getProgramInfoLog(this.shaderProgram)
+				"Linking shaders log: \n" + gl.getProgramInfoLog(this.shaderProgram)
 			);
 		}
 

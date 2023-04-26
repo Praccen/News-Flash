@@ -63,6 +63,6 @@ class GaussianBlur extends ShaderProgram {
 
 export let gaussianBlur = null;
 
-export let createGaussianBlur = function() {
+export let createGaussianBlur = function () {
 	gaussianBlur = new GaussianBlur();
-}
+};

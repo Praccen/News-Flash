@@ -7,13 +7,9 @@ export default class Shape {
 		this.margin = 0.0;
 	}
 
-	setUpdateNeeded() {
-		
-	}
+	setUpdateNeeded() {}
 
-	setTransformMatrix(matrix: Matrix4) {
-		
-	}
+	setTransformMatrix(matrix: Matrix4) {}
 
 	getOriginalVertices(): Array<Vec3> {
 		return null;

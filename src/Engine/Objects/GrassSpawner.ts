@@ -1,4 +1,4 @@
-import {gl} from "../../main.js";
+import { gl } from "../../main.js";
 
 import GraphicsObject from "./GraphicsObject.js";
 import Vec3 from "../Maths/Vec3.js";
@@ -46,11 +46,7 @@ export default class GrassSpawner extends GraphicsObject {
 
 		this.bindVAO();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceVBO);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			this.numGrassStraws * 7 * 4,
-			gl.STATIC_DRAW
-		);
+		gl.bufferData(gl.ARRAY_BUFFER, this.numGrassStraws * 7 * 4, gl.STATIC_DRAW);
 		this.unbindVAO();
 	}
 
@@ -87,10 +83,7 @@ export default class GrassSpawner extends GraphicsObject {
 		if (particleIndex > this.numGrassStraws) {
 			return false;
 		}
-		this.bufferSubDataUpdate(
-			particleIndex * 7,
-			new Float32Array(position)
-		);
+		this.bufferSubDataUpdate(particleIndex * 7, new Float32Array(position));
 		return true;
 	}
 

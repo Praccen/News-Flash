@@ -76,15 +76,13 @@ export default class Triangle extends Shape {
 
 			for (const originalVertex of this.originalVertices) {
 				let transformedVertex = this.transformMatrix.multiplyVector4(
-					new Vector4([
-						...originalVertex,
-						1.0,
-					])
+					new Vector4([...originalVertex, 1.0])
 				);
 				let transformedVertexVec3 = new Vec3([
-					transformedVertex.elements[0], 
-					transformedVertex.elements[1], 
-					transformedVertex.elements[2]]);
+					transformedVertex.elements[0],
+					transformedVertex.elements[1],
+					transformedVertex.elements[2],
+				]);
 				this.transformedVertices.push(transformedVertexVec3);
 			}
 			this.verticesNeedsUpdate = false;
@@ -96,13 +94,18 @@ export default class Triangle extends Shape {
 		if (this.normalNeedsUpdate) {
 			this.transformedNormals.length = 0;
 			this.getTransformedVertices();
-			this.transformedNormals.push(new Vec3(this.transformedVertices[0])
-			.subtract(this.transformedVertices[1])
-			.cross(new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[1]))
-			.normalize());
-			
+			this.transformedNormals.push(
+				new Vec3(this.transformedVertices[0])
+					.subtract(this.transformedVertices[1])
+					.cross(
+						new Vec3(this.transformedVertices[2]).subtract(
+							this.transformedVertices[1]
+						)
+					)
+					.normalize()
+			);
 
-			// let tempMatrix = new Matrix3();	
+			// let tempMatrix = new Matrix3();
 			// tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
 
 			// this.transformedNormals.length = 0;

@@ -1,4 +1,4 @@
-import { gl, windowInfo} from "../../main.js";
+import { gl, windowInfo } from "../../main.js";
 import { options } from "../../Game/GameMachine.js";
 import Framebuffer from "../Framebuffer.js";
 import Texture from "../Textures/Texture.js";
@@ -59,7 +59,6 @@ export default class Rendering {
 	private scene: Scene;
 
 	constructor(textureStore: TextureStore, scene: Scene) {
-
 		this.textureStore = textureStore;
 		this.scene = scene;
 
@@ -69,12 +68,15 @@ export default class Rendering {
 		this.resolutionWidth = windowInfo.resolutionWidth;
 		this.resolutionHeight = windowInfo.resolutionHeight;
 
-
 		// ---- Deferred rendering ----
 		this.geometryRenderPass = new GeometryRenderPass();
 
 		let textureArray = new Array<Texture>();
-		for (let i = 0; i < this.geometryRenderPass.outputFramebuffer.textures.length; i++) {
+		for (
+			let i = 0;
+			i < this.geometryRenderPass.outputFramebuffer.textures.length;
+			i++
+		) {
 			textureArray.push(this.geometryRenderPass.outputFramebuffer.textures[i]);
 		}
 		textureArray.push(this.shadowRenderPass.shadowBuffer.depthTexture);
@@ -89,7 +91,7 @@ export default class Rendering {
 		this.useSkybox = false;
 		this.skyboxRenderPass = new SkyboxRenderPass();
 		// ----------------
-		
+
 		// ---- Post processing ----
 		// Crt effect
 		this.useCrt = options.useCrt;
@@ -109,7 +111,9 @@ export default class Rendering {
 			[new Texture(false)],
 			null
 		);
-		this.bloomRenderPass = new BloomRenderPass(this.bloomExtractionInputFramebuffer.textures);
+		this.bloomRenderPass = new BloomRenderPass(
+			this.bloomExtractionInputFramebuffer.textures
+		);
 		this.useBloom = options.useBloom;
 		// -------------------------
 
@@ -143,7 +147,7 @@ export default class Rendering {
 		this.resolutionHeight = y;
 		this.geometryRenderPass.setResolution(x, y);
 		this.crtFramebuffer.setProportions(x, y);
-		
+
 		this.bloomExtractionInputFramebuffer.setProportions(x, y);
 		this.bloomRenderPass.setResolution(x, y);
 	}
@@ -154,8 +158,14 @@ export default class Rendering {
 	}
 
 	draw() {
-		if (this.resolutionWidth != windowInfo.resolutionWidth || this.resolutionHeight != windowInfo.resolutionHeight) {
-			this.reportCanvasResize(windowInfo.resolutionWidth, windowInfo.resolutionHeight);
+		if (
+			this.resolutionWidth != windowInfo.resolutionWidth ||
+			this.resolutionHeight != windowInfo.resolutionHeight
+		) {
+			this.reportCanvasResize(
+				windowInfo.resolutionWidth,
+				windowInfo.resolutionHeight
+			);
 		}
 
 		gl.enable(gl.DEPTH_TEST);
@@ -184,11 +194,7 @@ export default class Rendering {
 			this.clearColour.b,
 			this.clearColour.a
 		);
-		gl.clear(
-			gl.COLOR_BUFFER_BIT |
-				gl.DEPTH_BUFFER_BIT |
-				gl.STENCIL_BUFFER_BIT
-		);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
 		// ---- Lighting pass ----
 		this.lightingRenderPass.draw(this.scene, this.camera);
@@ -214,7 +220,7 @@ export default class Rendering {
 		// -------------------
 
 		// ---- Skybox ----
-		if (this.useSkybox ) {
+		if (this.useSkybox) {
 			this.skyboxRenderPass.draw(this.camera);
 		}
 		// ----------------
@@ -223,8 +229,7 @@ export default class Rendering {
 		if (this.useBloom) {
 			if (this.useCrt) {
 				this.bloomRenderPass.outputFramebuffer = this.crtFramebuffer;
-			}
-			else {
+			} else {
 				this.bloomRenderPass.outputFramebuffer = null;
 			}
 			this.bloomRenderPass.draw();

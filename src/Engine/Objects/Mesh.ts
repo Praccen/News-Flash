@@ -8,14 +8,11 @@ import { gl } from "../../main.js";
 
 export default class Mesh extends GraphicsObject {
 	// Protected
-	protected vertices: Float32Array
+	protected vertices: Float32Array;
 
-	constructor(
-		shaderProgram: ShaderProgram,
-		vertices: Float32Array
-	) {
+	constructor(shaderProgram: ShaderProgram, vertices: Float32Array) {
 		super(shaderProgram);
-		
+
 		this.vertices = vertices;
 		this.setVertexData(this.vertices);
 	}
@@ -50,11 +47,7 @@ export default class Mesh extends GraphicsObject {
 		let returnArr = new Array<Vec3>();
 		for (let i = 0; i < this.vertices.length; i += 8) {
 			returnArr.push(
-				new Vec3([
-					this.vertices[i],
-					this.vertices[i + 1],
-					this.vertices[i + 2],
-				])
+				new Vec3([this.vertices[i], this.vertices[i + 1], this.vertices[i + 2]])
 			);
 		}
 		return returnArr;

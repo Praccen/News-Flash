@@ -8,29 +8,35 @@ import Octree from "../Objects/Octree.js";
 import { WebUtils } from "../Utils/WebUtils.js";
 
 export default class MeshStore {
-    private meshMap: Map<string, Mesh>;
+	private meshMap: Map<string, Mesh>;
 	private heightmapMap: Map<string, Heightmap>;
-	private octreeMap: Map<string, {octree: Octree, triangles: Array<Triangle>}>;
+	private octreeMap: Map<
+		string,
+		{ octree: Octree; triangles: Array<Triangle> }
+	>;
 
-    constructor() {
-        this.meshMap = new Map<string, Mesh>();
+	constructor() {
+		this.meshMap = new Map<string, Mesh>();
 		this.heightmapMap = new Map<string, Heightmap>();
-		this.octreeMap = new Map<string, {octree: Octree, triangles: Array<Triangle>}>();
-    }
+		this.octreeMap = new Map<
+			string,
+			{ octree: Octree; triangles: Array<Triangle> }
+		>();
+	}
 
-	getMesh(path: string, printWarnings:boolean = true): Mesh {
+	getMesh(path: string, printWarnings: boolean = true): Mesh {
 		let mesh = this.meshMap.get(path);
 		if (mesh) {
 			return mesh;
 		}
-		
+
 		if (printWarnings) {
 			console.warn("Trying to get mesh " + path + " before loading it");
 		}
 		return null;
 	}
 
-    async loadMesh(path: string): Promise<Mesh> {
+	async loadMesh(path: string): Promise<Mesh> {
 		let mesh = this.meshMap.get(path);
 		if (mesh) {
 			return mesh;
@@ -42,61 +48,75 @@ export default class MeshStore {
 		return this.meshMap.get(path);
 	}
 
-	getHeightmap(path: string, printWarnings:boolean = true): Heightmap {
+	getHeightmap(path: string, printWarnings: boolean = true): Heightmap {
 		let heightmap = this.heightmapMap.get(path);
 		if (heightmap) {
 			return heightmap;
 		}
-		
+
 		if (printWarnings) {
 			console.warn("Trying to get heightmap " + path + " before loading it");
 		}
 		return null;
 	}
 
-	async loadHeightmap(path: string, useTextureSizeForResolution: boolean = true, x: number = 2, y: number = 2, sizePerX: number = 1.0, sizePerY: number = 1.0): Promise<Heightmap> {
+	async loadHeightmap(
+		path: string,
+		useTextureSizeForResolution: boolean = true,
+		x: number = 2,
+		y: number = 2,
+		sizePerX: number = 1.0,
+		sizePerY: number = 1.0
+	): Promise<Heightmap> {
 		let heightmap = this.heightmapMap.get(path);
 		if (heightmap) {
 			return heightmap;
 		}
 
-		let newHeightmap = new Heightmap(geometryPass)
+		let newHeightmap = new Heightmap(geometryPass);
 		if (!useTextureSizeForResolution) {
 			newHeightmap.createPlane(x, y, sizePerX, sizePerY);
 		}
-		await newHeightmap.readHeightDataFromTexture(path, useTextureSizeForResolution);
+		await newHeightmap.readHeightDataFromTexture(
+			path,
+			useTextureSizeForResolution
+		);
 		this.heightmapMap.set(path, newHeightmap);
 
 		return newHeightmap;
 	}
 
-	getOctree(path: string, printWarnings:boolean = true): Octree {
+	getOctree(path: string, printWarnings: boolean = true): Octree {
 		let octree = this.octreeMap.get(path);
 		if (octree && octree.triangles.length == 0) {
 			return octree.octree;
 		}
-		
+
 		if (printWarnings) {
 			console.warn("Trying to get octree " + path + " before loading it");
 		}
 		return null;
 	}
 
-	async loadOctree(path: string, smallestOctreeNodeSizeMultiplicator: number, maxShapesPerOctreeNode: number, timeLimit: number = Infinity): Promise<{octree: Octree, doneLoading: boolean}> {
+	async loadOctree(
+		path: string,
+		smallestOctreeNodeSizeMultiplicator: number,
+		maxShapesPerOctreeNode: number,
+		timeLimit: number = Infinity
+	): Promise<{ octree: Octree; doneLoading: boolean }> {
 		let startTime = Date.now();
 
 		let octree = this.octreeMap.get(path);
 		if (octree && octree.triangles.length == 0) {
-			return {octree: octree.octree, doneLoading: true};
+			return { octree: octree.octree, doneLoading: true };
 		}
 
 		if (octree == undefined) {
 			// Immediately make it defined, but with no content, to only do the initialization once
-			this.octreeMap.set(path, 
-				{
-					octree: null,
-					triangles: null
-				});
+			this.octreeMap.set(path, {
+				octree: null,
+				triangles: null,
+			});
 
 			octree = this.octreeMap.get(path);
 
@@ -104,35 +124,48 @@ export default class MeshStore {
 			if (path.endsWith(".obj")) {
 				let mesh = this.getMesh(path, false);
 				if (!mesh) {
-					console.warn("Trying to get octree for " + path + " before loading " + path);
+					console.warn(
+						"Trying to get octree for " + path + " before loading " + path
+					);
 					return null;
 				}
-				
+
 				mesh.setupTriangles(triangles);
 			} else {
 				let heightmap = this.getHeightmap(path, false);
 				if (!heightmap) {
-					console.warn("Trying to get octree for " + path + " before loading " + path);
+					console.warn(
+						"Trying to get octree for " + path + " before loading " + path
+					);
 					return null;
 				}
-				
+
 				heightmap.setupTriangles(triangles);
 			}
 
 			octree.triangles = triangles;
 
-			let octPath = "Assets/octrees/" + path.split("/").pop().split(".")[0] + ".oct";
+			let octPath =
+				"Assets/octrees/" + path.split("/").pop().split(".")[0] + ".oct";
 			const response = await fetch(octPath);
 			if (response.ok) {
-				console.log("Loaded octree from " + octPath)
+				console.log("Loaded octree from " + octPath);
 				const octContent = await response.text();
 
-				octree.octree = new Octree(new Vec3(), new Vec3(), smallestOctreeNodeSizeMultiplicator, maxShapesPerOctreeNode);
+				octree.octree = new Octree(
+					new Vec3(),
+					new Vec3(),
+					smallestOctreeNodeSizeMultiplicator,
+					maxShapesPerOctreeNode
+				);
 				octree.octree.parseOct(octContent);
 				octree.triangles.length = 0;
-			}
-			else {
-				console.log("Did not find an octree to load from " + octPath + ". Generating it from scratch.");
+			} else {
+				console.log(
+					"Did not find an octree to load from " +
+						octPath +
+						". Generating it from scratch."
+				);
 				let minVec = new Vec3([Infinity, Infinity, Infinity]);
 				let maxVec = new Vec3([-Infinity, -Infinity, -Infinity]);
 				for (let tri of triangles) {
@@ -143,37 +176,49 @@ export default class MeshStore {
 				}
 
 				octree.octree = new Octree(
-					minVec, 
-					maxVec, 
-					smallestOctreeNodeSizeMultiplicator, 
+					minVec,
+					maxVec,
+					smallestOctreeNodeSizeMultiplicator,
 					maxShapesPerOctreeNode
 				);
 			}
 		}
 
-		while (octree.octree != undefined && octree.triangles != undefined && octree.triangles.length > 0 && Date.now() - startTime < timeLimit) {
+		while (
+			octree.octree != undefined &&
+			octree.triangles != undefined &&
+			octree.triangles.length > 0 &&
+			Date.now() - startTime < timeLimit
+		) {
 			octree.octree.addShape(octree.triangles.pop());
-		} 
+		}
 
 		if (octree.triangles != undefined && octree.triangles.length == 0) {
 			octree.octree.prune();
-			
+
 			// console.groupCollapsed("octree for " + path);
 			// octree.octree.print();
 			// console.groupEnd();
 		}
 
-		return {octree: octree.octree, doneLoading: octree.triangles != undefined && octree.triangles.length == 0};
+		return {
+			octree: octree.octree,
+			doneLoading:
+				octree.triangles != undefined && octree.triangles.length == 0,
+		};
 	}
 
 	downloadOctrees() {
 		for (let octree of this.octreeMap) {
 			let data = octree[1].octree.getDataString();
-			WebUtils.DownloadFile(octree[0].split("/").pop().split(".")[0] + ".oct", data);
+			WebUtils.DownloadFile(
+				octree[0].split("/").pop().split(".")[0] + ".oct",
+				data
+			);
 		}
 	}
 
-    private async parseObjContent(meshPath: string): Promise<Float32Array> {
+	private async parseObjContent(meshPath: string): Promise<Float32Array> {
 		/*
 		https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
 		*/
@@ -192,20 +237,26 @@ export default class MeshStore {
 		}>();
 		for (let line of lines) {
 			line = line.trim();
-			
+
 			if (line.startsWith("vt")) {
 				// Texture coordinates
 				const coords = line.split(/\s+/).filter((element) => {
 					return element != "vt";
 				});
-				vertexTexCoords.push(new Vec2([parseFloat(coords[0]), parseFloat(coords[1])]));
+				vertexTexCoords.push(
+					new Vec2([parseFloat(coords[0]), parseFloat(coords[1])])
+				);
 			} else if (line.startsWith("vn")) {
 				// Normal
 				const coords = line.split(/\s+/).filter((element) => {
 					return element != "vn";
-				})
+				});
 				vertexNormals.push(
-					new Vec3([parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2])])
+					new Vec3([
+						parseFloat(coords[0]),
+						parseFloat(coords[1]),
+						parseFloat(coords[2]),
+					])
 				);
 			} else if (line.startsWith("v")) {
 				// Position
@@ -213,7 +264,11 @@ export default class MeshStore {
 					return element != "v";
 				});
 				vertexPositions.push(
-					new Vec3([parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2])])
+					new Vec3([
+						parseFloat(coords[0]),
+						parseFloat(coords[1]),
+						parseFloat(coords[2]),
+					])
 				);
 			} else if (line.startsWith("f")) {
 				// Faces
@@ -282,6 +337,6 @@ export default class MeshStore {
 				returnArr[i * 8 + 7] = 0.0;
 			}
 		}
-        return returnArr;
+		return returnArr;
 	}
 }

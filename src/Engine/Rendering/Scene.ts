@@ -15,11 +15,11 @@ import { particleShaderProgram } from "../ShaderPrograms/ParticleShaderProgram.j
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 
 export default class Scene {
-    // ---- Graphics objects ----
-    private graphicBundles: Array<GraphicsBundle>;
-    private grassSpawners: Array<GraphicsBundle>;
-    // --------------------------
-	
+	// ---- Graphics objects ----
+	private graphicBundles: Array<GraphicsBundle>;
+	private grassSpawners: Array<GraphicsBundle>;
+	// --------------------------
+
 	// ---- Lights ----
 	directionalLight: DirectionalLight;
 	pointLights: Array<PointLight>;
@@ -36,11 +36,11 @@ export default class Scene {
 	private textureStore: TextureStore;
 	private meshStore: MeshStore;
 
-    constructor(textureStore: TextureStore, meshStore: MeshStore) {
+	constructor(textureStore: TextureStore, meshStore: MeshStore) {
 		this.textureStore = textureStore;
 		this.meshStore = meshStore;
 
-        // ---- Graphics objects ----
+		// ---- Graphics objects ----
 		this.graphicBundles = new Array<GraphicsBundle>();
 		this.grassSpawners = new Array<GraphicsBundle>();
 		// --------------------------
@@ -53,7 +53,7 @@ export default class Scene {
 		// ---- Particles ----
 		this.particleSpawners = new Array<ParticleSpawner>();
 		// -------------------
-    }
+	}
 
 	getNewPhongQuad(diffusePath: string, specularPath: string): GraphicsBundle {
 		const length = this.graphicBundles.push(
@@ -66,7 +66,11 @@ export default class Scene {
 		return this.graphicBundles[length - 1];
 	}
 
-	getNewMesh(meshPath: string, diffusePath: string, specularPath: string) : GraphicsBundle {
+	getNewMesh(
+		meshPath: string,
+		diffusePath: string,
+		specularPath: string
+	): GraphicsBundle {
 		const length = this.graphicBundles.push(
 			new GraphicsBundle(
 				this.textureStore.getTexture(diffusePath),
@@ -78,7 +82,11 @@ export default class Scene {
 		return this.graphicBundles[length - 1];
 	}
 
-	getNewHeightMap(heightmapPath: string, diffusePath: string, specularPath: string): GraphicsBundle {
+	getNewHeightMap(
+		heightmapPath: string,
+		diffusePath: string,
+		specularPath: string
+	): GraphicsBundle {
 		const length = this.graphicBundles.push(
 			new GraphicsBundle(
 				this.textureStore.getTexture(diffusePath),
@@ -109,18 +117,19 @@ export default class Scene {
 		specularTexturePath: string,
 		numberOfStartingParticles: number = 0
 	): GraphicsBundle {
-		let length = this.grassSpawners.push(new GraphicsBundle(
-			this.textureStore.getTexture(diffuseTexturePath), 
-			this.textureStore.getTexture(specularTexturePath),
-			new GrassSpawner(grassShaderProgram, numberOfStartingParticles)));
+		let length = this.grassSpawners.push(
+			new GraphicsBundle(
+				this.textureStore.getTexture(diffuseTexturePath),
+				this.textureStore.getTexture(specularTexturePath),
+				new GrassSpawner(grassShaderProgram, numberOfStartingParticles)
+			)
+		);
 
 		return this.grassSpawners[length - 1];
 	}
 
 	getNewPointLight(): PointLight {
-		const length = this.pointLights.push(
-			new PointLight(gl, lightingPass)
-		);
+		const length = this.pointLights.push(new PointLight(gl, lightingPass));
 		return this.pointLights[length - 1];
 	}
 
@@ -137,17 +146,25 @@ export default class Scene {
 	}
 
 	deleteParticleSpawner(particleSpawner: ParticleSpawner) {
-		this.particleSpawners = this.particleSpawners.filter((ps) => particleSpawner !== ps);
+		this.particleSpawners = this.particleSpawners.filter(
+			(ps) => particleSpawner !== ps
+		);
 	}
 
-	renderScene(shaderProgram: ShaderProgram, bindSpecialTextures: boolean = true) {
+	renderScene(
+		shaderProgram: ShaderProgram,
+		bindSpecialTextures: boolean = true
+	) {
 		for (let bundle of this.graphicBundles) {
 			bundle.graphicsObject.shaderProgram = shaderProgram;
 			bundle.draw(bindSpecialTextures);
 		}
 	}
 
-	renderGrass(shaderProgram: ShaderProgram, bindSpecialTextures: boolean = true) {
+	renderGrass(
+		shaderProgram: ShaderProgram,
+		bindSpecialTextures: boolean = true
+	) {
 		for (let bundle of this.grassSpawners) {
 			bundle.graphicsObject.shaderProgram = shaderProgram;
 			bundle.draw(bindSpecialTextures);

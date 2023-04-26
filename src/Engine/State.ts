@@ -1,39 +1,39 @@
 export enum StatesEnum {
 	STAY,
-    LOADINGSCREEN,
+	LOADINGSCREEN,
 	MAINMENU,
 	OPTIONS,
-    CONTROLS,
+	CONTROLS,
 	GAME,
-    DEBUGMODE
+	DEBUGMODE,
 }
 
 export default class State {
-    /*
-     * Set this to the enum for the state you want the state machine to move to.
-     * Leave it at STAY to keep running the current state.
-     */
-    gotoState: StatesEnum;
-    initialized: boolean;
+	/*
+	 * Set this to the enum for the state you want the state machine to move to.
+	 * Leave it at STAY to keep running the current state.
+	 */
+	gotoState: StatesEnum;
+	initialized: boolean;
 
 	constructor() {
-        this.gotoState = StatesEnum.STAY;
-        this.initialized = false;
-    }
+		this.gotoState = StatesEnum.STAY;
+		this.initialized = false;
+	}
 
-    async init() {
-        this.initialized = true;
-    }
+	async init() {
+		this.initialized = true;
+	}
 
-    reset() {
-        this.initialized = false;
-    }
+	reset() {
+		this.initialized = false;
+	}
 
-    onExit(e: BeforeUnloadEvent) {}
+	onExit(e: BeforeUnloadEvent) {}
 
 	update(dt: number) {}
 
-    prepareDraw(dt: number) {}
+	prepareDraw(dt: number) {}
 
-    draw() {};
+	draw() {}
 }

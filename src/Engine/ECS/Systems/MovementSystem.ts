@@ -17,9 +17,7 @@ export default class MovementSystem extends System {
 			);
 
 			if (!posComp) {
-				<PositionComponent>(
-					e.getComponent(ComponentTypeEnum.POSITION)
-				);
+				<PositionComponent>e.getComponent(ComponentTypeEnum.POSITION);
 			}
 			let movComp = <MovementComponent>(
 				e.getComponent(ComponentTypeEnum.MOVEMENT)
@@ -29,8 +27,9 @@ export default class MovementSystem extends System {
 
 			// Do movement calculations
 			movComp.velocity.add(
-				new Vec3(movComp.accelerationDirection)
-					.multiply(movComp.acceleration * dt)
+				new Vec3(movComp.accelerationDirection).multiply(
+					movComp.acceleration * dt
+				)
 			);
 			movComp.velocity.add(new Vec3(movComp.constantAcceleration).multiply(dt));
 
@@ -47,18 +46,21 @@ export default class MovementSystem extends System {
 			let dragVec = new Vec3(movComp.velocity).multiply(-1.0);
 			dragVec.y = 0.0;
 			let magnitude = dragVec.len();
-			movComp.velocity.add(dragVec.normalize().multiply(Math.min(movComp.drag * dt, magnitude)));
+			movComp.velocity.add(
+				dragVec.normalize().multiply(Math.min(movComp.drag * dt, magnitude))
+			);
 
 			//stop if velocity is too slow
-			const accelerating = movComp.accelerationDirection.x != 0.0 || movComp.accelerationDirection.z != 0.0;
-			if (
-				!accelerating &&
-				movComp.velocity.length2() < 0.001
-			) {
+			const accelerating =
+				movComp.accelerationDirection.x != 0.0 ||
+				movComp.accelerationDirection.z != 0.0;
+			if (!accelerating && movComp.velocity.length2() < 0.001) {
 				movComp.velocity.multiply(0.0);
 			}
 
-			let displacement = new Vec3(movComp.velocity).add(oldVel).multiply(0.5 * dt);
+			let displacement = new Vec3(movComp.velocity)
+				.add(oldVel)
+				.multiply(0.5 * dt);
 
 			if (Math.abs(displacement.x) > 0.001) {
 				posComp.position.x += displacement.x;

@@ -10,9 +10,7 @@ export default class PhongQuad extends GraphicsObject {
 	private vertices: Float32Array;
 	private indices: Int32Array;
 
-	constructor(
-		shaderProgram: ShaderProgram,
-	) {
+	constructor(shaderProgram: ShaderProgram) {
 		super(shaderProgram);
 
 		// prettier-ignore
@@ -63,11 +61,7 @@ export default class PhongQuad extends GraphicsObject {
 		let returnArr = new Array<Vec3>();
 		for (let i = 0; i < this.vertices.length; i += 8) {
 			returnArr.push(
-				new Vec3([
-					this.vertices[i],
-					this.vertices[i + 1],
-					this.vertices[i + 2],
-				])
+				new Vec3([this.vertices[i], this.vertices[i + 1], this.vertices[i + 2]])
 			);
 		}
 		return returnArr;

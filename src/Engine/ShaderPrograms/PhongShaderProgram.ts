@@ -158,11 +158,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 cameraDir,
 
 class PhongShaderProgram extends ShaderProgram {
 	constructor() {
-		super(
-			"PhongShaderProgram",
-			phongVertexShaderSrc,
-			phongFragmentShaderSrc
-		);
+		super("PhongShaderProgram", phongVertexShaderSrc, phongFragmentShaderSrc);
 
 		this.use();
 
@@ -206,8 +202,8 @@ class PhongShaderProgram extends ShaderProgram {
 	}
 }
 
-export let phongShaderProgram = null
+export let phongShaderProgram = null;
 
-export let createPhongShaderProgram = function() {
+export let createPhongShaderProgram = function () {
 	phongShaderProgram = new PhongShaderProgram();
-}
+};

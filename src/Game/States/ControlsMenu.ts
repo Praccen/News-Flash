@@ -4,13 +4,11 @@ import { input, StateAccessible } from "../GameMachine.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
 
 export default class ControlsMenu extends State {
-	private overlayRendering: OverlayRendering
+	private overlayRendering: OverlayRendering;
 
 	private backButton: Button;
 
-	constructor(
-			sa: StateAccessible
-	) {
+	constructor(sa: StateAccessible) {
 		super();
 		this.overlayRendering = new OverlayRendering();
 
@@ -25,7 +23,7 @@ export default class ControlsMenu extends State {
 		this.backButton.getInputElement().style.padding = "10px";
 		this.backButton.textString = "Back to main menu";
 
-        let self = this;
+		let self = this;
 		this.backButton.onClick(function () {
 			self.gotoState = StatesEnum.OPTIONS;
 		});
@@ -34,26 +32,24 @@ export default class ControlsMenu extends State {
 	async init() {
 		super.init();
 		this.overlayRendering.show();
-        input.touchUsed = true;
+		input.touchUsed = true;
 		input.simulateTouchBasedOnMouse = true;
-        input.repositionTouchControls = true;
+		input.repositionTouchControls = true;
 	}
 
 	reset() {
 		super.reset();
 		this.overlayRendering.hide();
-        input.touchUsed = false;
+		input.touchUsed = false;
 		input.simulateTouchBasedOnMouse = false;
-        input.repositionTouchControls = false;
-        input.drawTouchControls();
+		input.repositionTouchControls = false;
+		input.drawTouchControls();
 	}
 
-	update(dt: number) {
-
-	}
+	update(dt: number) {}
 
 	draw() {
 		this.overlayRendering.draw();
-        input.drawTouchControls();
+		input.drawTouchControls();
 	}
 }

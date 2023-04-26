@@ -8,23 +8,23 @@ import TextObject2D from "../GUI/Text/TextObject2D.js";
 import TextObject3D from "../GUI/Text/TextObject3D.js";
 
 export class OverlayRendering {
-    private camera: Camera; // Optional camera for calculating 3D texts
+	private camera: Camera; // Optional camera for calculating 3D texts
 
-    // ---- GUI rendering ----
+	// ---- GUI rendering ----
 	private guiObjects3D: Array<TextObject3D>;
 	private guiObjects2D: Array<GuiObject>;
 	// -----------------------
 
-    constructor(camera: Camera = null) {
-        this.camera = camera;
+	constructor(camera: Camera = null) {
+		this.camera = camera;
 
-        // ---- GUI rendering ----
+		// ---- GUI rendering ----
 		this.guiObjects3D = new Array<TextObject3D>();
 		this.guiObjects2D = new Array<GuiObject>();
 		// -----------------------
-    }
+	}
 
-    clear() {
+	clear() {
 		for (let guiObject2D of this.guiObjects2D) {
 			guiObject2D.remove();
 		}
@@ -54,7 +54,7 @@ export class OverlayRendering {
 		}
 	}
 
-    getNew2DText(): TextObject2D {
+	getNew2DText(): TextObject2D {
 		const length = this.guiObjects2D.push(new TextObject2D());
 		return this.guiObjects2D[length - 1] as TextObject2D;
 	}
@@ -84,18 +84,18 @@ export class OverlayRendering {
 		return this.guiObjects2D[length - 1] as Progress;
 	}
 
-    draw() {
-        // ---- GUI rendering ----
-        if (this.camera != undefined) {
-            for (let i = 0; i < this.guiObjects3D.length; i++) {
-                if (!this.guiObjects3D[i].removed) {
-                    this.guiObjects3D[i].draw3D(this.camera.getViewProjMatrix());
-                } else {
-                    this.guiObjects3D.splice(i, 1);
-                    i--;
-                }
-            }
-        }
+	draw() {
+		// ---- GUI rendering ----
+		if (this.camera != undefined) {
+			for (let i = 0; i < this.guiObjects3D.length; i++) {
+				if (!this.guiObjects3D[i].removed) {
+					this.guiObjects3D[i].draw3D(this.camera.getViewProjMatrix());
+				} else {
+					this.guiObjects3D.splice(i, 1);
+					i--;
+				}
+			}
+		}
 
 		for (let i = 0; i < this.guiObjects2D.length; i++) {
 			if (!this.guiObjects2D[i].removed) {
@@ -106,5 +106,5 @@ export class OverlayRendering {
 			}
 		}
 		// -----------------------
-    }
+	}
 }

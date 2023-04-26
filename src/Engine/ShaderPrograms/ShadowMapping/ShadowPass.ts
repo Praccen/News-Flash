@@ -74,6 +74,6 @@ class ShadowPass extends ShaderProgram {
 
 export let shadowPass = null;
 
-export let createShadowPass = function() {
+export let createShadowPass = function () {
 	shadowPass = new ShadowPass();
-}
+};

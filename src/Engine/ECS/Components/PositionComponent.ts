@@ -8,8 +8,8 @@ export default class PositionComponent extends Component {
 	origin: Vec3;
 
 	constructor(componentType?: ComponentTypeEnum) {
-		super(componentType? componentType: ComponentTypeEnum.POSITION);
-		
+		super(componentType ? componentType : ComponentTypeEnum.POSITION);
+
 		this.position = new Vec3();
 		this.rotation = new Vec3();
 		this.scale = new Vec3([1.0, 1.0, 1.0]);

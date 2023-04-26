@@ -89,10 +89,7 @@ export default class OBB extends Shape {
 
 			for (const originalVertex of this.originalVertices) {
 				let transformedVertex = this.transformMatrix.multiplyVector4(
-					new Vector4([
-						...originalVertex,
-						1.0,
-					])
+					new Vector4([...originalVertex, 1.0])
 				);
 				let transformedVertexVec3 = new Vec3([
 					transformedVertex.elements[0],

@@ -175,6 +175,6 @@ class CrtShaderProgram extends ShaderProgram {
 
 export let crtShaderProgram = null;
 
-export let createCrtShaderProgram = function() {
-  crtShaderProgram = new CrtShaderProgram();
-}
+export let createCrtShaderProgram = function () {
+	crtShaderProgram = new CrtShaderProgram();
+};

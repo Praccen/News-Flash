@@ -4,14 +4,12 @@ import Scene from "../Scene.js";
 import { particleShaderProgram } from "../../ShaderPrograms/ParticleShaderProgram.js";
 
 export default class ParticleRenderPass {
+	constructor() {}
 
-    constructor() {
-    }
-
-    draw(scene: Scene, camera: Camera) {
-        if (scene.particleSpawners.length > 0) {
+	draw(scene: Scene, camera: Camera) {
+		if (scene.particleSpawners.length > 0) {
 			// only do this if there are any particle spawners
-            
+
 			particleShaderProgram.use();
 			camera.bindViewProjMatrix(
 				particleShaderProgram.getUniformLocation("viewProjMatrix")[0]
@@ -28,5 +26,5 @@ export default class ParticleRenderPass {
 				particleSpawner.draw();
 			}
 		}
-    }
+	}
 }

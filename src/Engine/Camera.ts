@@ -129,26 +129,22 @@ export default class Camera {
 		}
 	}
 
-	bindViewProjMatrix(uniformLocation: WebGLUniformLocation, skybox: boolean = false) {
+	bindViewProjMatrix(
+		uniformLocation: WebGLUniformLocation,
+		skybox: boolean = false
+	) {
 		this.updateViewProjMatrix();
 
 		if (skybox) {
 			let tempViewProj = new Matrix4(this.projectionMatrix);
-			let tempViewMatrix = new Matrix3().fromMatrix4(this.viewMatrix).toMatrix4();
+			let tempViewMatrix = new Matrix3()
+				.fromMatrix4(this.viewMatrix)
+				.toMatrix4();
 			tempViewProj.concat(tempViewMatrix);
 
-			gl.uniformMatrix4fv(
-				uniformLocation,
-				false,
-				tempViewProj.elements
-			);
+			gl.uniformMatrix4fv(uniformLocation, false, tempViewProj.elements);
+		} else {
+			gl.uniformMatrix4fv(uniformLocation, false, this.viewProjMatrix.elements);
 		}
-		else {
-			gl.uniformMatrix4fv(
-				uniformLocation,
-				false,
-				this.viewProjMatrix.elements
-			);
-		}		
 	}
 }

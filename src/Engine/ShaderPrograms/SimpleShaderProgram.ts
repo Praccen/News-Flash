@@ -92,6 +92,6 @@ class SimpleShaderProgram extends ShaderProgram {
 
 export let simpleShaderProgram = null;
 
-export let createSimpleShaderProgram = function() {
+export let createSimpleShaderProgram = function () {
 	simpleShaderProgram = new SimpleShaderProgram();
-}
+};

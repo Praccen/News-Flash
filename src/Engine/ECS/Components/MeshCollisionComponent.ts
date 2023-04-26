@@ -5,7 +5,7 @@ import Octree from "../../Objects/Octree.js";
 import Vec3 from "../../Maths/Vec3.js";
 
 export default class MeshCollisionComponent extends Component {
-	octree: Octree
+	octree: Octree;
 
 	constructor(octree: Octree, graphicsObject?: GraphicsObject) {
 		super(ComponentTypeEnum.MESHCOLLISION);
@@ -20,7 +20,11 @@ export default class MeshCollisionComponent extends Component {
 	 * Sets up the triangles based on the vertices in a graphics object
 	 * @param graphicsObj The graphics object
 	 */
-	private setup(graphicsObj: GraphicsObject, smallestNodeSizeMultiplicator: number, maxShapesPerNode: number) {
+	private setup(
+		graphicsObj: GraphicsObject,
+		smallestNodeSizeMultiplicator: number,
+		maxShapesPerNode: number
+	) {
 		let triangles = new Array<Triangle>();
 		graphicsObj.setupTriangles(triangles);
 
@@ -32,7 +36,12 @@ export default class MeshCollisionComponent extends Component {
 				minVec.min(vertex);
 			}
 		}
-		this.octree = new Octree(minVec, maxVec, smallestNodeSizeMultiplicator, maxShapesPerNode);
+		this.octree = new Octree(
+			minVec,
+			maxVec,
+			smallestNodeSizeMultiplicator,
+			maxShapesPerNode
+		);
 
 		this.octree.addShapes(triangles);
 		this.octree.prune();

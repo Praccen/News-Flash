@@ -1,7 +1,6 @@
 import Vec from "./Vec.js";
 
 export default class Vec2 extends Vec {
-
 	constructor(base?: number[]) {
 		super(2, base);
 	}
@@ -17,7 +16,7 @@ export default class Vec2 extends Vec {
 	set x(x: number) {
 		this[0] = x;
 	}
-	
+
 	set y(y: number) {
 		this[1] = y;
 	}

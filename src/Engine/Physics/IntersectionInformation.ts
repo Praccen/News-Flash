@@ -8,7 +8,13 @@ export default class IntersectionInformation {
 	shapeA: Shape;
 	shapeB: Shape;
 
-	constructor(axis: Vec3, depth: number, point: Vec3, shapeA: Shape, shapeB: Shape) {
+	constructor(
+		axis: Vec3,
+		depth: number,
+		point: Vec3,
+		shapeA: Shape,
+		shapeB: Shape
+	) {
 		this.axis = new Vec3(axis);
 		this.depth = depth;
 		this.point = new Vec3(point);

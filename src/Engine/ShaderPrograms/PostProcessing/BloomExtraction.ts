@@ -27,11 +27,7 @@ void main() {
 
 class BloomExtraction extends ShaderProgram {
 	constructor() {
-		super(
-			"BloomExtraction",
-			screenQuadVertexSrc,
-			bloomExtractionFragmentSrc
-		);
+		super("BloomExtraction", screenQuadVertexSrc, bloomExtractionFragmentSrc);
 
 		this.use();
 
@@ -53,6 +49,6 @@ class BloomExtraction extends ShaderProgram {
 
 export let bloomExtraction = null;
 
-export let createBloomExtraction = function() {
+export let createBloomExtraction = function () {
 	bloomExtraction = new BloomExtraction();
-}
+};

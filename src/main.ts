@@ -20,14 +20,14 @@ SAT.runUnitTests();
 // Globals
 export let gl: WebGL2RenderingContext;
 export let applicationStartTime = Date.now();
-export let windowInfo =  {
+export let windowInfo = {
 	resolutionWidth: 1920,
 	resolutionHeight: 1080,
 	paddingX: 0,
-	paddingY: 0
-}
+	paddingY: 0,
+};
 
-function initWebGL(): WebGL2RenderingContext{
+function initWebGL(): WebGL2RenderingContext {
 	canvas.width = windowInfo.resolutionWidth;
 	canvas.height = windowInfo.resolutionHeight;
 
@@ -77,7 +77,8 @@ function resize(gl: WebGL2RenderingContext) {
 	let newGameY = (innerWindowSize.height - newGameHeight) / 2;
 
 	// Center the game by setting the padding of the game
-	(gl.canvas as HTMLCanvasElement).style.padding = newGameY + "px " + newGameX + "px";
+	(gl.canvas as HTMLCanvasElement).style.padding =
+		newGameY + "px " + newGameX + "px";
 	guicontainer.style.padding = newGameY + "px " + newGameX + "px";
 
 	// Resize game
@@ -135,7 +136,7 @@ window.onload = async () => {
 		resize(gl);
 	});
 
-	window.addEventListener("beforeunload", function(e: BeforeUnloadEvent) {
+	window.addEventListener("beforeunload", function (e: BeforeUnloadEvent) {
 		gameMachine.onExit(e);
 	});
 

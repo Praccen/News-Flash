@@ -9,13 +9,10 @@ import DebugMenu from "./DebugMenu.js";
 export default class DebugMode extends State {
 	private game: Game;
 	private stateAccessible: StateAccessible;
-	private debugMenu: DebugMenu
+	private debugMenu: DebugMenu;
 	private mouseWasPressed: boolean;
 
-	constructor(
-			sa: StateAccessible,
-			game: Game
-	) {
+	constructor(sa: StateAccessible, game: Game) {
 		super();
 		this.stateAccessible = sa;
 		this.game = game;
@@ -86,9 +83,9 @@ export default class DebugMode extends State {
 		// 		(input.mousePosition.previousY - input.mousePosition.y) * 0.2,
 		// 		(input.mousePosition.previousX - input.mousePosition.x) * 0.2
 		// 	);
-			
+
 		// 	rotate = true;
-			
+
 		// }
 
 		if (input.keys["ARROWUP"]) {
@@ -138,30 +135,29 @@ export default class DebugMode extends State {
 		if (input.mouseClicked) {
 			if (!this.mouseWasPressed) {
 				let ray = MousePicking.GetRay(this.game.rendering.camera);
-				
+
 				let dist = this.game.doRayCast(ray);
 
 				if (dist >= 0.0) {
 					this.game.placeTree(
-						new Vec3(this.game.rendering.camera.getPosition()).add(new Vec3(ray.getDir()).multiply(dist)),
+						new Vec3(this.game.rendering.camera.getPosition()).add(
+							new Vec3(ray.getDir()).multiply(dist)
+						),
 						0.1,
-						new Vec3([0.0, Math.random()*360, 0.0])
+						new Vec3([0.0, Math.random() * 360, 0.0])
 					);
 				}
 			}
 
 			this.mouseWasPressed = true;
-		}
-		else {
+		} else {
 			this.mouseWasPressed = false;
 		}
-		
+
 		this.game.ecsManager.update(0.0);
 	}
 
-	prepareDraw(dt: number): void {
-
-	}
+	prepareDraw(dt: number): void {}
 
 	draw() {
 		this.game.rendering.draw();

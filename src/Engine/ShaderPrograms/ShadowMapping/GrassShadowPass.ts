@@ -38,7 +38,7 @@ class GrassShadowPass extends ShaderProgram {
 		super(
 			"GrassShadowPass",
 			grassShadowVertexShaderSrc,
-		    shadowFragmentShaderSrc,
+			shadowFragmentShaderSrc,
 			false
 		);
 
@@ -75,12 +75,11 @@ class GrassShadowPass extends ShaderProgram {
 		gl.vertexAttribPointer(4, 3, gl.FLOAT, false, stride, 4 * 4);
 		gl.enableVertexAttribArray(4);
 		gl.vertexAttribDivisor(4, 1);
-
 	}
 }
 
 export let grassShadowPass: GrassShadowPass = null;
 
-export let createGrassShadowPass = function() {
+export let createGrassShadowPass = function () {
 	grassShadowPass = new GrassShadowPass();
-}
+};

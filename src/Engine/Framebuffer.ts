@@ -13,7 +13,7 @@ export default class Framebuffer {
 	protected height: number;
 
 	/**
-	 * 
+	 *
 	 * @param width - width of framebuffer textures
 	 * @param height - height of framebuffer textures
 	 * @param textures - colour attachment textures, send empty array if no colour attachments should be used
@@ -36,10 +36,7 @@ export default class Framebuffer {
 
 		this.setupAttachments();
 
-		if (
-			gl.checkFramebufferStatus(gl.FRAMEBUFFER) !=
-			gl.FRAMEBUFFER_COMPLETE
-		) {
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
 			console.warn("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 		}
 
@@ -50,22 +47,10 @@ export default class Framebuffer {
 		let attachments = new Array<any>();
 		for (let i = 0; i < this.textures.length; i++) {
 			this.textures[i].setTextureData(null, this.width, this.height);
-			this.textures[i].setTexParameterI(
-				gl.TEXTURE_MIN_FILTER,
-				gl.LINEAR
-			);
-			this.textures[i].setTexParameterI(
-				gl.TEXTURE_MAG_FILTER,
-				gl.LINEAR
-			);
-			this.textures[i].setTexParameterI(
-				gl.TEXTURE_WRAP_S,
-				gl.CLAMP_TO_EDGE
-			);
-			this.textures[i].setTexParameterI(
-				gl.TEXTURE_WRAP_T,
-				gl.CLAMP_TO_EDGE
-			);
+			this.textures[i].setTexParameterI(gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			this.textures[i].setTexParameterI(gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			this.textures[i].setTexParameterI(gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			this.textures[i].setTexParameterI(gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.framebufferTexture2D(
 				gl.FRAMEBUFFER,
 				gl.COLOR_ATTACHMENT0 + i,

@@ -48,9 +48,9 @@ export default class CollisionSystem extends System {
 				e1.getComponent(ComponentTypeEnum.MESHCOLLISION)
 			);
 			if (e1MeshCollisionComp) {
-				// Update mesh collision component 
+				// Update mesh collision component
 				e1MeshCollisionComp.octree.setModelMatrix();
-			} 
+			}
 
 			for (let e2 of this.entities) {
 				if (e1.id == e2.id) {
@@ -62,9 +62,12 @@ export default class CollisionSystem extends System {
 					e2.getComponent(ComponentTypeEnum.BOUNDINGBOX)
 				);
 
-				let e2CollisionComp = <CollisionComponent>(e2.getComponent(ComponentTypeEnum.COLLISION));
+				let e2CollisionComp = <CollisionComponent>(
+					e2.getComponent(ComponentTypeEnum.COLLISION)
+				);
 
-				if (!e2CollisionComp.isStatic) { // e2 is not static, so it can move, we need to update the bounding box
+				if (!e2CollisionComp.isStatic) {
+					// e2 is not static, so it can move, we need to update the bounding box
 					// Update the e2 bounding box using saved matrix
 					e2BoundingBoxComp.updateTransformMatrix();
 				}
@@ -86,14 +89,16 @@ export default class CollisionSystem extends System {
 
 						if (e1MeshCollisionComp) {
 							// Entity 1 has mesh collision, check e2 bb versus e1 mesh octree
-							e1MeshCollisionComp.octree.getShapesForCollision(e2BoundingBoxComp.boundingBox, e1ShapeArray);
+							e1MeshCollisionComp.octree.getShapesForCollision(
+								e2BoundingBoxComp.boundingBox,
+								e1ShapeArray
+							);
 
 							// Then update the shapes using their saved transform matrix
 							for (let shape of e1ShapeArray) {
 								shape.setUpdateNeeded();
 							}
-						}
-						else {
+						} else {
 							// Entity 1 does not have mesh collision, use the bounding box for intersection testing
 							e1ShapeArray.push(e1BoundingBoxComp.boundingBox);
 						}
@@ -101,12 +106,17 @@ export default class CollisionSystem extends System {
 						if (e2MeshCollisionComp) {
 							// Entity 2 has mesh collision, check e1 bb versus e2 mesh octree
 
-							// First update e2 octree 
+							// First update e2 octree
 							// TODO: This has to be done every time right now since multiple instances of the same object share the same octree, but has different transforms. Can this be solved another way?
-							e2MeshCollisionComp.octree.setModelMatrix(e2BoundingBoxComp.boundingBox.getTransformMatrix());
+							e2MeshCollisionComp.octree.setModelMatrix(
+								e2BoundingBoxComp.boundingBox.getTransformMatrix()
+							);
 
 							// Then get the shapes from the octree
-							e2MeshCollisionComp.octree.getShapesForCollision(e1BoundingBoxComp.boundingBox, e2ShapeArray);
+							e2MeshCollisionComp.octree.getShapesForCollision(
+								e1BoundingBoxComp.boundingBox,
+								e2ShapeArray
+							);
 
 							// Then update the shapes using their saved transform matrix
 							if (!e2CollisionComp.isStatic) {
@@ -117,7 +127,7 @@ export default class CollisionSystem extends System {
 						} else {
 							// Entity 2 does not have mesh collision, use the bounding box for intersection testing
 							e2ShapeArray.push(e2BoundingBoxComp.boundingBox);
-						}				
+						}
 
 						// We now have our updated shape arrays to intersection test, let's do it!
 						IntersectionTester.identifyIntersectionInformation(
@@ -147,7 +157,7 @@ export default class CollisionSystem extends System {
 					let axis = new Vec3(inf.axis);
 					// let depth = inf.depth;
 					if (inf.shapeB.getTransformedNormals().length == 1) {
-						axis.deepAssign(inf.shapeB.getTransformedNormals()[0])
+						axis.deepAssign(inf.shapeB.getTransformedNormals()[0]);
 						// depth = SAT.getOverlap(axis, inf.shapeA.getTransformedVertices(), inf.shapeB.getTransformedVertices(), {value: false}, 0);
 					}
 					let dotProd = movComp.velocity.dot(axis);
@@ -166,9 +176,11 @@ export default class CollisionSystem extends System {
 				e1.getComponent(ComponentTypeEnum.POSITIONPARENT)
 			);
 
-			// Otherwise move the position component 
+			// Otherwise move the position component
 			if (!posComp) {
-				posComp = <PositionComponent> e1.getComponent(ComponentTypeEnum.POSITION);
+				posComp = <PositionComponent>(
+					e1.getComponent(ComponentTypeEnum.POSITION)
+				);
 			}
 
 			let displacement = CollisionSolver.getTranslationNeeded(information);

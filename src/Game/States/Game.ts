@@ -34,29 +34,33 @@ export default class Game extends State {
 	private doggo: Doggo;
 	private mapBundle: GraphicsBundle;
 
-	private grassSpawners: Array<{spawner: GrassSpawner, offset: Vec2}>;
+	private grassSpawners: Array<{ spawner: GrassSpawner; offset: Vec2 }>;
 	private grassStrawsPerSpawner: number;
 	private grassStrawsSpawned: number;
 	private grassSpawnerSide: number;
 
 	private treesAdded: boolean;
-	private treeTransforms: Array<{pos: Vec3, rot: Vec3, size: number}>;
+	private treeTransforms: Array<{ pos: Vec3; rot: Vec3; size: number }>;
 
 	private scene: Scene;
 
-	constructor(
-			sa: StateAccessible
-	) {
+	constructor(sa: StateAccessible) {
 		super();
 		this.stateAccessible = sa;
 
 		this.treesAdded = false;
-		this.treeTransforms = new Array<{pos: Vec3, size: number, rot: Vec3}>();
+		this.treeTransforms = new Array<{ pos: Vec3; size: number; rot: Vec3 }>();
 	}
 
 	async load() {
-		this.scene = new Scene(this.stateAccessible.textureStore, this.stateAccessible.meshStore);
-		this.rendering = new Rendering(this.stateAccessible.textureStore, this.scene);
+		this.scene = new Scene(
+			this.stateAccessible.textureStore,
+			this.stateAccessible.meshStore
+		);
+		this.rendering = new Rendering(
+			this.stateAccessible.textureStore,
+			this.scene
+		);
 		this.ecsManager = new ECSManager(this.rendering);
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
@@ -79,19 +83,22 @@ export default class Game extends State {
 
 		this.createParticleSpawner();
 
-		this.grassSpawners = new Array<{spawner: GrassSpawner, offset: Vec2}>();
+		this.grassSpawners = new Array<{ spawner: GrassSpawner; offset: Vec2 }>();
 		this.grassStrawsPerSpawner = 10000;
 		this.grassStrawsSpawned = 0;
 		this.grassSpawnerSide = 30;
 
-		for (let i = 0; i < 4; i ++) {
+		for (let i = 0; i < 4; i++) {
 			for (let j = 0; j < 4; j++) {
-				this.createGrass(i * this.grassSpawnerSide, 10 + j * this.grassSpawnerSide);
+				this.createGrass(
+					i * this.grassSpawnerSide,
+					10 + j * this.grassSpawnerSide
+				);
 			}
 		}
-		
+
 		this.rendering.camera.setPosition(0.0, 0.0, 5.5);
-		
+
 		this.scene.getDirectionalLight().ambientMultiplier = 0.3;
 
 		this.doggo = new Doggo(this.scene, this.rendering, this.ecsManager);
@@ -100,13 +107,13 @@ export default class Game extends State {
 		this.menuButton.position.x = 0.9;
 		this.menuButton.position.y = 0.0;
 		this.menuButton.textSize = 60;
-		this.menuButton.getInputElement().style.backgroundColor = "transparent"
-		this.menuButton.getInputElement().style.borderColor = "transparent"
+		this.menuButton.getInputElement().style.backgroundColor = "transparent";
+		this.menuButton.getInputElement().style.borderColor = "transparent";
 		this.menuButton.getInputElement().style.color = "white";
 		this.menuButton.getInputElement().style.padding = "10px";
 		this.menuButton.textString = "Menu";
 
-        let self = this;
+		let self = this;
 		this.menuButton.onClick(function () {
 			self.gotoState = StatesEnum.MAINMENU;
 		});
@@ -118,7 +125,7 @@ export default class Game extends State {
 			const response = await fetch("Assets/placements/TreeTransforms.txt");
 			if (response.ok) {
 				const transforms = await response.text();
-			
+
 				if (transforms != "") {
 					for (let t of transforms.split("\n")) {
 						t = t.trim();
@@ -126,7 +133,11 @@ export default class Game extends State {
 							break;
 						}
 						let [p, s, r] = t.split("|");
-						let temp = {pos: new Vec3(p.split(",").map(n=>parseFloat(n))), size: parseFloat(s), rot: new Vec3(r.split(",").map(n=>parseFloat(n)))};
+						let temp = {
+							pos: new Vec3(p.split(",").map((n) => parseFloat(n))),
+							size: parseFloat(s),
+							rot: new Vec3(r.split(",").map((n) => parseFloat(n))),
+						};
 						this.treeTransforms.push(temp);
 					}
 				}
@@ -169,24 +180,30 @@ export default class Game extends State {
 
 	downloadTransforms() {
 		let treeTransformsData = "";
-		
+
 		for (let treeTransform of this.treeTransforms) {
-			treeTransformsData += treeTransform.pos + "|" + treeTransform.size + "|" + treeTransform.rot + "\n";
+			treeTransformsData +=
+				treeTransform.pos +
+				"|" +
+				treeTransform.size +
+				"|" +
+				treeTransform.rot +
+				"\n";
 		}
 
 		WebUtils.DownloadFile("TreeTransforms.txt", treeTransformsData);
 	}
 
 	onExit(e: BeforeUnloadEvent) {
-		if (this.treeTransforms.length > 0 && this.treesAdded) { 
+		if (this.treeTransforms.length > 0 && this.treesAdded) {
 			this.downloadTransforms();
 
 			e.preventDefault();
-        	e.returnValue = '';
-        	return;
-    	}
+			e.returnValue = "";
+			return;
+		}
 
-    	delete e['returnValue'];
+		delete e["returnValue"];
 	}
 
 	createFloorEntity(texturePath: string) {
@@ -215,8 +232,12 @@ export default class Game extends State {
 		let texturePathColour = "Assets/textures/grassFloor.png";
 		let texturePathSpec = "Assets/textures/grassFloor.png";
 		let entity = this.ecsManager.createEntity();
-		this.mapBundle = this.scene.getNewHeightMap(texturePath, texturePathColour, texturePathSpec);
-		
+		this.mapBundle = this.scene.getNewHeightMap(
+			texturePath,
+			texturePathColour,
+			texturePathSpec
+		);
+
 		this.ecsManager.addComponent(entity, new GraphicsComponent(this.mapBundle));
 		let posComp = new PositionComponent();
 		posComp.position.setValues(0.0, -5.0, 10.0);
@@ -231,7 +252,9 @@ export default class Game extends State {
 		let collisionComp = new CollisionComponent();
 		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
-		let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree("Assets/textures/heightmap.png"));
+		let meshColComp = new MeshCollisionComponent(
+			this.stateAccessible.meshStore.getOctree("Assets/textures/heightmap.png")
+		);
 		meshColComp.octree.setModelMatrix(this.mapBundle.modelMatrix);
 		this.ecsManager.addComponent(entity, meshColComp);
 
@@ -243,7 +266,11 @@ export default class Game extends State {
 	createKnight() {
 		let texturePath = "Assets/textures/knight.png";
 		let entity = this.ecsManager.createEntity();
-		let knightMesh = this.scene.getNewMesh("Assets/objs/knight.obj", texturePath, texturePath);
+		let knightMesh = this.scene.getNewMesh(
+			"Assets/objs/knight.obj",
+			texturePath,
+			texturePath
+		);
 		this.ecsManager.addComponent(entity, new GraphicsComponent(knightMesh));
 		let knightPosComp = new PositionComponent();
 		knightPosComp.position.setValues(0.0, -5.0, 20.0);
@@ -257,7 +284,9 @@ export default class Game extends State {
 		let collisionComp = new CollisionComponent();
 		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
-		let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree("Assets/objs/knight.obj"));
+		let meshColComp = new MeshCollisionComponent(
+			this.stateAccessible.meshStore.getOctree("Assets/objs/knight.obj")
+		);
 		meshColComp.octree.setModelMatrix(knightMesh.modelMatrix);
 		this.ecsManager.addComponent(entity, meshColComp);
 	}
@@ -267,7 +296,6 @@ export default class Game extends State {
 		let numParticles = 1000;
 		let lifeTime = 4;
 		let texturePath = "Assets/textures/fire.png";
-
 
 		let particleSpawner = this.scene.getNewParticleSpawner(
 			texturePath,
@@ -283,14 +311,10 @@ export default class Game extends State {
 				i,
 				new Vec3(position),
 				0.4,
-				new Vec3([
-					Math.cos(rand),
-					5.0 + Math.random() * 20.0,
-					Math.sin(rand),
-				])
+				new Vec3([Math.cos(rand), 5.0 + Math.random() * 20.0, Math.sin(rand)])
 					.normalize()
 					.multiply(8.0 + Math.random() * 3.0),
-				new Vec3([ 0.0, -4.0, 0.0 ])
+				new Vec3([0.0, -4.0, 0.0])
 			);
 		}
 
@@ -314,17 +338,21 @@ export default class Game extends State {
 		let texturePathColour = "Assets/textures/GrassStraw.png";
 		let texturePathSpec = "Assets/textures/GrassStraw_Spec.png";
 
-		let bundle =  this.scene.getNewGrassSpawner(texturePathColour, texturePathSpec, this.grassStrawsPerSpawner);
+		let bundle = this.scene.getNewGrassSpawner(
+			texturePathColour,
+			texturePathSpec,
+			this.grassStrawsPerSpawner
+		);
 		if (Math.random() > 0.5) {
-			bundle.emission = this.stateAccessible.textureStore.getTexture("Assets/textures/GrassStraw_Spec.png");
+			bundle.emission = this.stateAccessible.textureStore.getTexture(
+				"Assets/textures/GrassStraw_Spec.png"
+			);
 		}
 
-		this.grassSpawners.push(
-			{
-				spawner: bundle.graphicsObject as GrassSpawner, 
-				offset: new Vec2([offsetX, offsetY])
-			}
-		);	
+		this.grassSpawners.push({
+			spawner: bundle.graphicsObject as GrassSpawner,
+			offset: new Vec2([offsetX, offsetY]),
+		});
 	}
 
 	/**
@@ -337,18 +365,30 @@ export default class Game extends State {
 		let strawDist = this.grassSpawnerSide / sqrt;
 
 		let invertedMatrix = new Matrix4(this.mapBundle.modelMatrix).invert(); // Invert the transform matrix used for the heightmap
-		
+
 		let data = new Array<number>();
 		let firstIndex = this.grassStrawsSpawned % this.grassStrawsPerSpawner;
-		let lastSpawnerIndex = Math.floor(this.grassStrawsSpawned / this.grassStrawsPerSpawner);
+		let lastSpawnerIndex = Math.floor(
+			this.grassStrawsSpawned / this.grassStrawsPerSpawner
+		);
 
 		// Spawn as much grass as possible within 20 milliseconds every frame until all grass straws have been spawned
-		while (Date.now() - startTime < 20 && this.grassStrawsSpawned < this.grassSpawners.length * this.grassStrawsPerSpawner) {
-			let spawnerIndex = Math.floor(this.grassStrawsSpawned / this.grassStrawsPerSpawner);
+		while (
+			Date.now() - startTime < 20 &&
+			this.grassStrawsSpawned <
+				this.grassSpawners.length * this.grassStrawsPerSpawner
+		) {
+			let spawnerIndex = Math.floor(
+				this.grassStrawsSpawned / this.grassStrawsPerSpawner
+			);
 			let i = this.grassStrawsSpawned % this.grassStrawsPerSpawner;
-			
-			if (lastSpawnerIndex != spawnerIndex) { // Switching spawner, update the data for the previous one
-				this.grassSpawners[lastSpawnerIndex].spawner.bufferSubDataUpdate(firstIndex * 7, new Float32Array(data));
+
+			if (lastSpawnerIndex != spawnerIndex) {
+				// Switching spawner, update the data for the previous one
+				this.grassSpawners[lastSpawnerIndex].spawner.bufferSubDataUpdate(
+					firstIndex * 7,
+					new Float32Array(data)
+				);
 
 				// Clear data and reset index
 				data.length = 0;
@@ -358,29 +398,48 @@ export default class Game extends State {
 			lastSpawnerIndex = spawnerIndex;
 
 			let offset = this.grassSpawners[spawnerIndex].offset;
-			let grassStrawPosition = new Vec3([ // Grass position (x and z)
-				offset.x + (i % sqrt) * strawDist + strawDist * (Math.random() - 0.5), 
-				0.0, 
-				offset.y + Math.floor(i / sqrt) * strawDist + strawDist * (Math.random() - 0.5)]
-			);
+			let grassStrawPosition = new Vec3([
+				// Grass position (x and z)
+				offset.x + (i % sqrt) * strawDist + strawDist * (Math.random() - 0.5),
+				0.0,
+				offset.y +
+					Math.floor(i / sqrt) * strawDist +
+					strawDist * (Math.random() - 0.5),
+			]);
 
 			// Get the height of the heightmap at the corresponding position
-			let height = (<Heightmap>this.mapBundle.graphicsObject).getHeightFromWorldPosition(this.mapBundle.modelMatrix, grassStrawPosition, invertedMatrix);
+			let height = (<Heightmap>(
+				this.mapBundle.graphicsObject
+			)).getHeightFromWorldPosition(
+				this.mapBundle.modelMatrix,
+				grassStrawPosition,
+				invertedMatrix
+			);
 			let size = 0.0;
 
-			if (height != null) { // Given that the x and z coords of the position are on the heightmap
+			if (height != null) {
+				// Given that the x and z coords of the position are on the heightmap
 				grassStrawPosition.y = height;
 				size = Math.random() * 0.5 + 0.3;
 			}
-			
+
 			data.push(...grassStrawPosition); // Position of straw
 			data.push(size); // Size of straw
-			data.push(...[(Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1]); // TipOffset
-			
+			data.push(
+				...[
+					(Math.random() - 0.5) * 0.1,
+					(Math.random() - 0.5) * 0.1,
+					(Math.random() - 0.5) * 0.1,
+				]
+			); // TipOffset
+
 			this.grassStrawsSpawned++;
 		}
 
-		this.grassSpawners[lastSpawnerIndex].spawner.bufferSubDataUpdate(firstIndex * 7, new Float32Array(data));
+		this.grassSpawners[lastSpawnerIndex].spawner.bufferSubDataUpdate(
+			firstIndex * 7,
+			new Float32Array(data)
+		);
 	}
 
 	updateGrass() {
@@ -393,10 +452,23 @@ export default class Game extends State {
 		let invertedMatrix = new Matrix4(this.mapBundle.modelMatrix).invert(); // Invert the transform matrix used for the heightmap
 
 		for (let grassSpawner of this.grassSpawners) {
-			if (grassSpawner.offset.x > doggoPosition.x - this.grassSpawnerSide && grassSpawner.offset.x < doggoPosition.x &&
-				grassSpawner.offset.y > doggoPosition.z - this.grassSpawnerSide && grassSpawner.offset.y < doggoPosition.z) {
-				
-				if (doggoPosition.y - (<Heightmap>(this.mapBundle.graphicsObject)).getHeightFromWorldPosition(this.mapBundle.modelMatrix, doggoPosition, invertedMatrix) < 1.0) {
+			if (
+				grassSpawner.offset.x > doggoPosition.x - this.grassSpawnerSide &&
+				grassSpawner.offset.x < doggoPosition.x &&
+				grassSpawner.offset.y > doggoPosition.z - this.grassSpawnerSide &&
+				grassSpawner.offset.y < doggoPosition.z
+			) {
+				if (
+					doggoPosition.y -
+						(<Heightmap>(
+							this.mapBundle.graphicsObject
+						)).getHeightFromWorldPosition(
+							this.mapBundle.modelMatrix,
+							doggoPosition,
+							invertedMatrix
+						) <
+					1.0
+				) {
 					let diffX = doggoPosition.x - grassSpawner.offset.x;
 					let diffY = doggoPosition.z - grassSpawner.offset.y;
 
@@ -405,11 +477,16 @@ export default class Game extends State {
 
 					for (let x = middleX - 10; x < middleX + 11; x++) {
 						for (let y = middleY - 10; y < middleY + 11; y++) {
-							let dist = new Vec2([x * strawDist - diffX, y * strawDist - diffY]);
+							let dist = new Vec2([
+								x * strawDist - diffX,
+								y * strawDist - diffY,
+							]);
 							if (dist.len() < 0.3) {
 								let index = Math.floor(x + y * sqrt);
 								if (index > 0 && index < this.grassStrawsPerSpawner) {
-									let offset = new Vec3([doggoVelocity.x, 0.0, doggoVelocity.z]).normalize().multiply(0.2);
+									let offset = new Vec3([doggoVelocity.x, 0.0, doggoVelocity.z])
+										.normalize()
+										.multiply(0.2);
 									offset.y = -0.2;
 									grassSpawner.spawner.setGrassTipOffset(index, offset);
 								}
@@ -422,15 +499,26 @@ export default class Game extends State {
 	}
 
 	doRayCast(ray: Ray): number {
-		let triangleArray = new Array<Triangle>()
-		this.stateAccessible.meshStore.getOctree("Assets/textures/heightmap.png").getShapesForRayCast(ray, triangleArray);
+		let triangleArray = new Array<Triangle>();
+		this.stateAccessible.meshStore
+			.getOctree("Assets/textures/heightmap.png")
+			.getShapesForRayCast(ray, triangleArray);
 		return IntersectionTester.doRayCast(ray, triangleArray);
 	}
 
-	placeTree(position: Vec3, size: number, rotation: Vec3, saveToTransforms: boolean = true) {
+	placeTree(
+		position: Vec3,
+		size: number,
+		rotation: Vec3,
+		saveToTransforms: boolean = true
+	) {
 		let texturePath = "Assets/textures/knight.png";
 		let entity = this.ecsManager.createEntity();
-		let knightMesh = this.scene.getNewMesh("Assets/objs/knight.obj", texturePath, texturePath);
+		let knightMesh = this.scene.getNewMesh(
+			"Assets/objs/knight.obj",
+			texturePath,
+			texturePath
+		);
 		this.ecsManager.addComponent(entity, new GraphicsComponent(knightMesh));
 		let posComp = new PositionComponent();
 		posComp.position.deepAssign(position);
@@ -439,7 +527,7 @@ export default class Game extends State {
 		this.ecsManager.addComponent(entity, posComp);
 
 		if (saveToTransforms) {
-			this.treeTransforms.push({pos: position, size: size, rot: rotation});
+			this.treeTransforms.push({ pos: position, size: size, rot: rotation });
 			this.treesAdded = true;
 		}
 
@@ -457,7 +545,10 @@ export default class Game extends State {
 	}
 
 	update(dt: number) {
-		if (this.grassStrawsSpawned < this.grassSpawners.length * this.grassStrawsPerSpawner) {
+		if (
+			this.grassStrawsSpawned <
+			this.grassSpawners.length * this.grassStrawsPerSpawner
+		) {
 			this.fillGrass();
 		}
 

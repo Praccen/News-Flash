@@ -54,7 +54,10 @@ export default class ECSManager {
 		this.systems.set("MOVEMENT", new MovementSystem());
 		this.systems.set("GRAPHICS", new GraphicsSystem());
 		this.systems.set("PARTICLE", new ParticleSpawnerSystem());
-		this.systems.set("CAMERAFOCUS", new CameraFocusSystem(this.rendering.camera));
+		this.systems.set(
+			"CAMERAFOCUS",
+			new CameraFocusSystem(this.rendering.camera)
+		);
 	}
 
 	update(dt: number) {

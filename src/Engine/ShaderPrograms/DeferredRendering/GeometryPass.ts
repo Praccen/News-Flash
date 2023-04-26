@@ -75,11 +75,7 @@ void main() {
 
 class GeometryPass extends ShaderProgram {
 	constructor() {
-		super(
-			"GeometryPass",
-			geometryVertexShaderSrc,
-			geometryFragmentShaderSrc
-		);
+		super("GeometryPass", geometryVertexShaderSrc, geometryFragmentShaderSrc);
 
 		this.use();
 
@@ -112,6 +108,6 @@ class GeometryPass extends ShaderProgram {
 
 export let geometryPass = null;
 
-export let createGeometryPass = function() {
+export let createGeometryPass = function () {
 	geometryPass = new GeometryPass();
-}
+};

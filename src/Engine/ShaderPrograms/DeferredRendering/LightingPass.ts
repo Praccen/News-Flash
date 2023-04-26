@@ -206,6 +206,6 @@ class LightingPass extends ShaderProgram {
 
 export let lightingPass = null;
 
-export let createLightingPass = function() {
+export let createLightingPass = function () {
 	lightingPass = new LightingPass();
-}
+};

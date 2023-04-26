@@ -9,10 +9,10 @@ export default class LoadingScreen extends State {
 	private overlayRendering: OverlayRendering;
 	private sa: StateAccessible;
 
-    private text: TextObject2D;
+	private text: TextObject2D;
 	private statusText: string;
 	private progressBar: Progress;
-    private progress: number;
+	private progress: number;
 	private timer: number;
 
 	private texturesToLoad: Texture[];
@@ -24,30 +24,28 @@ export default class LoadingScreen extends State {
 	private octreesRequested: number;
 	private octreesLoaded: number;
 
-	constructor(
-			sa: StateAccessible
-	) {
+	constructor(sa: StateAccessible) {
 		super();
 		this.overlayRendering = new OverlayRendering();
 		this.sa = sa;
 
 		// Crate GUI
 		this.text = this.overlayRendering.getNew2DText();
-        this.text.center = true;
+		this.text.center = true;
 		this.text.position.x = 0.5;
 		this.text.position.y = 0.4;
 		this.text.size = 50;
 		this.statusText = "Loading assets ";
-		
+
 		this.progressBar = this.overlayRendering.getNewProgress();
 		this.progressBar.center = true;
 		this.progressBar.position.x = 0.5;
 		this.progressBar.position.y = 0.5;
 		this.progressBar.size = 50;
 		this.progressBar.getProgressElement().style.borderRadius = "4px";
-        this.progressBar.getProgressElement().max = 1.0;
-        this.progressBar.getProgressElement().value = 0.0;
-        this.progress = 0;
+		this.progressBar.getProgressElement().max = 1.0;
+		this.progressBar.getProgressElement().value = 0.0;
+		this.progress = 0;
 		this.timer = 0;
 	}
 
@@ -76,12 +74,10 @@ export default class LoadingScreen extends State {
 			"Assets/textures/stylized-grass1_ao.png",
 			"Assets/textures/GrassStraw.png",
 			"Assets/textures/GrassStraw_Spec.png",
-			"Assets/textures/grassFloor.png"
+			"Assets/textures/grassFloor.png",
 		];
 
-		let cubeMaps = [
-			"Assets/textures/skyboxes/learnopengl"
-		]
+		let cubeMaps = ["Assets/textures/skyboxes/learnopengl"];
 
 		// Meshes to load
 		let meshes = [
@@ -90,8 +86,8 @@ export default class LoadingScreen extends State {
 			"Assets/objs/hind_leg.obj",
 			"Assets/objs/cube.obj",
 			"Assets/objs/knight.obj",
-			"Assets/objs/monu9.obj"
-		]
+			"Assets/objs/monu9.obj",
+		];
 		this.meshesRequested = meshes.length;
 		this.meshesLoaded = 0;
 
@@ -99,14 +95,14 @@ export default class LoadingScreen extends State {
 		let heightmaps: (string | number)[][] = [
 			["Assets/textures/heightmap.png", 200, 200, 1.0, 1.0],
 			// ["Assets/textures/heightmap.png"]
-		]
+		];
 		this.heightmapsRequested = heightmaps.length;
 		this.heightmapsLoaded = 0;
 
 		// Octrees to create
 		this.octreesToLoad = [
 			["Assets/textures/heightmap.png", 0.05, 100],
-			["Assets/objs/knight.obj", 0.1, 100]
+			["Assets/objs/knight.obj", 0.1, 100],
 		];
 		this.octreesRequested = this.octreesToLoad.length;
 		this.octreesLoaded = 0;
@@ -119,7 +115,7 @@ export default class LoadingScreen extends State {
 		for (const cubeMapFile of cubeMaps) {
 			this.texturesToLoad.push(this.sa.textureStore.getCubeMap(cubeMapFile));
 		}
-		
+
 		// Load meshes
 		for (const meshFile of meshes) {
 			this.sa.meshStore.loadMesh(meshFile).then(() => {
@@ -130,21 +126,20 @@ export default class LoadingScreen extends State {
 		// Load heightmaps
 		for (const heightmapInfo of heightmaps) {
 			if (heightmapInfo.length == 5) {
-				this.sa.meshStore.loadHeightmap(
-					heightmapInfo[0] as string, 
-					false, 
-					heightmapInfo[1] as number, 
-					heightmapInfo[2] as number, 
-					heightmapInfo[3] as number, 
-					heightmapInfo[4] as number
-				).then(() => {
-					this.heightmapsLoaded++;
-				});
-			}
-			else {
-				this.sa.meshStore.loadHeightmap(
-					heightmapInfo[0] as string
-				).then(() => {
+				this.sa.meshStore
+					.loadHeightmap(
+						heightmapInfo[0] as string,
+						false,
+						heightmapInfo[1] as number,
+						heightmapInfo[2] as number,
+						heightmapInfo[3] as number,
+						heightmapInfo[4] as number
+					)
+					.then(() => {
+						this.heightmapsLoaded++;
+					});
+			} else {
+				this.sa.meshStore.loadHeightmap(heightmapInfo[0] as string).then(() => {
 					this.heightmapsLoaded++;
 				});
 			}
@@ -157,49 +152,69 @@ export default class LoadingScreen extends State {
 	}
 
 	update(dt: number) {
-		let requestedAssets = this.texturesToLoad.length + this.meshesRequested + this.heightmapsRequested + this.octreesRequested;
+		let requestedAssets =
+			this.texturesToLoad.length +
+			this.meshesRequested +
+			this.heightmapsRequested +
+			this.octreesRequested;
 		let texturesLoaded = 0;
 		for (let tex of this.texturesToLoad) {
 			if (tex.loadedFromFile) {
 				texturesLoaded++;
 			}
 		}
-		let loadedAssets = texturesLoaded + this.meshesLoaded + this.heightmapsLoaded + this.octreesLoaded;
+		let loadedAssets =
+			texturesLoaded +
+			this.meshesLoaded +
+			this.heightmapsLoaded +
+			this.octreesLoaded;
 
 		// When all meshes and heightmaps have been loaded, we can start processing octrees
-		if (this.meshesLoaded == this.meshesRequested && this.heightmapsLoaded == this.heightmapsRequested && this.octreesToLoad.length > 0) {
+		if (
+			this.meshesLoaded == this.meshesRequested &&
+			this.heightmapsLoaded == this.heightmapsRequested &&
+			this.octreesToLoad.length > 0
+		) {
 			this.statusText = "Generating octrees ";
 			let i = this.octreesToLoad.length - 1;
 			let octreeToLoad = this.octreesToLoad[i];
-			this.sa.meshStore.loadOctree(octreeToLoad[0], octreeToLoad[1], octreeToLoad[2], 10 /*Give a 10 ms deadline*/).then((value) => 
-			{
-				if (value.doneLoading) {
-					if (this.octreesToLoad[this.octreesToLoad.length - 1][0] == octreeToLoad[0]) {
-						this.octreesToLoad.pop(); // Done loading, remove it from the queue
-						this.octreesLoaded++; // And increase the number of octrees loaded
+			this.sa.meshStore
+				.loadOctree(
+					octreeToLoad[0],
+					octreeToLoad[1],
+					octreeToLoad[2],
+					10 /*Give a 10 ms deadline*/
+				)
+				.then((value) => {
+					if (value.doneLoading) {
+						if (
+							this.octreesToLoad[this.octreesToLoad.length - 1][0] ==
+							octreeToLoad[0]
+						) {
+							this.octreesToLoad.pop(); // Done loading, remove it from the queue
+							this.octreesLoaded++; // And increase the number of octrees loaded
+						}
 					}
-				}
-			});
+				});
 		}
 
 		this.timer += dt;
 
-        this.progress = loadedAssets / requestedAssets;
-        this.progressBar.getProgressElement().value = this.progress;
+		this.progress = loadedAssets / requestedAssets;
+		this.progressBar.getProgressElement().value = this.progress;
 		this.text.textString = this.statusText;
 		for (let i = 4; i > 1; i--) {
-			if ((this.timer - Math.floor(this.timer)) > (1.0 / i)) {
+			if (this.timer - Math.floor(this.timer) > 1.0 / i) {
 				this.text.textString += "-";
-			}
-			else {
+			} else {
 				this.text.textString += "_";
 			}
 		}
-		this.text.textString += "  " + Math.ceil((this.progress * 100)) + "%";
+		this.text.textString += "  " + Math.ceil(this.progress * 100) + "%";
 
-        if (this.progress >= 1.0 && this.timer >= 0.5) {
-            this.gotoState = StatesEnum.GAME;
-        }
+		if (this.progress >= 1.0 && this.timer >= 0.5) {
+			this.gotoState = StatesEnum.GAME;
+		}
 	}
 
 	draw() {

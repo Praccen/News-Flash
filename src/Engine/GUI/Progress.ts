@@ -18,9 +18,9 @@ export default class Progress extends GuiObject {
 		this.div.appendChild(this.progressNode);
 	}
 
-    getProgressElement(): HTMLProgressElement {
-        return this.progressNode;
-    }
+	getProgressElement(): HTMLProgressElement {
+		return this.progressNode;
+	}
 
 	draw(): void {
 		this.position2D = this.position;

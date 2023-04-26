@@ -59,8 +59,16 @@ class TreeNode {
 	}
 
 	private checkIfContains(shape: Shape) {
-		let minVec = new Vec3(this.position).subtract([this.size/2.0, this.size/2.0, this.size/2.0]);
-		let maxVec = new Vec3(this.position).add([this.size/2.0, this.size/2.0, this.size/2.0]);
+		let minVec = new Vec3(this.position).subtract([
+			this.size / 2.0,
+			this.size / 2.0,
+			this.size / 2.0,
+		]);
+		let maxVec = new Vec3(this.position).add([
+			this.size / 2.0,
+			this.size / 2.0,
+			this.size / 2.0,
+		]);
 		let shapeVertices = shape.getTransformedVertices();
 		for (let vertex of shapeVertices) {
 			let returnVal = true;
@@ -85,7 +93,10 @@ class TreeNode {
 	}
 
 	addShape(shape: Shape, minNodeSize: number, maxShapesPerNode: number) {
-		if (this.checkIfContains(shape) && IntersectionTester.identifyIntersection([shape], [this.obb])) {
+		if (
+			this.checkIfContains(shape) &&
+			IntersectionTester.identifyIntersection([shape], [this.obb])
+		) {
 			if (this.children.length == 0) {
 				// Leaf node
 				if (this.content.length >= maxShapesPerNode) {
@@ -131,8 +142,11 @@ class TreeNode {
 	prune() {
 		for (let i = 0; i < this.children.length; i++) {
 			this.children[i].prune();
-		
-			if (this.children[i].content.length == 0 && this.children[i].children.length == 0) {
+
+			if (
+				this.children[i].content.length == 0 &&
+				this.children[i].children.length == 0
+			) {
 				this.children.splice(i, 1);
 				i--;
 			}
@@ -141,14 +155,14 @@ class TreeNode {
 
 	updateBox() {
 		this.obb.setUpdateNeeded();
-		
+
 		for (const child of this.children) {
 			child.updateBox();
 		}
 	}
 
 	getShapesForCollision(boundingBox: OBB, shapeArray: Array<Shape>) {
-		if (IntersectionTester.identifyIntersection([boundingBox],[this.obb])) {
+		if (IntersectionTester.identifyIntersection([boundingBox], [this.obb])) {
 			for (const child of this.children) {
 				child.getShapesForCollision(boundingBox, shapeArray);
 			}
@@ -159,7 +173,11 @@ class TreeNode {
 		}
 	}
 
-	getShapesForRayCast(ray: Ray, shapeArray: Array<Shape>, maxDistance: number = Infinity) {
+	getShapesForRayCast(
+		ray: Ray,
+		shapeArray: Array<Shape>,
+		maxDistance: number = Infinity
+	) {
 		if (IntersectionTester.doRayCast(ray, [this.obb], maxDistance) >= 0.0) {
 			for (const child of this.children) {
 				child.getShapesForRayCast(ray, shapeArray, maxDistance);
@@ -177,7 +195,14 @@ class TreeNode {
 		result += "p" + this.position + "\n";
 		result += "[\n";
 		for (let shape of this.content) {
-			result += "t[" + shape.getOriginalVertices()[0] + "], [" + shape.getOriginalVertices()[1] + "], [" + shape.getOriginalVertices()[2] + "]\n";
+			result +=
+				"t[" +
+				shape.getOriginalVertices()[0] +
+				"], [" +
+				shape.getOriginalVertices()[1] +
+				"], [" +
+				shape.getOriginalVertices()[2] +
+				"]\n";
 		}
 		result += "]\n";
 		if (this.children.length > 0) {
@@ -193,21 +218,29 @@ class TreeNode {
 
 export default class Octree {
 	baseNode: TreeNode;
-    minNodeSize: number;
-    maxShapesPerNode: number;
+	minNodeSize: number;
+	maxShapesPerNode: number;
 
-	constructor(minVec: Vec3, maxVec: Vec3, smallestNodeSizeMultiplicator: number, maxShapesPerNode: number) {
-        let baseNodeSize = maxVec.x - minVec.x;
-        baseNodeSize = Math.max(baseNodeSize, maxVec.y - minVec.y);
-        baseNodeSize = Math.max(baseNodeSize, maxVec.z - minVec.z);
+	constructor(
+		minVec: Vec3,
+		maxVec: Vec3,
+		smallestNodeSizeMultiplicator: number,
+		maxShapesPerNode: number
+	) {
+		let baseNodeSize = maxVec.x - minVec.x;
+		baseNodeSize = Math.max(baseNodeSize, maxVec.y - minVec.y);
+		baseNodeSize = Math.max(baseNodeSize, maxVec.z - minVec.z);
 
-		this.baseNode = new TreeNode(baseNodeSize, new Vec3(minVec).add(maxVec).multiply(0.5));
-        this.minNodeSize = baseNodeSize * smallestNodeSizeMultiplicator;
-        this.maxShapesPerNode = maxShapesPerNode;
+		this.baseNode = new TreeNode(
+			baseNodeSize,
+			new Vec3(minVec).add(maxVec).multiply(0.5)
+		);
+		this.minNodeSize = baseNodeSize * smallestNodeSizeMultiplicator;
+		this.maxShapesPerNode = maxShapesPerNode;
 	}
 
 	addShape(shape: Shape) {
-        this.baseNode.addShape(shape, this.minNodeSize, this.maxShapesPerNode);
+		this.baseNode.addShape(shape, this.minNodeSize, this.maxShapesPerNode);
 	}
 
 	addShapes(shapes: Array<Shape>) {
@@ -223,8 +256,7 @@ export default class Octree {
 	setModelMatrix(matrix?: Matrix4) {
 		if (matrix) {
 			this.baseNode.setModelMatrix(matrix);
-		}
-		else {
+		} else {
 			this.baseNode.updateBox();
 		}
 	}
@@ -237,7 +269,11 @@ export default class Octree {
 		this.baseNode.getShapesForCollision(boundingBox, shapeArray);
 	}
 
-	getShapesForRayCast(ray: Ray, shapeArray: Array<Shape>, maxDistance: number = Infinity) {
+	getShapesForRayCast(
+		ray: Ray,
+		shapeArray: Array<Shape>,
+		maxDistance: number = Infinity
+	) {
 		this.baseNode.getShapesForRayCast(ray, shapeArray, maxDistance);
 	}
 
@@ -262,44 +298,39 @@ export default class Octree {
 
 		for (let i = 3; i < rows.length; i++) {
 			let row = rows[i];
-			
+
 			if (row == "{") {
 				// Information for child node starts
-			}
-			else if (row == "[") {
+			} else if (row == "[") {
 				// Start of triangles
-			}
-			else if (row == "]") {
+			} else if (row == "]") {
 				// End of triangles
-			}
-			else if (row == "}") {
+			} else if (row == "}") {
 				// Node over, set currentNode to parent
 				currentNode = parentQueue.pop();
-			}
-			else if (row.startsWith("s")) {
+			} else if (row.startsWith("s")) {
 				row = row.substring(1);
 				// Size of node
 				currentSize = parseFloat(row);
-			}
-			else if (row.startsWith("p")) {
+			} else if (row.startsWith("p")) {
 				row = row.substring(1);
 				// Position of node
-				let currentPos = new Vec3(row.split(",").map(n=>parseFloat(n)));
+				let currentPos = new Vec3(row.split(",").map((n) => parseFloat(n)));
 
 				// The position is the last information needed to create the child node, so we do it
 				// and set currentNode to the new child
 				if (this.baseNode == undefined) {
 					this.baseNode = new TreeNode(currentSize, currentPos);
 					currentNode = this.baseNode;
-				}
-				else {
+				} else {
 					// Add current node to parent queue
 					parentQueue.push(currentNode);
-					let length = currentNode.children.push(new TreeNode(currentSize, currentPos));
+					let length = currentNode.children.push(
+						new TreeNode(currentSize, currentPos)
+					);
 					currentNode = currentNode.children[length - 1];
 				}
-			}
-			else if (row.startsWith("t")) {
+			} else if (row.startsWith("t")) {
 				// Triangle
 				// t[-3,3,1.5], [-3,3,2.5], [-4,3,1.5]
 				row = row.substring(1);
@@ -307,9 +338,24 @@ export default class Octree {
 				let tri = new Triangle();
 
 				tri.setVertices(
-					new Vec3(points[0].substring(1, points[0].length - 1).split(",").map(n=>parseFloat(n))),
-					new Vec3(points[1].substring(1, points[1].length - 1).split(",").map(n=>parseFloat(n))),
-					new Vec3(points[2].substring(1, points[2].length - 1).split(",").map(n=>parseFloat(n)))
+					new Vec3(
+						points[0]
+							.substring(1, points[0].length - 1)
+							.split(",")
+							.map((n) => parseFloat(n))
+					),
+					new Vec3(
+						points[1]
+							.substring(1, points[1].length - 1)
+							.split(",")
+							.map((n) => parseFloat(n))
+					),
+					new Vec3(
+						points[2]
+							.substring(1, points[2].length - 1)
+							.split(",")
+							.map((n) => parseFloat(n))
+					)
 				);
 
 				currentNode.content.push(tri);

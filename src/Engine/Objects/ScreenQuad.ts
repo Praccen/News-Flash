@@ -10,10 +10,7 @@ export default class ScreenQuad extends GraphicsObject {
 	private vertices: Float32Array;
 	private indices: Int32Array;
 
-	constructor(
-		shaderProgram: ShaderProgram,
-		textures: Array<Texture>
-	) {
+	constructor(shaderProgram: ShaderProgram, textures: Array<Texture>) {
 		super(shaderProgram);
 
 		// prettier-ignore

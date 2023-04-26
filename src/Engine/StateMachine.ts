@@ -1,37 +1,51 @@
 import State, { StatesEnum } from "./State.js";
 
 export default class StateMachine {
-    states: Map<StatesEnum, {stateType: any, minUpdateRate: number, state: State}>;
-	
-	protected fps: number = 0;
-    protected currentState: StatesEnum;
+	states: Map<
+		StatesEnum,
+		{ stateType: any; minUpdateRate: number; state: State }
+	>;
 
-    private firstLoop: boolean;
+	protected fps: number = 0;
+	protected currentState: StatesEnum;
+
+	private firstLoop: boolean;
 
 	// Frame timer variables
-    private lastTick = null;
+	private lastTick = null;
 	private updateTimer = 0.0;
 	private fpsUpdateTimer = 0.0;
 	private frameCounter = 0;
 	private dt = 0.0;
 
+	constructor(startState: StatesEnum) {
+		this.states = new Map<
+			StatesEnum,
+			{ stateType: any; minUpdateRate: number; state: State }
+		>();
+		this.currentState = startState;
 
-    constructor(startState: StatesEnum) {
-        this.states = new Map<StatesEnum, {stateType: any, minUpdateRate: number, state: State}>();
-        this.currentState = startState;
-        
-        this.firstLoop = true;
-    }
+		this.firstLoop = true;
+	}
 
-    addState(stateEnum: StatesEnum, stateType: any, minUpdateRate: number, state: State) {
-        this.states.set(stateEnum, {stateType: stateType, minUpdateRate: minUpdateRate, state: state});
+	addState(
+		stateEnum: StatesEnum,
+		stateType: any,
+		minUpdateRate: number,
+		state: State
+	) {
+		this.states.set(stateEnum, {
+			stateType: stateType,
+			minUpdateRate: minUpdateRate,
+			state: state,
+		});
 		this.states.get(stateEnum).state.reset();
-    }
+	}
 
-    updateFrameTimers() {
+	updateFrameTimers() {
 		let now = Date.now();
 		this.dt = (now - (this.lastTick || now)) * 0.001;
-	    this.lastTick = now;
+		this.lastTick = now;
 
 		this.frameCounter++;
 		this.fpsUpdateTimer += this.dt;
@@ -43,7 +57,7 @@ export default class StateMachine {
 		}
 	}
 
-    updateState(state: State, minUpdateRate?: number) {
+	updateState(state: State, minUpdateRate?: number) {
 		this.updateFrameTimers();
 
 		// Constant update rate
@@ -64,7 +78,7 @@ export default class StateMachine {
 				updatesSinceRender++;
 			}
 		}
-		
+
 		if (updatesSinceRender == 0) {
 			// dt is faster than min update rate, or no min update rate is set
 			state.update(this.updateTimer);
@@ -80,29 +94,32 @@ export default class StateMachine {
 		this.firstLoop = false;
 	}
 
-    async runCurrentState() {
+	async runCurrentState() {
 		if (!this.states.get(this.currentState).state.initialized) {
 			await this.states.get(this.currentState).state.init();
 		}
 
 		// Update the state
-		this.updateState(this.states.get(this.currentState).state, this.states.get(this.currentState).minUpdateRate);
+		this.updateState(
+			this.states.get(this.currentState).state,
+			this.states.get(this.currentState).minUpdateRate
+		);
 
 		// Check if we should change state
 		if (this.states.get(this.currentState).state.gotoState != StatesEnum.STAY) {
 			let oldState = this.currentState;
 			this.currentState = this.states.get(this.currentState).state.gotoState;
-			
+
 			this.states.get(oldState).state.reset();
 			this.states.get(oldState).state.gotoState = StatesEnum.STAY;
 
-			// TODO: Add different ways to switch states, like for example, maybe we want to just have a state overlayed on top of another (pause menu). 
+			// TODO: Add different ways to switch states, like for example, maybe we want to just have a state overlayed on top of another (pause menu).
 		}
 
 		requestAnimationFrame(this.runCurrentState.bind(this));
 	}
 
-    start() {
-        requestAnimationFrame(this.runCurrentState.bind(this));
-    }
+	start() {
+		requestAnimationFrame(this.runCurrentState.bind(this));
+	}
 }
