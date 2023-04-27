@@ -14,14 +14,10 @@ export default class ControlsMenu extends State {
 
 		this.backButton = this.overlayRendering.getNewButton();
 		this.backButton.position.x = 0.5;
-		this.backButton.position.y = 0.75;
+		this.backButton.position.y = 0.1;
 		this.backButton.center = true;
-		this.backButton.textSize = 60;
-		this.backButton.getInputElement().style.backgroundColor = "purple";
-		this.backButton.getInputElement().style.color = "white";
-		this.backButton.getInputElement().style.borderRadius = "4px";
-		this.backButton.getInputElement().style.padding = "10px";
-		this.backButton.textString = "Back to main menu";
+		this.backButton.textSize = 30;
+		this.backButton.textString = "Back";
 
 		let self = this;
 		this.backButton.onClick(function () {

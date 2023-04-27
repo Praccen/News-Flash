@@ -24,7 +24,6 @@ export default class OptionsMenu extends State {
 		this.crtCB = this.overlayRendering.getNewCheckbox();
 		this.crtCB.position.x = 0.4;
 		this.crtCB.position.y = 0.3;
-		this.crtCB.textSize = 50;
 		this.crtCB.textString = "CRT-effect ";
 		this.crtCB.getElement().style.color = "cyan";
 		this.crtCB.getInputElement().style.accentColor = "red";
@@ -33,7 +32,6 @@ export default class OptionsMenu extends State {
 		this.bloomCB = this.overlayRendering.getNewCheckbox();
 		this.bloomCB.position.x = 0.4;
 		this.bloomCB.position.y = 0.35;
-		this.bloomCB.textSize = 50;
 		this.bloomCB.textString = "Bloom-effect ";
 		this.bloomCB.getElement().style.color = "cyan";
 		this.bloomCB.getInputElement().style.accentColor = "red";
@@ -42,7 +40,6 @@ export default class OptionsMenu extends State {
 		this.grassCB = this.overlayRendering.getNewCheckbox();
 		this.grassCB.position.x = 0.4;
 		this.grassCB.position.y = 0.4;
-		this.grassCB.textSize = 50;
 		this.grassCB.textString = "Foldable grass ";
 		this.grassCB.getElement().style.color = "cyan";
 		this.grassCB.getInputElement().style.accentColor = "red";
@@ -51,7 +48,6 @@ export default class OptionsMenu extends State {
 		this.fpsDisplayCB = this.overlayRendering.getNewCheckbox();
 		this.fpsDisplayCB.position.x = 0.4;
 		this.fpsDisplayCB.position.y = 0.45;
-		this.fpsDisplayCB.textSize = 50;
 		this.fpsDisplayCB.textString = "Fps counter ";
 		this.fpsDisplayCB.getElement().style.color = "cyan";
 		this.fpsDisplayCB.getInputElement().style.accentColor = "red";
@@ -60,7 +56,6 @@ export default class OptionsMenu extends State {
 		this.volumeSlider = this.overlayRendering.getNewSlider();
 		this.volumeSlider.position.x = 0.4;
 		this.volumeSlider.position.y = 0.5;
-		this.volumeSlider.textSize = 50;
 		this.volumeSlider.textString = "Volume ";
 		this.volumeSlider.getElement().style.color = "cyan";
 		this.volumeSlider.getInputElement().style.accentColor = "red";
@@ -72,11 +67,7 @@ export default class OptionsMenu extends State {
 		this.controlsButton.position.x = 0.5;
 		this.controlsButton.position.y = 0.65;
 		this.controlsButton.center = true;
-		this.controlsButton.textSize = 60;
-		this.controlsButton.getInputElement().style.backgroundColor = "purple";
-		this.controlsButton.getInputElement().style.color = "white";
-		this.controlsButton.getInputElement().style.borderRadius = "4px";
-		this.controlsButton.getInputElement().style.padding = "10px";
+
 		this.controlsButton.textString = "Controls";
 
 		let self = this;
@@ -88,11 +79,6 @@ export default class OptionsMenu extends State {
 		this.backButton.position.x = 0.5;
 		this.backButton.position.y = 0.8;
 		this.backButton.center = true;
-		this.backButton.textSize = 60;
-		this.backButton.getInputElement().style.backgroundColor = "purple";
-		this.backButton.getInputElement().style.color = "white";
-		this.backButton.getInputElement().style.borderRadius = "4px";
-		this.backButton.getInputElement().style.padding = "10px";
 		this.backButton.textString = "Back to main menu";
 
 		this.backButton.onClick(function () {

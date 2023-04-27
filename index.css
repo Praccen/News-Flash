@@ -24,6 +24,9 @@ canvas {
 }
  
 #guicontainer {
+	position: absolute;
+	top: 0;
+
     z-index: 10;
 }
 
@@ -39,4 +42,13 @@ canvas {
 		-ms-user-select: none; /* Internet Explorer/Edge */
 			user-select: none; /* Non-prefixed version, currently
 								  supported by Chrome, Opera and Firefox */
+}
+
+.button {
+	font-size: inherit;
+	font-family: inherit;
+	background-color: purple;
+	color: white;
+	border-radius: 4px;
+	padding: 5px;
 }

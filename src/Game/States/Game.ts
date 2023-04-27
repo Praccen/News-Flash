@@ -106,11 +106,9 @@ export default class Game extends State {
 		this.menuButton = this.overlayRendering.getNewButton();
 		this.menuButton.position.x = 0.9;
 		this.menuButton.position.y = 0.0;
-		this.menuButton.textSize = 60;
+		this.menuButton.textSize = 40;
 		this.menuButton.getInputElement().style.backgroundColor = "transparent";
 		this.menuButton.getInputElement().style.borderColor = "transparent";
-		this.menuButton.getInputElement().style.color = "white";
-		this.menuButton.getInputElement().style.padding = "10px";
 		this.menuButton.textString = "Menu";
 
 		let self = this;

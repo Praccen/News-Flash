@@ -26,7 +26,7 @@ export default class DebugMenu {
 		this.downloadOctreesButton.getInputElement().style.color = "white";
 		this.downloadOctreesButton.getInputElement().style.borderRadius = "4px";
 		this.downloadOctreesButton.getInputElement().style.padding = "10px";
-		this.downloadOctreesButton.textString = "Download Octrees";
+		this.downloadOctreesButton.textString = "Download \nOctrees";
 
 		let self = this;
 		this.downloadOctreesButton.onClick(function () {
@@ -43,7 +43,7 @@ export default class DebugMenu {
 		this.downloadTransformsButton.getInputElement().style.color = "white";
 		this.downloadTransformsButton.getInputElement().style.borderRadius = "4px";
 		this.downloadTransformsButton.getInputElement().style.padding = "10px";
-		this.downloadTransformsButton.textString = "Download Transforms";
+		this.downloadTransformsButton.textString = "Download \nTransforms";
 
 		this.downloadTransformsButton.onClick(function () {
 			self.game.downloadTransforms();
