@@ -28,6 +28,7 @@ export let windowInfo = {
 };
 
 function initWebGL(): WebGL2RenderingContext {
+	let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
 	canvas.width = windowInfo.resolutionWidth;
 	canvas.height = windowInfo.resolutionHeight;
 
@@ -49,10 +50,9 @@ function initWebGL(): WebGL2RenderingContext {
 	return tempGl;
 }
 
-let heightByWidth = windowInfo.resolutionHeight / windowInfo.resolutionWidth;
-let widthByHeight = windowInfo.resolutionWidth / windowInfo.resolutionHeight;
-let canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
-let guicontainer = <HTMLElement>document.getElementById("guicontainer");
+const heightByWidth = 9 / 16;
+const widthByHeight = 16 / 9;
+const gameDiv = document.getElementById("gameDiv");
 
 function resize(gl: WebGL2RenderingContext) {
 	// Get the dimensions of the viewport
@@ -77,18 +77,13 @@ function resize(gl: WebGL2RenderingContext) {
 	let newGameY = (innerWindowSize.height - newGameHeight) / 2;
 
 	// Center the game by setting the padding of the game
-	(gl.canvas as HTMLCanvasElement).style.padding =
-		newGameY + "px " + newGameX + "px";
-	guicontainer.style.padding = newGameY + "px " + newGameX + "px";
+	gameDiv.style.padding = newGameY + "px " + newGameX + "px";
 
 	// Resize game
-	(gl.canvas as HTMLCanvasElement).style.width = newGameWidth + "px";
-	(gl.canvas as HTMLCanvasElement).style.height = newGameHeight + "px";
-	gl.canvas.width = newGameWidth;
-	gl.canvas.height = newGameHeight;
-
-	guicontainer.style.width = newGameWidth + "px";
-	guicontainer.style.height = newGameHeight + "px";
+	gameDiv.style.width = newGameWidth + "px";
+	gameDiv.style.height = newGameHeight + "px";
+	gl.canvas.width = newGameWidth; // This is not the same as style.width, so it won't be inherited by the css inherit property
+	gl.canvas.height = newGameHeight; // This is not the same as style.height, so it won't be inherited by the css inherit property
 
 	// Update the windowInfo resolution
 	windowInfo.resolutionWidth = newGameWidth;

@@ -11,7 +11,7 @@ export default class Menu extends State {
 
 		let startButton = this.overlayRendering.getNewButton();
 		startButton.position.x = 0.5;
-		startButton.position.y = 0.3;
+		startButton.position.y = 0.2;
 		startButton.center = true;
 		startButton.textString = "Start";
 
@@ -23,7 +23,7 @@ export default class Menu extends State {
 
 		let restartButton = this.overlayRendering.getNewButton();
 		restartButton.position.x = 0.5;
-		restartButton.position.y = 0.5;
+		restartButton.position.y = 0.4;
 		restartButton.center = true;
 		restartButton.textString = "Restart";
 
@@ -35,12 +35,22 @@ export default class Menu extends State {
 
 		let optionsButton = this.overlayRendering.getNewButton();
 		optionsButton.position.x = 0.5;
-		optionsButton.position.y = 0.7;
+		optionsButton.position.y = 0.6;
 		optionsButton.center = true;
 		optionsButton.textString = "Options";
 
 		optionsButton.onClick(function () {
 			self.gotoState = StatesEnum.OPTIONS;
+		});
+
+		let fullscreenButton = this.overlayRendering.getNewButton();
+		fullscreenButton.position.x = 0.5;
+		fullscreenButton.position.y = 0.8;
+		fullscreenButton.center = true;
+		fullscreenButton.textString = "Fullscreen";
+
+		fullscreenButton.onClick(function () {
+			document.getElementById("gameDiv").requestFullscreen();
 		});
 	}
 

@@ -213,7 +213,7 @@ export default class LoadingScreen extends State {
 		this.text.textString += "  " + Math.ceil(this.progress * 100) + "%";
 
 		if (this.progress >= 1.0 && this.timer >= 0.5) {
-			this.gotoState = StatesEnum.GAME;
+			this.gotoState = StatesEnum.MAINMENU;
 		}
 	}
 

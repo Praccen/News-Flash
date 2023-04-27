@@ -1,3 +1,4 @@
+import { windowInfo } from "../../main.js";
 import Vec2 from "../Maths/Vec2.js";
 
 export default class GuiObject {
@@ -49,18 +50,11 @@ export default class GuiObject {
 	}
 
 	protected drawObject() {
-		let style = getComputedStyle(this.divContainerElement);
-		this.div.style.left =
-			parseInt(style.paddingLeft) +
-			this.position2D.x * parseInt(style.width) +
-			"px";
-		this.div.style.top =
-			parseInt(style.paddingTop) +
-			this.position2D.y * parseInt(style.height) +
-			"px";
+		this.div.style.left = this.position2D.x * 100 + "%";
+		this.div.style.top = this.position2D.y * 100 + "%";
 		if (this.scaleWithWindow) {
 			this.div.style.fontSize =
-				this.fontSize * (parseInt(style.height) / 1080.0) + "px";
+				this.fontSize * (windowInfo.resolutionHeight / 1080.0) + "px";
 		} else {
 			this.div.style.fontSize = this.fontSize + "px";
 		}

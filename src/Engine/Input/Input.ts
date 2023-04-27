@@ -30,10 +30,7 @@ export default class Input {
 	private aButton: TextObject2D;
 	private bButton: TextObject2D;
 
-	private canvas: HTMLCanvasElement;
-
 	constructor() {
-		this.canvas = <HTMLCanvasElement>document.getElementById("gameCanvas");
 		this.keys = [];
 		this.buttons = new Map();
 		this.gamepads = new Array<Gamepad>();
@@ -161,10 +158,10 @@ export default class Input {
 			this.buttons.set(key, false);
 		}
 
-		var paddingX = parseInt(this.canvas.style.paddingLeft, 10);
-		var paddingY = parseInt(this.canvas.style.paddingTop, 10);
-		let width = parseInt(this.canvas.style.width, 10);
-		let height = parseInt(this.canvas.style.height, 10);
+		var paddingX = windowInfo.paddingX;
+		var paddingY = windowInfo.paddingY;
+		let width = windowInfo.resolutionWidth;
+		let height = windowInfo.resolutionHeight;
 
 		let joystickRadiusInPixels = width * this.joystickRadius;
 		let joystickCenter = new Vec2([
