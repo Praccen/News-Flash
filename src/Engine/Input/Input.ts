@@ -232,37 +232,39 @@ export default class Input {
 	}
 
 	updateGamepad() {
-		this.gamepads = navigator.getGamepads();
+		if (window.isSecureContext) {
+			this.gamepads = navigator.getGamepads();
 
-		for (const gp of this.gamepads) {
-			if (!gp) {
-				continue;
-			}
+			for (const gp of this.gamepads) {
+				if (!gp) {
+					continue;
+				}
 
-			this.touchUsed = false;
-			if (Math.abs(gp.axes[0]) > 0.1) {
-				this.joystickDirection.x = gp.axes[0];
-			} else {
-				this.joystickDirection.x = 0.0;
-			}
+				this.touchUsed = false;
+				if (Math.abs(gp.axes[0]) > 0.1) {
+					this.joystickDirection.x = gp.axes[0];
+				} else {
+					this.joystickDirection.x = 0.0;
+				}
 
-			if (Math.abs(gp.axes[1]) > 0.1) {
-				this.joystickDirection.y = gp.axes[1];
-			} else {
-				this.joystickDirection.y = 0.0;
-			}
+				if (Math.abs(gp.axes[1]) > 0.1) {
+					this.joystickDirection.y = gp.axes[1];
+				} else {
+					this.joystickDirection.y = 0.0;
+				}
 
-			for (const key of this.buttons.keys()) {
-				this.buttons.set(key, false);
-			}
+				for (const key of this.buttons.keys()) {
+					this.buttons.set(key, false);
+				}
 
-			if (gp.buttons[0].value > 0.5) {
-				this.buttons.set("A", true);
-				console.log("Pressed A");
-			}
-			if (gp.buttons[1].value > 0.5) {
-				this.buttons.set("B", true);
-				console.log("Pressed B");
+				if (gp.buttons[0].value > 0.5) {
+					this.buttons.set("A", true);
+					console.log("Pressed A");
+				}
+				if (gp.buttons[1].value > 0.5) {
+					this.buttons.set("B", true);
+					console.log("Pressed B");
+				}
 			}
 		}
 	}
