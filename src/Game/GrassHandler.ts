@@ -122,10 +122,18 @@ export default class GrassHandler {
 			);
 			let size = 0.0;
 
-			if (height != null && height < this.grassElevationCutoff) {
-				// Given that the x and z coords of the position are on the heightmap
-				grassStrawPosition.y = height;
-				size = Math.random() * 0.4 + 0.1;
+			if (height != null) {
+				let normal = (<Heightmap>(
+					this.mapBundle.graphicsObject
+				)).getNormalFromWorldPosition(this.mapBundle.modelMatrix, grassStrawPosition, invertedMatrix);
+
+				if (normal != null) {
+					if (normal.y < 0.999999999 || height < this.grassElevationCutoff) {
+						// Given that the x and z coords of the position are on the heightmap
+						grassStrawPosition.y = height;
+						size = Math.random() * 0.4 + 0.1;
+					}
+				}
 			}
 
 			data.push(...grassStrawPosition); // Position of straw

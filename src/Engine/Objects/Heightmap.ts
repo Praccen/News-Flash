@@ -1,11 +1,8 @@
 import { gl } from "../../main.js";
 import Vec2 from "../Maths/Vec2.js";
 import Vec3 from "../Maths/Vec3.js";
-import { IntersectionTester } from "../Physics/IntersectionTester.js";
-import Ray from "../Physics/Shapes/Ray.js";
 import Triangle from "../Physics/Shapes/Triangle.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
-import Texture from "../Textures/Texture.js";
 import Mesh from "./Mesh.js";
 
 export default class Heightmap extends Mesh {
@@ -193,16 +190,6 @@ export default class Heightmap extends Mesh {
 		texturePath: string,
 		createResolutionFromPixels: boolean = true
 	) {
-		let getPixel = function (img: HTMLImageElement, x: number, y: number) {
-			let canvas = document.createElement("canvas");
-			canvas.width = 1;
-			canvas.height = 1;
-			canvas.getContext("2d").drawImage(img, x, y, 1, 1, 0, 0, 1, 1);
-			let pixelData = canvas.getContext("2d").getImageData(0, 0, 1, 1).data;
-
-			return pixelData;
-		};
-
 		let loadImage = function (src: string): Promise<HTMLImageElement> {
 			return new Promise((resolve, reject) => {
 				let img = new Image();
@@ -253,6 +240,27 @@ export default class Heightmap extends Mesh {
 		}
 
 		this.setVertexData(this.vertices);
+	}
+
+	getNormalFromWorldPosition(
+		heightmapTransformMatrix: Matrix4,
+		worldPosition: Vec3,
+		invertedTransformMatrix?: Matrix4
+	) {
+		// Invert the transform matrix used for the heightmap
+		let invertedMatrix;
+		if (invertedTransformMatrix != undefined) {
+			invertedMatrix = invertedTransformMatrix;
+		} else {
+			invertedMatrix = new Matrix4(heightmapTransformMatrix).invert();
+		}
+		
+		// Take the world position and transform it into heightmap local coordinates
+		let transformedPos = invertedTransformMatrix.multiplyVector4(
+			new Vector4([...worldPosition, 1.0])
+		);
+
+		return this.getNormal(transformedPos.elements[0], transformedPos.elements[2]);
 	}
 
 	getHeightFromWorldPosition(
@@ -371,6 +379,31 @@ export default class Heightmap extends Mesh {
 				return bottomRightHeight + kx * diffX + kz * diffZ;
 			}
 		}
+	}
+
+	getNormal(x: number, z: number): Vec3 {
+		let xCoord = Math.round(x / this.xQuadSize);
+		let zCoord = Math.round(z / this.zQuadSize);
+		if (
+			xCoord < 0 ||
+			xCoord > this.xResolution - 1 ||
+			zCoord < 0 ||
+			zCoord > this.zResolution - 1
+		) {
+			return null;
+		}
+
+		let normal = new Vec3([
+			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 3],
+			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 4],
+			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 5]
+		])
+
+		return normal;
+	}
+
+	getVertices() {
+		return this.vertices;
 	}
 
 	draw() {

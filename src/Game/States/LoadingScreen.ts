@@ -72,7 +72,7 @@ export default class LoadingScreen extends State {
 			"Assets/textures/stylized-grass1_ao.png",
 			"Assets/textures/GrassStraw.png",
 			"Assets/textures/GrassStraw_Spec.png",
-			"Assets/textures/grassFloor.png",
+			"Assets/textures/HeightmapTexture.png",
 		];
 
 		let cubeMaps = ["Assets/textures/skyboxes/learnopengl"];

@@ -1,6 +1,4 @@
 import GraphicsObject from "./GraphicsObject.js";
-import Texture from "../Textures/Texture.js";
-import Vec2 from "../Maths/Vec2.js";
 import Vec3 from "../Maths/Vec3.js";
 import ShaderProgram from "../ShaderPrograms/ShaderProgram.js";
 import Triangle from "../Physics/Shapes/Triangle.js";
