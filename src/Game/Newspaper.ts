@@ -14,13 +14,14 @@ export default class Newspaper {
 	private scene;
 	entity: Entity;
 
-	constructor(startingPos: Vec3, startingVel: Vec3, ecsManager: ECSManager, scene: Scene) {
+	constructor(startingPos: Vec3, startingVel: Vec3, startingRot: Vec3, ecsManager: ECSManager, scene: Scene) {
 		this.ecsManager = ecsManager;
 		this.scene = scene;
 		this.entity = this.ecsManager.createEntity();
 
 		let posComp = new PositionComponent();
 		posComp.position = new Vec3(startingPos);
+		posComp.rotation = new Vec3(startingRot);
 		posComp.scale.setValues(0.2, 0.2, 0.2);
 		this.ecsManager.addComponent(this.entity, posComp);
 

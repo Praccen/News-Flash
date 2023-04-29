@@ -1,3 +1,4 @@
+import Camera from "../Engine/Camera.js";
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import CameraFocusComponent from "../Engine/ECS/Components/CameraFocusCompontent.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
@@ -8,6 +9,7 @@ import PositionComponent from "../Engine/ECS/Components/PositionComponent.js";
 import PositionParentComponent from "../Engine/ECS/Components/PositionParentComponent.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
+import Vec2 from "../Engine/Maths/Vec2.js";
 import Vec3 from "../Engine/Maths/Vec3.js";
 import Rendering from "../Engine/Rendering/Rendering.js";
 import Scene from "../Engine/Rendering/Scene.js";
@@ -24,7 +26,7 @@ export default class Player {
 
 	private groupPositionComp: PositionParentComponent;
 	private movComp: MovementComponent;
-	private cameraFocusComp: CameraFocusComponent;
+	private camera: Camera;
 
 	private lastAnimation: Function;
 	private currentAnimation: Function;
@@ -73,9 +75,6 @@ export default class Player {
 		);
 		this.ecsManager.addComponent(this.body, new PositionComponent());
 		this.ecsManager.addComponent(this.body, this.groupPositionComp);
-		this.cameraFocusComp = new CameraFocusComponent();
-		this.cameraFocusComp.offset.setValues(0.0, 2.0, -3.0);
-		this.ecsManager.addComponent(this.body, this.cameraFocusComp);
 
 		let boundingBoxComp = new BoundingBoxComponent();
 		boundingBoxComp.boundingBox.setMinAndMaxVectors(
@@ -103,6 +102,10 @@ export default class Player {
 						"Assets/textures/medium_fur.png",
 						"Assets/textures/black.png"
 					);
+
+
+
+
 					legMesh.textureMatrix.setScale(10.0, 2.0, 1.0);
 					this.ecsManager.addComponent(
 						this.legs[counter],
@@ -138,6 +141,7 @@ export default class Player {
 
 	respawn() {
 		this.groupPositionComp.position.setValues(0.0, -1.5, 0.0);
+		this.rendering.camera.setPosition(this.groupPositionComp.position.x, this.groupPositionComp.position.y + 1.0, this.groupPositionComp.position.z)
 		this.movComp.velocity.setValues(0.0, 0.0, 0.0);
 	}
 
@@ -153,10 +157,10 @@ export default class Player {
 		if (this.throwTimer > this.throwCooldown) {
 			this.throwTimer = 0.0;
 			let pos = new Vec3(this.groupPositionComp.position).add(
-				forward.multiply(1.0));
-			let vel = forward.multiply(10.0);
-			this.newspapers.push(new Newspaper(pos, vel, this.ecsManager, this.scene));
-			console.log("Throwing paper");
+				forward.multiply(1.0)).add([0.0, 0.4, 0.0]);
+			// Add velocity to projectile and some extra uppwards velocity
+			let vel = forward.multiply(10.0).add(this.movComp.velocity).add([0.0, 5.0, 0.0]);
+			this.newspapers.push(new Newspaper(pos, vel, this.groupPositionComp.rotation, this.ecsManager, this.scene));
 		}
 	}
 
@@ -184,12 +188,70 @@ export default class Player {
 			}
 		}
 
+		// Update camera
+		this.rendering.camera.setPosition(this.groupPositionComp.position.x, this.groupPositionComp.position.y + 1.0, this.groupPositionComp.position.z)
+
+		let rotVec: Vec2 = new Vec2([0.0, 0.0]);
+		let rotate = false;
+		if (input.keys["ARROWUP"]) {
+			rotVec.x += 210 * dt;
+			rotate = true;
+		}
+
+		if (input.keys["ARROWDOWN"]) {
+			rotVec.x -= 210 * dt;
+			rotate = true;
+		}
+
+		if (input.keys["ARROWLEFT"]) {
+			rotVec.y += 210 * dt;
+			rotate = true;
+		}
+
+		if (input.keys["ARROWRIGHT"]) {
+			rotVec.y -= 210 * dt;
+			rotate = true;
+		}
+
 		// Touch / joystick control
 		input.updateGamepad();
-		if (input.joystickDirection.length2() > 0.001) {
-			accVec.add(new Vec3(right).multiply(input.joystickDirection.x * 2.0));
+		if (input.joystickRightDirection.length2() > 0.01) {
+			rotVec = new Vec2([input.joystickRightDirection.y, input.joystickRightDirection.x]).normalize().multiply(-210 * dt);
+			rotate = true;
+		}
+
+		if (rotate) {
+			let rotMatrix = new Matrix4(null);
+			let rotAmount: number = 90.0;
+			let rightVec: Vec3 = new Vec3(this.rendering.camera.getRight());
+			if (rotVec.y) {
+				rotMatrix.rotate(rotAmount * rotVec.y * dt, 0.0, 1.0, 0.0);
+			}
+			if (rotVec.x) {
+				rotMatrix.rotate(
+					rotAmount * rotVec.x * dt,
+					rightVec.x,
+					rightVec.y,
+					rightVec.z
+				);
+			}
+			let oldDir = new Vector3(this.rendering.camera.getDir());
+			let newDir = rotMatrix.multiplyVector3(oldDir);
+			this.rendering.camera.setDir(
+				newDir.elements[0],
+				newDir.elements[1],
+				newDir.elements[2]
+			);
+		}
+
+
+
+		// Touch / joystick control
+		input.updateGamepad();
+		if (input.joystickLeftDirection.length2() > 0.001) {
+			accVec.add(new Vec3(right).multiply(input.joystickLeftDirection.x * 2.0));
 			accVec.subtract(
-				new Vec3(forward).multiply(input.joystickDirection.y * 2.0)
+				new Vec3(forward).multiply(input.joystickLeftDirection.y * 2.0)
 			);
 		}
 		// Keyboard control
@@ -274,45 +336,6 @@ export default class Player {
 
 		// this.groupPositionComp.rotation.x = x * this.movComp.velocity.y * 10.0;
 		// this.groupPositionComp.rotation.z = y * this.movComp.velocity.y * 10.0;
-
-		// Update camera
-		if (input.keys["ARROWLEFT"]) {
-			this.cameraFocusComp.offset.add(
-				new Vec3(this.rendering.camera.getRight()).multiply(dt * 8.0)
-			);
-		} else if (input.keys["ARROWRIGHT"]) {
-			this.cameraFocusComp.offset.subtract(
-				new Vec3(this.rendering.camera.getRight()).multiply(dt * 8.0)
-			);
-		} else if (this.movComp) {
-			this.cameraFocusComp.offset.subtract(
-				new Vec3(this.movComp.velocity).multiply(dt * 3.0)
-			);
-		}
-
-		// ---- Keep a good camera distance ----
-		let disiredDistance = 2.0;
-
-		this.cameraFocusComp.offset.multiply(
-			Math.pow(disiredDistance / this.cameraFocusComp.offset.len(), 0.1)
-		);
-		this.cameraFocusComp.offset.y = Math.max(
-			this.cameraFocusComp.offset.y,
-			1.0
-		);
-
-		let offsetXZ = new Vec3([
-			this.cameraFocusComp.offset.x,
-			0.0,
-			this.cameraFocusComp.offset.z,
-		]);
-		let len2 = offsetXZ.length2();
-		if (len2 < 1.0 && len2 > 0.001) {
-			offsetXZ.normalize();
-			this.cameraFocusComp.offset.x = offsetXZ.x;
-			this.cameraFocusComp.offset.z = offsetXZ.z;
-		}
-		// -------------------------------------
 
 		// Update drag based on velocity
 		let xzVelocity = new Vec3(this.movComp.velocity);

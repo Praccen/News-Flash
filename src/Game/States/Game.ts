@@ -61,7 +61,7 @@ export default class Game extends State {
 		this.createMapEntity();
 		this.createHouseEntity();
 
-		this.rendering.camera.setPosition(0.0, 0.0, 5.5);
+		// this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
 		let dirLight = this.scene.getDirectionalLight();
 		dirLight.ambientMultiplier = 0.3;

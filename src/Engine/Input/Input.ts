@@ -18,13 +18,19 @@ export default class Input {
 	simulateTouchBasedOnMouse: boolean;
 
 	touchUsed: boolean;
-	joystickDirection: Vec2;
+	joystickLeftDirection: Vec2;
+	joystickRightDirection: Vec2;
 	repositionTouchControls: boolean;
-	private joystickRadius: number;
+	private joystickLeftRadius: number;
+	private joystickRightRadius: number;
 	private screenAspectRatio: number;
 
-	private joystickCenter: TextObject2D;
-	private joystickBorder: TextObject2D;
+	private joystickLeftCenter: TextObject2D;
+	private joystickLeftBorder: TextObject2D;
+	private joystickRightCenter: TextObject2D;
+	private joystickRightBorder: TextObject2D;
+
+
 
 	private buttonRadius: number;
 	private aButton: TextObject2D;
@@ -98,36 +104,57 @@ export default class Input {
 		});
 		//----------------
 
-		this.joystickDirection = new Vec2();
+		this.joystickLeftDirection = new Vec2();
+		this.joystickRightDirection = new Vec2();
 		this.repositionTouchControls = false;
-		this.joystickRadius = 0.1; // 10 % of the width
+		this.joystickLeftRadius = 0.1; // 10 % of the width
+		this.joystickRightRadius = 0.1; // 10 % of the width
 		this.screenAspectRatio = 16 / 9;
 
-		this.joystickBorder = new TextObject2D();
-		this.joystickBorder.center = true;
-		this.joystickBorder.scaleWithWindow = true;
-		this.joystickBorder.position = new Vec2([0.2, 0.8]);
-		this.joystickBorder.size = 1920 * this.joystickRadius * 2.0;
-		this.joystickBorder.textString = "⊕";
-		this.joystickBorder.getElement().style.opacity = "50%";
-		this.joystickBorder.setHidden(true);
+		this.joystickLeftBorder = new TextObject2D();
+		this.joystickLeftBorder.center = true;
+		this.joystickLeftBorder.scaleWithWindow = true;
+		this.joystickLeftBorder.position = new Vec2([0.15, 0.8]);
+		this.joystickLeftBorder.size = 1920 * this.joystickLeftRadius * 2.0;
+		this.joystickLeftBorder.textString = "⊕";
+		this.joystickLeftBorder.getElement().style.opacity = "50%";
+		this.joystickLeftBorder.setHidden(true);
 
-		this.joystickCenter = new TextObject2D();
-		this.joystickCenter.center = true;
-		this.joystickCenter.scaleWithWindow = true;
-		this.joystickCenter.position = new Vec2(this.joystickBorder.position);
-		this.joystickCenter.size = 1920 * this.joystickRadius;
-		this.joystickCenter.textString = "⚫";
-		this.joystickCenter.getElement().style.opacity = "50%";
-		this.joystickCenter.getElement().style.color = "red";
-		this.joystickCenter.setHidden(true);
+		this.joystickLeftCenter = new TextObject2D();
+		this.joystickLeftCenter.center = true;
+		this.joystickLeftCenter.scaleWithWindow = true;
+		this.joystickLeftCenter.position = new Vec2(this.joystickLeftBorder.position);
+		this.joystickLeftCenter.size = 1920 * this.joystickLeftRadius;
+		this.joystickLeftCenter.textString = "⚫";
+		this.joystickLeftCenter.getElement().style.opacity = "50%";
+		this.joystickLeftCenter.getElement().style.color = "red";
+		this.joystickLeftCenter.setHidden(true);
+
+		this.joystickRightBorder = new TextObject2D();
+		this.joystickRightBorder.center = true;
+		this.joystickRightBorder.scaleWithWindow = true;
+		this.joystickRightBorder.position = new Vec2([0.85, 0.8]);
+		this.joystickRightBorder.size = 1920 * this.joystickRightRadius * 2.0;
+		this.joystickRightBorder.textString = "⊕";
+		this.joystickRightBorder.getElement().style.opacity = "50%";
+		this.joystickRightBorder.setHidden(true);
+
+		this.joystickRightCenter = new TextObject2D();
+		this.joystickRightCenter.center = true;
+		this.joystickRightCenter.scaleWithWindow = true;
+		this.joystickRightCenter.position = new Vec2(this.joystickRightBorder.position);
+		this.joystickRightCenter.size = 1920 * this.joystickRightRadius;
+		this.joystickRightCenter.textString = "⚫";
+		this.joystickRightCenter.getElement().style.opacity = "50%";
+		this.joystickRightCenter.getElement().style.color = "red";
+		this.joystickRightCenter.setHidden(true);
 
 		this.buttonRadius = 0.05; // 5 % of the width
 
 		this.aButton = new TextObject2D();
 		this.aButton.center = true;
 		this.aButton.scaleWithWindow = true;
-		this.aButton.position.x = 0.8;
+		this.aButton.position.x = 0.65;
 		this.aButton.position.y = 0.8;
 		this.aButton.size = 1920 * this.buttonRadius * 2.0;
 		this.aButton.textString = "🔴";
@@ -137,8 +164,8 @@ export default class Input {
 		this.bButton = new TextObject2D();
 		this.bButton.center = true;
 		this.bButton.scaleWithWindow = true;
-		this.bButton.position.x = 0.6;
-		this.bButton.position.y = 0.8;
+		this.bButton.position.x = 0.75;
+		this.bButton.position.y = 0.55;
 		this.bButton.size = 1920 * this.buttonRadius * 2.0;
 		this.bButton.textString = "🔵";
 		this.bButton.getElement().style.opacity = "50%";
@@ -148,11 +175,19 @@ export default class Input {
 	handleTouch(touches) {
 		this.touchUsed = true;
 
-		let joystickBeingUsed =
-			this.joystickDirection.x != 0.0 || this.joystickDirection.y != 0.0;
+		let joystickLeftBeingUsed =
+			this.joystickLeftDirection.x != 0.0 || this.joystickLeftDirection.y != 0.0;
 
-		this.joystickDirection.x = 0.0;
-		this.joystickDirection.y = 0.0;
+		this.joystickLeftDirection.x = 0.0;
+		this.joystickLeftDirection.y = 0.0;
+
+		let joystickRightBeingUsed =
+			this.joystickRightDirection.x != 0.0 || this.joystickRightDirection.y != 0.0;
+
+		this.joystickRightDirection.x = 0.0;
+		this.joystickRightDirection.y = 0.0;
+
+
 
 		for (const key of this.buttons.keys()) {
 			this.buttons.set(key, false);
@@ -163,11 +198,19 @@ export default class Input {
 		let width = windowInfo.resolutionWidth;
 		let height = windowInfo.resolutionHeight;
 
-		let joystickRadiusInPixels = width * this.joystickRadius;
-		let joystickCenter = new Vec2([
-			paddingX + width * this.joystickBorder.position.x,
-			paddingY + height * this.joystickBorder.position.y,
+		let joystickLeftRadiusInPixels = width * this.joystickLeftRadius;
+		let joystickLeftCenter = new Vec2([
+			paddingX + width * this.joystickLeftBorder.position.x,
+			paddingY + height * this.joystickLeftBorder.position.y,
 		]); // In pixels
+
+		let joystickRightRadiusInPixels = width * this.joystickRightRadius;
+		let joystickRightCenter = new Vec2([
+			paddingX + width * this.joystickRightBorder.position.x,
+			paddingY + height * this.joystickRightBorder.position.y,
+		]); // In pixels
+
+
 
 		let aButtonCenter = new Vec2([
 			paddingX + width * this.aButton.position.x,
@@ -181,7 +224,7 @@ export default class Input {
 		for (let touch of touches) {
 			let touchPos = new Vec2([touch.clientX, touch.clientY]);
 
-			// Handle touches not related to joystick here, break if they are fulfilled
+			// Handle touches not related to joystickLeft here, break if they are fulfilled
 			if (
 				new Vec2(touchPos).subtract(aButtonCenter).len() <
 				this.buttonRadius * width
@@ -208,24 +251,44 @@ export default class Input {
 				continue;
 			}
 
-			// Handle joystick
-			let joystickDistanceFromCenter = new Vec2(touchPos).subtract(
-				joystickCenter
+			// Handle joystickLeft
+			let joystickLeftDistanceFromCenter = new Vec2(touchPos).subtract(
+				joystickLeftCenter
 			);
-			// If the joystick was being used already, allow movement on the left size of the screen, otherwise allow movement within the joystick border
+			// If the joystickLeft was being used already, allow movement on the left size of the screen, otherwise allow movement within the joystickLeft border
 			if (
-				(joystickBeingUsed ||
-					joystickDistanceFromCenter.len() < joystickRadiusInPixels) &&
+				(joystickLeftBeingUsed ||
+					joystickLeftDistanceFromCenter.len() < joystickLeftRadiusInPixels) &&
 				touchPos.x < paddingX + width * 0.5
 			) {
 				if (this.repositionTouchControls) {
-					this.joystickBorder.position.x = (touchPos.x - paddingX) / width;
-					this.joystickBorder.position.y = (touchPos.y - paddingY) / height;
+					this.joystickLeftBorder.position.x = (touchPos.x - paddingX) / width;
+					this.joystickLeftBorder.position.y = (touchPos.y - paddingY) / height;
 				} else {
-					this.joystickDirection.x =
-						joystickDistanceFromCenter.x / joystickRadiusInPixels;
-					this.joystickDirection.y =
-						joystickDistanceFromCenter.y / joystickRadiusInPixels;
+					this.joystickLeftDirection.x =
+						joystickLeftDistanceFromCenter.x / joystickLeftRadiusInPixels;
+					this.joystickLeftDirection.y =
+						joystickLeftDistanceFromCenter.y / joystickLeftRadiusInPixels;
+				}
+			}
+			// Handle joystickRight
+			let joystickRightDistanceFromCenter = new Vec2(touchPos).subtract(
+				joystickRightCenter
+			);
+			// If the joystickRight was being used already, allow movement on the left size of the screen, otherwise allow movement within the joystickRight border
+			if (
+				(joystickRightBeingUsed ||
+					joystickRightDistanceFromCenter.len() < joystickRightRadiusInPixels) &&
+				touchPos.x > paddingX + width * 0.5
+			) {
+				if (this.repositionTouchControls) {
+					this.joystickRightBorder.position.x = (touchPos.x - paddingX) / width;
+					this.joystickRightBorder.position.y = (touchPos.y - paddingY) / height;
+				} else {
+					this.joystickRightDirection.x =
+						joystickRightDistanceFromCenter.x / joystickRightRadiusInPixels;
+					this.joystickRightDirection.y =
+						joystickRightDistanceFromCenter.y / joystickRightRadiusInPixels;
 				}
 			}
 		}
@@ -242,15 +305,28 @@ export default class Input {
 
 				this.touchUsed = false;
 				if (Math.abs(gp.axes[0]) > 0.1) {
-					this.joystickDirection.x = gp.axes[0];
+					this.joystickLeftDirection.x = gp.axes[0];
 				} else {
-					this.joystickDirection.x = 0.0;
+					this.joystickLeftDirection.x = 0.0;
 				}
 
 				if (Math.abs(gp.axes[1]) > 0.1) {
-					this.joystickDirection.y = gp.axes[1];
+					this.joystickLeftDirection.y = gp.axes[1];
 				} else {
-					this.joystickDirection.y = 0.0;
+					this.joystickLeftDirection.y = 0.0;
+				}
+
+				this.touchUsed = false;
+				if (Math.abs(gp.axes[0]) > 0.1) {
+					this.joystickRightDirection.x = gp.axes[0];
+				} else {
+					this.joystickRightDirection.x = 0.0;
+				}
+
+				if (Math.abs(gp.axes[1]) > 0.1) {
+					this.joystickRightDirection.y = gp.axes[1];
+				} else {
+					this.joystickRightDirection.y = 0.0;
 				}
 
 				for (const key of this.buttons.keys()) {
@@ -270,21 +346,34 @@ export default class Input {
 	}
 
 	drawTouchControls() {
-		this.joystickBorder.setHidden(!this.touchUsed);
-		this.joystickCenter.setHidden(!this.touchUsed);
+		this.joystickLeftBorder.setHidden(!this.touchUsed);
+		this.joystickLeftCenter.setHidden(!this.touchUsed);
+		this.joystickRightBorder.setHidden(!this.touchUsed);
+		this.joystickRightCenter.setHidden(!this.touchUsed);
 		this.aButton.setHidden(!this.touchUsed);
 		this.bButton.setHidden(!this.touchUsed);
 		if (this.touchUsed) {
-			this.joystickCenter.position.x =
-				this.joystickBorder.position.x +
-				this.joystickDirection.x * this.joystickRadius;
-			this.joystickCenter.position.y =
-				this.joystickBorder.position.y +
-				this.joystickDirection.y *
-					(this.joystickRadius * this.screenAspectRatio) -
+			this.joystickLeftCenter.position.x =
+				this.joystickLeftBorder.position.x +
+				this.joystickLeftDirection.x * this.joystickLeftRadius;
+			this.joystickLeftCenter.position.y =
+				this.joystickLeftBorder.position.y +
+				this.joystickLeftDirection.y *
+				(this.joystickLeftRadius * this.screenAspectRatio) -
 				0.01;
-			this.joystickBorder.draw();
-			this.joystickCenter.draw();
+			this.joystickRightCenter.position.x =
+				this.joystickRightBorder.position.x +
+				this.joystickRightDirection.x * this.joystickRightRadius;
+			this.joystickRightCenter.position.y =
+				this.joystickRightBorder.position.y +
+				this.joystickRightDirection.y *
+				(this.joystickRightRadius * this.screenAspectRatio) -
+				0.01;
+
+			this.joystickLeftBorder.draw();
+			this.joystickLeftCenter.draw();
+			this.joystickRightBorder.draw();
+			this.joystickRightCenter.draw();
 			this.aButton.draw();
 			this.bButton.draw();
 		}
