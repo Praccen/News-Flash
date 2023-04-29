@@ -198,24 +198,15 @@ export default class Player {
 		right.y = 0.0;
 		right.normalize();
 
-		this.newsPaperEntities.forEach(function (paper) {
-			let moveComp = <MovementComponent>(
-				paper.getComponent(ComponentTypeEnum.MOVEMENT)
-			);
-			if (moveComp.velocity.len() <= 0.0) {
+		this.newsPaperEntities.forEach(function (paper, idx) {
+			let moveComp = <MovementComponent>paper.getComponent(ComponentTypeEnum.MOVEMENT);
+			if (moveComp.velocity.x <= 0.1 && moveComp.velocity.y <= 0.1 && moveComp.velocity.z <= 0.1) {
 				this.ecsManager.removeComponent(paper, moveComp);
-				this.ecsManager.removeComponent(
-					paper,
-					<MovementComponent>paper.getComponent(ComponentTypeEnum.COLLISION)
-				);
-				this.ecsManager.removeComponent(
-					paper,
-					<BoundingBoxComponent>(
-						paper.getComponent(ComponentTypeEnum.BOUNDINGBOX)
-					)
-				);
+				this.ecsManager.removeComponent(paper, <CollisionComponent>paper.getComponent(ComponentTypeEnum.COLLISION));
+				this.ecsManager.removeComponent(paper, <BoundingBoxComponent>paper.getComponent(ComponentTypeEnum.BOUNDINGBOX));
+				this.newsPaperEntities.splice(idx, 1);
 			}
-		});
+		}.bind(this));
 
 		// Touch / joystick control
 		input.updateGamepad();
