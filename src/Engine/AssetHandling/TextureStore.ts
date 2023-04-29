@@ -30,12 +30,12 @@ export default class TextureStore {
 
 		let newCubeMap = new CubeMap();
 		newCubeMap.loadCubemap([
-			path + "/right.jpg",
-			path + "/left.jpg",
-			path + "/bottom.jpg",
-			path + "/top.jpg",
-			path + "/front.jpg",
-			path + "/back.jpg",
+			path + "/right.png",
+			path + "/left.png",
+			path + "/bottom.png",
+			path + "/top.png",
+			path + "/front.png",
+			path + "/back.png",
 		]);
 		this.cubeMaps.set(path, newCubeMap);
 		return newCubeMap;

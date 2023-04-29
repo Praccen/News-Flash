@@ -75,7 +75,10 @@ export default class LoadingScreen extends State {
 			"Assets/textures/HeightmapTexture.png",
 		];
 
-		let cubeMaps = ["Assets/textures/skyboxes/learnopengl"];
+		let cubeMaps = [
+			// "Assets/textures/skyboxes/learnopengl",
+			"Assets/textures/skyboxes/LordKitty"
+		];
 
 		// Meshes to load
 		let meshes = [

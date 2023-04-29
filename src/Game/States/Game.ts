@@ -88,7 +88,7 @@ export default class Game extends State {
 			self.gotoState = StatesEnum.MAINMENU;
 		});
 
-		this.rendering.setSkybox("Assets/textures/skyboxes/learnopengl");
+		this.rendering.setSkybox("Assets/textures/skyboxes/LordKitty");
 
 		if (this.treeTransforms.length == 0) {
 			// let transforms = WebUtils.GetCookie("treeTransforms");
