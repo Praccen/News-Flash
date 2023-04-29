@@ -13,7 +13,7 @@ import Rendering from "../Engine/Rendering/Rendering.js";
 import Scene from "../Engine/Rendering/Scene.js";
 import { input } from "./GameMachine.js";
 
-export default class Doggo {
+export default class Player {
 	private scene: Scene;
 	private rendering: Rendering;
 	private ecsManager: ECSManager;
@@ -30,7 +30,13 @@ export default class Doggo {
 
 	private offGroundTimer;
 
+	private throwCooldown: number;
+	private throwTimer: number;
+	private newsPaperEntities: Array<Entity>;
+
 	private timer: number;
+	private bodyMesh;
+
 	constructor(scene: Scene, rendering: Rendering, ecsManager: ECSManager) {
 		this.scene = scene;
 		this.rendering = rendering;
@@ -42,22 +48,28 @@ export default class Doggo {
 		this.lastAnimation = this.resetAnimation;
 		this.currentAnimation = this.resetAnimation;
 		this.offGroundTimer = 0.0;
+		this.throwCooldown = 0.5;
+		this.throwTimer = 0.0;
+		this.newsPaperEntities = new Array<Entity>();
 	}
 
 	async init() {
-		let bodyMesh = await this.scene.getNewMesh(
+		this.bodyMesh = await this.scene.getNewMesh(
 			"Assets/objs/body.obj",
 			"Assets/textures/medium_fur.png",
 			"Assets/textures/black.png"
 		);
-		bodyMesh.textureMatrix.setScale(2.0, 10.0, 1.0);
+		this.bodyMesh.textureMatrix.setScale(2.0, 10.0, 1.0);
 
 		this.groupPositionComp = new PositionParentComponent();
 
 		this.groupPositionComp.scale.setValues(0.25, 0.25, 0.25);
 
 		this.body = this.ecsManager.createEntity();
-		this.ecsManager.addComponent(this.body, new GraphicsComponent(bodyMesh));
+		this.ecsManager.addComponent(
+			this.body,
+			new GraphicsComponent(this.bodyMesh)
+		);
 		this.ecsManager.addComponent(this.body, new PositionComponent());
 		this.ecsManager.addComponent(this.body, this.groupPositionComp);
 		this.cameraFocusComp = new CameraFocusComponent();
@@ -136,8 +148,44 @@ export default class Doggo {
 		return this.movComp.velocity;
 	}
 
+	throwPaper(dt: number, forward: Vec3) {
+		if (this.throwTimer > this.throwCooldown) {
+			let paperMesh = this.scene.getNewMesh(
+				"Assets/objs/body.obj",
+				"Assets/textures/medium_fur.png",
+				"Assets/textures/black.png"
+			);
+			this.throwTimer = 0.0;
+			console.log("Throwing paper");
+			let projectile = this.ecsManager.createEntity();
+			this.newsPaperEntities.push(projectile);
+			let posComp = new PositionComponent();
+			posComp.position = new Vec3(this.groupPositionComp.position).add(
+				forward.multiply(1.0)
+			);
+			posComp.scale.setValues(0.2, 0.2, 0.2);
+			this.ecsManager.addComponent(projectile, posComp);
+
+			let moveComp = new MovementComponent();
+			moveComp.velocity = forward.multiply(10.0);
+			this.ecsManager.addComponent(projectile, moveComp);
+
+			let boundingBoxComp = new BoundingBoxComponent();
+			boundingBoxComp.setup(paperMesh.graphicsObject);
+			boundingBoxComp.updateTransformMatrix(paperMesh.modelMatrix);
+			this.ecsManager.addComponent(projectile, boundingBoxComp);
+
+			this.ecsManager.addComponent(
+				projectile,
+				new GraphicsComponent(paperMesh)
+			);
+			this.ecsManager.addComponent(projectile, new CollisionComponent());
+		}
+	}
+
 	update(dt: number) {
 		this.timer += dt;
+		this.throwTimer += dt;
 
 		let accVec = new Vec3();
 
@@ -149,6 +197,16 @@ export default class Doggo {
 		let right = new Vec3(this.rendering.camera.getRight());
 		right.y = 0.0;
 		right.normalize();
+
+		this.newsPaperEntities.forEach(function (paper) {
+			let moveComp = <MovementComponent>paper.getComponent(ComponentTypeEnum.MOVEMENT);
+			if (moveComp.velocity.len() <= 0.0) {
+				this.ecsManager.removeComponent(paper, moveComp);
+				this.ecsManager.removeComponent(paper, <MovementComponent>paper.getComponent(ComponentTypeEnum.COLLISION));
+				this.ecsManager.removeComponent(paper, <BoundingBoxComponent>paper.getComponent(ComponentTypeEnum.BOUNDINGBOX));
+			}
+		});
+
 
 		// Touch / joystick control
 		input.updateGamepad();
@@ -174,6 +232,9 @@ export default class Doggo {
 
 			if (input.keys["D"]) {
 				accVec.add(right);
+			}
+			if (input.keys["E"]) {
+				this.throwPaper(dt, forward);
 			}
 		}
 
@@ -378,8 +439,8 @@ export default class Doggo {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin(this.timer * animationSpeed + flip[i] * 0.7) *
-						50.0 *
-						flip[i],
+					50.0 *
+					flip[i],
 					0.0,
 					0.0
 				);
@@ -438,8 +499,8 @@ export default class Doggo {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin((Math.min(this.timer, 1.4) + 1.1) * animationSpeed) *
-						80.0 *
-						flip[i],
+					80.0 *
+					flip[i],
 					0.0,
 					0.0
 				);

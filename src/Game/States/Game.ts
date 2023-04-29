@@ -6,7 +6,7 @@ import BoundingBoxComponent from "../../Engine/ECS/Components/BoundingBoxCompone
 import State, { StatesEnum } from "../../Engine/State.js";
 import Rendering from "../../Engine/Rendering/Rendering.js";
 import { input, options, StateAccessible } from "../GameMachine.js";
-import Doggo from "../Doggo.js";
+import Player from "../Player.js";
 import Button from "../../Engine/GUI/Button.js";
 import MeshCollisionComponent from "../../Engine/ECS/Components/MeshCollisionComponent.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
@@ -32,7 +32,7 @@ export default class Game extends State {
 
 	private overlayRendering: OverlayRendering;
 	private menuButton: Button;
-	private doggo: Doggo;
+	private player: Player;
 	private mapBundle: GraphicsBundle;
 	private grassHandler: GrassHandler;
 
@@ -67,12 +67,12 @@ export default class Game extends State {
 
 		this.scene.getDirectionalLight().ambientMultiplier = 0.3;
 
-		this.doggo = new Doggo(this.scene, this.rendering, this.ecsManager);
+		this.player = new Player(this.scene, this.rendering, this.ecsManager);
 
 		this.grassHandler = new GrassHandler(
 			this.scene,
 			this.mapBundle,
-			this.doggo
+			this.player
 		);
 
 		this.menuButton = this.overlayRendering.getNewButton();
@@ -119,7 +119,7 @@ export default class Game extends State {
 			this.placeTree(transform.pos, transform.size, transform.rot, false);
 		}
 
-		await this.doggo.init();
+		await this.player.init();
 	}
 
 	async init() {
@@ -277,12 +277,12 @@ export default class Game extends State {
 	}
 
 	update(dt: number) {
-		this.doggo.update(dt);
+		this.player.update(dt);
 
 		this.grassHandler.update(dt);
 
 		if (input.keys["P"]) {
-			this.doggo.respawn();
+			this.player.respawn();
 		}
 
 		if (input.keys["O"]) {

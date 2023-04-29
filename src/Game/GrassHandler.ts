@@ -4,7 +4,7 @@ import GraphicsBundle from "../Engine/Objects/GraphicsBundle.js";
 import GrassSpawner from "../Engine/Objects/GrassSpawner.js";
 import Heightmap from "../Engine/Objects/Heightmap.js";
 import Scene from "../Engine/Rendering/Scene.js";
-import Doggo from "./Doggo.js";
+import Doggo from "./Player.js";
 import { options } from "./GameMachine.js";
 
 export default class GrassHandler {

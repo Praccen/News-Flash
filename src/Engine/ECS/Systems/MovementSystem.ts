@@ -16,8 +16,8 @@ export default class MovementSystem extends System {
 				e.getComponent(ComponentTypeEnum.POSITIONPARENT)
 			);
 
-			if (!posComp) {
-				<PositionComponent>e.getComponent(ComponentTypeEnum.POSITION);
+			if (posComp == undefined) {
+				posComp = <PositionComponent>e.getComponent(ComponentTypeEnum.POSITION);
 			}
 			let movComp = <MovementComponent>(
 				e.getComponent(ComponentTypeEnum.MOVEMENT)
