@@ -66,8 +66,6 @@ export default class LoadingScreen extends State {
 			"Assets/textures/fur.png",
 			"Assets/textures/black.png",
 			"Assets/textures/monu9.png",
-			"Assets/textures/test.png",
-			"Assets/textures/test2.png",
 			"Assets/textures/Grass_04.png",
 			"Assets/textures/stylized-grass1_albedo.png",
 			// "Assets/textures/stylized-grass2_albedo.png",
@@ -93,15 +91,14 @@ export default class LoadingScreen extends State {
 
 		// Heightmaps to load
 		let heightmaps: (string | number)[][] = [
-			["Assets/textures/heightmap.png", 200, 200, 1.0, 1.0],
-			// ["Assets/textures/heightmap.png"]
+			["Assets/heightmaps/heightmap.png", 200, 200, 1.0, 1.0],
 		];
 		this.heightmapsRequested = heightmaps.length;
 		this.heightmapsLoaded = 0;
 
 		// Octrees to create
 		this.octreesToLoad = [
-			["Assets/textures/heightmap.png", 0.05, 100],
+			["Assets/heightmaps/heightmap.png", 0.05, 100],
 			["Assets/objs/knight.obj", 0.1, 100],
 		];
 		this.octreesRequested = this.octreesToLoad.length;
@@ -213,7 +210,7 @@ export default class LoadingScreen extends State {
 		this.text.textString += "  " + Math.ceil(this.progress * 100) + "%";
 
 		if (this.progress >= 1.0 && this.timer >= 0.5) {
-			this.gotoState = StatesEnum.MAINMENU;
+			this.gotoState = StatesEnum.GAME;
 		}
 	}
 

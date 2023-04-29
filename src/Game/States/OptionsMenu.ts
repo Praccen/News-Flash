@@ -15,6 +15,7 @@ export default class OptionsMenu extends State {
 	private grassCB: Checkbox;
 	private fpsDisplayCB: Checkbox;
 	private volumeSlider: Slider;
+	private grassDensitySlider: Slider;
 	private controlsButton: Button;
 
 	constructor(sa: StateAccessible) {
@@ -23,7 +24,7 @@ export default class OptionsMenu extends State {
 
 		this.crtCB = this.overlayRendering.getNewCheckbox();
 		this.crtCB.position.x = 0.4;
-		this.crtCB.position.y = 0.3;
+		this.crtCB.position.y = 0.25;
 		this.crtCB.textString = "CRT-effect ";
 		this.crtCB.getElement().style.color = "cyan";
 		this.crtCB.getInputElement().style.accentColor = "red";
@@ -31,7 +32,7 @@ export default class OptionsMenu extends State {
 
 		this.bloomCB = this.overlayRendering.getNewCheckbox();
 		this.bloomCB.position.x = 0.4;
-		this.bloomCB.position.y = 0.35;
+		this.bloomCB.position.y = 0.3;
 		this.bloomCB.textString = "Bloom-effect ";
 		this.bloomCB.getElement().style.color = "cyan";
 		this.bloomCB.getInputElement().style.accentColor = "red";
@@ -39,7 +40,7 @@ export default class OptionsMenu extends State {
 
 		this.grassCB = this.overlayRendering.getNewCheckbox();
 		this.grassCB.position.x = 0.4;
-		this.grassCB.position.y = 0.4;
+		this.grassCB.position.y = 0.35;
 		this.grassCB.textString = "Foldable grass ";
 		this.grassCB.getElement().style.color = "cyan";
 		this.grassCB.getInputElement().style.accentColor = "red";
@@ -63,9 +64,19 @@ export default class OptionsMenu extends State {
 		this.volumeSlider.getInputElement().max = "100";
 		this.volumeSlider.getInputElement().value = options.volume * 1000 + "";
 
+		this.grassDensitySlider = this.overlayRendering.getNewSlider();
+		this.grassDensitySlider.position.x = 0.4;
+		this.grassDensitySlider.position.y = 0.55;
+		this.grassDensitySlider.textString = "Grass density ";
+		this.grassDensitySlider.getElement().style.color = "cyan";
+		this.grassDensitySlider.getInputElement().style.accentColor = "red";
+		this.grassDensitySlider.getInputElement().min = "1000";
+		this.grassDensitySlider.getInputElement().max = "100000";
+		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
+
 		this.controlsButton = this.overlayRendering.getNewButton();
 		this.controlsButton.position.x = 0.5;
-		this.controlsButton.position.y = 0.65;
+		this.controlsButton.position.y = 0.75;
 		this.controlsButton.center = true;
 
 		this.controlsButton.textString = "Controls";
@@ -77,7 +88,7 @@ export default class OptionsMenu extends State {
 
 		this.backButton = this.overlayRendering.getNewButton();
 		this.backButton.position.x = 0.5;
-		this.backButton.position.y = 0.8;
+		this.backButton.position.y = 0.85;
 		this.backButton.center = true;
 		this.backButton.textString = "Back to main menu";
 
@@ -102,6 +113,7 @@ export default class OptionsMenu extends State {
 		options.foldableGrass = this.grassCB.getChecked();
 		options.showFps = this.fpsDisplayCB.getChecked();
 		options.volume = this.volumeSlider.getValue() * 0.001;
+		options.grassDensity = this.grassDensitySlider.getValue();
 	}
 
 	draw() {

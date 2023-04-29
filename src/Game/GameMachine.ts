@@ -22,6 +22,7 @@ export let options = {
 	useBloom: false,
 	foldableGrass: false,
 	showFps: true,
+	grassDensity: 10000,
 	volume: 0.05,
 };
 
@@ -108,6 +109,7 @@ export default class GameMachine extends StateMachine {
 			options.foldableGrass.valueOf().toString()
 		);
 		WebUtils.SetCookie("volume", options.volume.toString());
+		WebUtils.SetCookie("grassDensity", options.grassDensity.toString());
 
 		for (let s of this.states) {
 			s[1].state.onExit(e);
@@ -122,6 +124,10 @@ export default class GameMachine extends StateMachine {
 		let volumeCookie = WebUtils.GetCookie("volume");
 		if (volumeCookie != "") {
 			options.volume = parseFloat(volumeCookie);
+		}
+		let grassDensityCookie = WebUtils.GetCookie("grassDensity");
+		if (grassDensityCookie != "") {
+			options.grassDensity = parseFloat(grassDensityCookie);
 		}
 	}
 
