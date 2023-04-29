@@ -5,6 +5,7 @@ import { options } from "../GameMachine.js";
 import State, { StatesEnum } from "../../Engine/State.js";
 import { StateAccessible } from "../GameMachine.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
+import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 
 export default class OptionsMenu extends State {
 	private overlayRendering: OverlayRendering;
@@ -13,9 +14,10 @@ export default class OptionsMenu extends State {
 	private crtCB: Checkbox;
 	private bloomCB: Checkbox;
 	private grassCB: Checkbox;
+	private grassDensitySlider: Slider;
+	private grassDensityText: TextObject2D;
 	private fpsDisplayCB: Checkbox;
 	private volumeSlider: Slider;
-	private grassDensitySlider: Slider;
 	private controlsButton: Button;
 
 	constructor(sa: StateAccessible) {
@@ -55,10 +57,17 @@ export default class OptionsMenu extends State {
 		this.grassDensitySlider.getInputElement().min = "1000";
 		this.grassDensitySlider.getInputElement().max = "100000";
 		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
+		
+		this.grassDensityText = this.overlayRendering.getNew2DText();
+		this.grassDensityText.position.x = 0.45;
+		this.grassDensityText.position.y = 0.45;
+		this.grassDensityText.textString = "(requires restart)";
+		this.grassDensityText.getElement().style.color = "cyan";
+
 
 		this.fpsDisplayCB = this.overlayRendering.getNewCheckbox();
 		this.fpsDisplayCB.position.x = 0.4;
-		this.fpsDisplayCB.position.y = 0.45;
+		this.fpsDisplayCB.position.y = 0.5;
 		this.fpsDisplayCB.textString = "Fps counter ";
 		this.fpsDisplayCB.getElement().style.color = "cyan";
 		this.fpsDisplayCB.getInputElement().style.accentColor = "red";
@@ -66,7 +75,7 @@ export default class OptionsMenu extends State {
 
 		this.volumeSlider = this.overlayRendering.getNewSlider();
 		this.volumeSlider.position.x = 0.4;
-		this.volumeSlider.position.y = 0.5;
+		this.volumeSlider.position.y = 0.55;
 		this.volumeSlider.textString = "Volume ";
 		this.volumeSlider.getElement().style.color = "cyan";
 		this.volumeSlider.getInputElement().style.accentColor = "red";

@@ -62,7 +62,9 @@ export default class Game extends State {
 
 		this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
-		this.scene.getDirectionalLight().ambientMultiplier = 0.3;
+		let dirLight = this.scene.getDirectionalLight();
+		dirLight.ambientMultiplier = 0.3;
+		dirLight.direction.setValues(0.05, -0.4, -0.7);
 
 		this.player = new Player(this.scene, this.rendering, this.ecsManager);
 
