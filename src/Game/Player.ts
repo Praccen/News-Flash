@@ -12,6 +12,7 @@ import Vec3 from "../Engine/Maths/Vec3.js";
 import Rendering from "../Engine/Rendering/Rendering.js";
 import Scene from "../Engine/Rendering/Scene.js";
 import { input } from "./GameMachine.js";
+import Newspaper from "./Newspaper.js";
 
 export default class Player {
 	private scene: Scene;
@@ -32,7 +33,7 @@ export default class Player {
 
 	private throwCooldown: number;
 	private throwTimer: number;
-	private newsPaperEntities: Array<Entity>;
+	private newspapers: Array<Newspaper>;
 
 	private timer: number;
 	private bodyMesh;
@@ -50,7 +51,7 @@ export default class Player {
 		this.offGroundTimer = 0.0;
 		this.throwCooldown = 0.5;
 		this.throwTimer = 0.0;
-		this.newsPaperEntities = new Array<Entity>();
+		this.newspapers = new Array<Newspaper>();
 	}
 
 	async init() {
@@ -150,36 +151,12 @@ export default class Player {
 
 	throwPaper(dt: number, forward: Vec3) {
 		if (this.throwTimer > this.throwCooldown) {
-			let paperMesh = this.scene.getNewMesh(
-				"Assets/objs/body.obj",
-				"Assets/textures/medium_fur.png",
-				"Assets/textures/black.png"
-			);
 			this.throwTimer = 0.0;
+			let pos = new Vec3(this.groupPositionComp.position).add(
+				forward.multiply(1.0));
+			let vel = forward.multiply(10.0);
+			this.newspapers.push(new Newspaper(pos, vel, this.ecsManager, this.scene));
 			console.log("Throwing paper");
-			let projectile = this.ecsManager.createEntity();
-			this.newsPaperEntities.push(projectile);
-			let posComp = new PositionComponent();
-			posComp.position = new Vec3(this.groupPositionComp.position).add(
-				forward.multiply(1.0)
-			);
-			posComp.scale.setValues(0.2, 0.2, 0.2);
-			this.ecsManager.addComponent(projectile, posComp);
-
-			let moveComp = new MovementComponent();
-			moveComp.velocity = forward.multiply(10.0);
-			this.ecsManager.addComponent(projectile, moveComp);
-
-			let boundingBoxComp = new BoundingBoxComponent();
-			boundingBoxComp.setup(paperMesh.graphicsObject);
-			boundingBoxComp.updateTransformMatrix(paperMesh.modelMatrix);
-			this.ecsManager.addComponent(projectile, boundingBoxComp);
-
-			this.ecsManager.addComponent(
-				projectile,
-				new GraphicsComponent(paperMesh)
-			);
-			this.ecsManager.addComponent(projectile, new CollisionComponent());
 		}
 	}
 
@@ -198,15 +175,12 @@ export default class Player {
 		right.y = 0.0;
 		right.normalize();
 
-		for (let i = 0; i < this.newsPaperEntities.length; i++) {
-			let paper = this.newsPaperEntities[i];
-			let moveComp = <MovementComponent>paper.getComponent(ComponentTypeEnum.MOVEMENT);
-			if (moveComp.velocity.length2() <= 0.001) {
-				this.ecsManager.removeComponent(paper, ComponentTypeEnum.MOVEMENT);
-				this.ecsManager.removeComponent(paper, ComponentTypeEnum.COLLISION);
-				this.ecsManager.removeComponent(paper, ComponentTypeEnum.BOUNDINGBOX);
-				this.newsPaperEntities.splice(i, 1);
-				i--;5
+		for (let i = 0; i < this.newspapers.length; i++) {
+			let paper = this.newspapers[i];
+			// Newspaper is not moving so remove from array
+			if (!paper.update(dt)) {
+				this.newspapers.splice(i, 1);
+				i--;
 			}
 		}
 
@@ -441,8 +415,8 @@ export default class Player {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin(this.timer * animationSpeed + flip[i] * 0.7) *
-						50.0 *
-						flip[i],
+					50.0 *
+					flip[i],
 					0.0,
 					0.0
 				);
@@ -501,8 +475,8 @@ export default class Player {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin((Math.min(this.timer, 1.4) + 1.1) * animationSpeed) *
-						80.0 *
-						flip[i],
+					80.0 *
+					flip[i],
 					0.0,
 					0.0
 				);
