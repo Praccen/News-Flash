@@ -12,6 +12,7 @@ import SkyboxRenderPass from "./RenderPasses/SkyboxRenderPass.js";
 import GeometryRenderPass from "./RenderPasses/GeometryRenderPass.js";
 import LightingRenderPass from "./RenderPasses/LightingRenderPass.js";
 import ParticleRenderPass from "./RenderPasses/ParticleRenderPass.js";
+import FinishedOutputRenderPass from "./RenderPasses/FinishedOutputRenderPass.js";
 
 export default class Rendering {
 	// public
@@ -55,6 +56,10 @@ export default class Rendering {
 	private bloomExtractionInputFramebuffer: Framebuffer;
 	private bloomRenderPass: BloomRenderPass;
 	// -------------------------
+
+	// Finished output
+	private finishedFramebuffer: Framebuffer;
+	private finishedOutputRenderPass: FinishedOutputRenderPass;
 
 	private scene: Scene;
 
@@ -115,7 +120,18 @@ export default class Rendering {
 			this.bloomExtractionInputFramebuffer.textures
 		);
 		this.useBloom = options.useBloom;
-		// -------------------------
+		// -------------------------¨
+
+		this.finishedFramebuffer = new Framebuffer(
+			windowInfo.resolutionWidth,
+			windowInfo.resolutionHeight,
+			[new Texture(false)],
+			null
+		);
+
+		this.finishedOutputRenderPass = new FinishedOutputRenderPass(
+			this.finishedFramebuffer.textures
+		);
 
 		this.initGL();
 	}
@@ -147,6 +163,7 @@ export default class Rendering {
 		this.resolutionHeight = y;
 		this.geometryRenderPass.setResolution(x, y);
 		this.crtFramebuffer.setProportions(x, y);
+		this.finishedFramebuffer.setProportions(x, y);
 
 		this.bloomExtractionInputFramebuffer.setProportions(x, y);
 		this.bloomRenderPass.setResolution(x, y);
@@ -184,7 +201,7 @@ export default class Rendering {
 		} else if (this.useCrt) {
 			this.crtFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 		} else {
-			gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null); // Render directly to screen
+			this.finishedFramebuffer.bind(gl.DRAW_FRAMEBUFFER);
 		}
 
 		// Clear the output with the actual clear colour we have set
@@ -239,5 +256,9 @@ export default class Rendering {
 			this.crtRenderPass.draw();
 		}
 		// -------------------------
+
+		if (!this.useCrt && !this.useBloom) {
+			this.finishedOutputRenderPass.draw();
+		}
 	}
 }

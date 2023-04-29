@@ -10,8 +10,6 @@ import Player from "../Player.js";
 import Button from "../../Engine/GUI/Button.js";
 import MeshCollisionComponent from "../../Engine/ECS/Components/MeshCollisionComponent.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
-import GrassSpawner from "../../Engine/Objects/GrassSpawner.js";
-import Vec2 from "../../Engine/Maths/Vec2.js";
 import GraphicsBundle from "../../Engine/Objects/GraphicsBundle.js";
 import Heightmap from "../../Engine/Objects/Heightmap.js";
 import { IntersectionTester } from "../../Engine/Physics/IntersectionTester.js";
@@ -21,9 +19,8 @@ import { WebUtils } from "../../Engine/Utils/WebUtils.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
 import { gl } from "../../main.js";
 import Scene from "../../Engine/Rendering/Scene.js";
-import ParticleSpawnerComponent from "../../Engine/ECS/Components/ParticleSpawnerComponent.js";
-import PointLightComponent from "../../Engine/ECS/Components/PointLightComponent.js";
 import GrassHandler from "../GrassHandler.js";
+import MovementComponent from "../../Engine/ECS/Components/MovementComponent.js";
 
 export default class Game extends State {
 	rendering: Rendering;
@@ -263,13 +260,15 @@ export default class Game extends State {
 			this.treesAdded = true;
 		}
 
+		this.ecsManager.addComponent(entity, new MovementComponent());
+
 		// Collision stuff
 		let boundingBoxComp = new BoundingBoxComponent();
 		boundingBoxComp.setup(knightMesh.graphicsObject);
 		boundingBoxComp.updateTransformMatrix(knightMesh.modelMatrix);
 		this.ecsManager.addComponent(entity, boundingBoxComp);
 		let collisionComp = new CollisionComponent();
-		collisionComp.isStatic = true;
+		// collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
 		// let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree("Assets/objs/knight.obj"));
 		// meshColComp.octree.setModelMatrix(knightMesh.modelMatrix);
