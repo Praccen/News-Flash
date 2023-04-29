@@ -59,6 +59,7 @@ export default class Game extends State {
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
 		this.createMapEntity();
+		this.createHouseEntity();
 
 		this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
@@ -230,6 +231,30 @@ export default class Game extends State {
 		meshColComp.octree.setModelMatrix();
 	}
 
+	createHouseEntity() {
+		let objPath = "Assets/objs/house.obj";
+		let texturePath = "Assets/textures/houseTex.png";
+		let entity = this.ecsManager.createEntity();
+		let mesh = this.scene.getNewMesh(objPath, texturePath, texturePath);
+
+		this.ecsManager.addComponent(entity, new GraphicsComponent(mesh));
+		let posComp = new PositionComponent();
+		posComp.position.setValues(20.0, -2.3, 12.0);
+		this.ecsManager.addComponent(entity, posComp);
+
+		// Collision stuff
+		let boundingBoxComp = new BoundingBoxComponent();
+		boundingBoxComp.setup(mesh.graphicsObject);
+		boundingBoxComp.updateTransformMatrix(mesh.modelMatrix);
+		this.ecsManager.addComponent(entity, boundingBoxComp);
+		let collisionComp = new CollisionComponent();
+		collisionComp.isStatic = true;
+		this.ecsManager.addComponent(entity, collisionComp);
+		let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree(objPath));
+		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
+		this.ecsManager.addComponent(entity, meshColComp);
+	}
+
 	doRayCast(ray: Ray): number {
 		let triangleArray = new Array<Triangle>();
 		this.stateAccessible.meshStore
@@ -263,15 +288,13 @@ export default class Game extends State {
 			this.treesAdded = true;
 		}
 
-		this.ecsManager.addComponent(entity, new MovementComponent());
-
 		// Collision stuff
 		let boundingBoxComp = new BoundingBoxComponent();
 		boundingBoxComp.setup(knightMesh.graphicsObject);
 		boundingBoxComp.updateTransformMatrix(knightMesh.modelMatrix);
 		this.ecsManager.addComponent(entity, boundingBoxComp);
 		let collisionComp = new CollisionComponent();
-		// collisionComp.isStatic = true;
+		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
 		// let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree("Assets/objs/knight.obj"));
 		// meshColComp.octree.setModelMatrix(knightMesh.modelMatrix);
