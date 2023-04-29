@@ -46,6 +46,16 @@ export default class OptionsMenu extends State {
 		this.grassCB.getInputElement().style.accentColor = "red";
 		this.grassCB.getInputElement().checked = options.foldableGrass;
 
+		this.grassDensitySlider = this.overlayRendering.getNewSlider();
+		this.grassDensitySlider.position.x = 0.4;
+		this.grassDensitySlider.position.y = 0.4;
+		this.grassDensitySlider.textString = "Grass density ";
+		this.grassDensitySlider.getElement().style.color = "cyan";
+		this.grassDensitySlider.getInputElement().style.accentColor = "red";
+		this.grassDensitySlider.getInputElement().min = "1000";
+		this.grassDensitySlider.getInputElement().max = "100000";
+		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
+
 		this.fpsDisplayCB = this.overlayRendering.getNewCheckbox();
 		this.fpsDisplayCB.position.x = 0.4;
 		this.fpsDisplayCB.position.y = 0.45;
@@ -63,16 +73,6 @@ export default class OptionsMenu extends State {
 		this.volumeSlider.getInputElement().min = "0";
 		this.volumeSlider.getInputElement().max = "100";
 		this.volumeSlider.getInputElement().value = options.volume * 1000 + "";
-
-		this.grassDensitySlider = this.overlayRendering.getNewSlider();
-		this.grassDensitySlider.position.x = 0.4;
-		this.grassDensitySlider.position.y = 0.55;
-		this.grassDensitySlider.textString = "Grass density ";
-		this.grassDensitySlider.getElement().style.color = "cyan";
-		this.grassDensitySlider.getInputElement().style.accentColor = "red";
-		this.grassDensitySlider.getInputElement().min = "1000";
-		this.grassDensitySlider.getInputElement().max = "100000";
-		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
 
 		this.controlsButton = this.overlayRendering.getNewButton();
 		this.controlsButton.position.x = 0.5;

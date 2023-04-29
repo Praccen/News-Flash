@@ -62,6 +62,66 @@ export default class Heightmap extends Mesh {
 		this.vertices[z * this.xResolution * 8 + x * 8 + 1] = height;
 	}
 
+	private calculateVertexNormal(x: number, z: number) {
+		if (
+			x < 1 ||
+			x > this.xResolution - 2 ||
+			z < 1 ||
+			z > this.zResolution - 2
+		) {
+			return;
+		}
+		let resultingNormal = new Vec3();
+		let middlePos = new Vec3([
+			0.0,
+			this.vertices[z * this.xResolution * 8 + x * 8 + 1],
+			0.0,
+		]);
+
+		let offsets = [
+			[-1, -1],
+			[1, -1],
+			[1, 1],
+			[-1, 1],
+		];
+
+		let tempTriangle = new Triangle();
+
+		for (let i = 0; i < 4; i++) {
+			let first = i;
+			let second = (i + 1) % 4;
+
+			tempTriangle.setVertices(
+				new Vec3([
+					offsets[first][0] * this.xQuadSize,
+					this.vertices[
+						(z + offsets[first][1]) * this.xResolution * 8 +
+							(x + offsets[first][0]) * 8 +
+							1
+					],
+					offsets[first][1] * this.zQuadSize,
+				]),
+				middlePos,
+				new Vec3([
+					offsets[second][0] * this.xQuadSize,
+					this.vertices[
+						(z + offsets[second][1]) * this.xResolution * 8 +
+							(x + offsets[second][0]) * 8 +
+							1
+					],
+					offsets[second][1] * this.zQuadSize,
+				])
+			);
+			resultingNormal.add(tempTriangle.getTransformedNormals()[0]);
+		}
+
+		resultingNormal.normalize();
+		for (let i = 0; i < 3; i++) {
+			this.vertices[z * this.xResolution * 8 + x * 8 + 3 + i] =
+				resultingNormal[i];
+		}
+	}
+
 	createPlane(
 		xResolution: number,
 		zResolution: number,
@@ -182,6 +242,13 @@ export default class Heightmap extends Mesh {
 					z,
 					this.imageData[x * 4 + z * this.xResolution * 4] / 255.0
 				);
+			}
+		}
+
+		// Calculate normals
+		for (let z = 0; z < this.zResolution; z++) {
+			for (let x = 0; x < this.xResolution; x++) {
+				this.calculateVertexNormal(x, z);
 			}
 		}
 
