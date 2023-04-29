@@ -209,9 +209,10 @@ export default class Player {
 			if (input.keys["D"]) {
 				accVec.add(right);
 			}
-			if (input.keys["E"]) {
-				this.throwPaper(dt, forward);
-			}
+		}
+
+		if (input.keys["E"] || input.buttons.get("B")) {
+			this.throwPaper(dt, forward);
 		}
 
 		if (accVec.length2() > 0.001) {
@@ -248,10 +249,6 @@ export default class Player {
 		} else {
 			// No acceleration, stand still
 			this.currentAnimation = this.resetAnimation;
-
-			if (input.keys["SHIFT"] || input.buttons.get("B")) {
-				this.currentAnimation = this.sitAnimation;
-			}
 		}
 
 		// Jumping
