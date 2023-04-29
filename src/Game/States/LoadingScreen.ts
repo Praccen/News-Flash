@@ -77,7 +77,7 @@ export default class LoadingScreen extends State {
 
 		let cubeMaps = [
 			// "Assets/textures/skyboxes/learnopengl",
-			"Assets/textures/skyboxes/LordKitty"
+			"Assets/textures/skyboxes/LordKitty",
 		];
 
 		// Meshes to load

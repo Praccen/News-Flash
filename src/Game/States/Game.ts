@@ -189,18 +189,18 @@ export default class Game extends State {
 
 		let heightmap = this.mapBundle.graphicsObject as Heightmap;
 		let vertices = heightmap.getVertices();
-		
+
 		for (let i = 0; i < heightmap.xResolution * heightmap.zResolution; i++) {
-			if (vertices[i * 8 + 4] > 0.999999999 && vertices[i * 8 + 1] > 0.001)  { // Normal is pointing upwards and height is not 0 (ditches)
+			if (vertices[i * 8 + 4] > 0.999999999 && vertices[i * 8 + 1] > 0.001) {
+				// Normal is pointing upwards and height is not 0 (ditches)
 				// Set uvs to be tarmac
-				vertices[i * 8 + 6] = 0.75; 
-			}
-			else {
+				vertices[i * 8 + 6] = 0.75;
+			} else {
 				// Set uvs to be grass
 				vertices[i * 8 + 6] = 0.25;
 			}
 		}
-		
+
 		heightmap.setVertexData(vertices);
 
 		this.ecsManager.addComponent(entity, new GraphicsComponent(this.mapBundle));

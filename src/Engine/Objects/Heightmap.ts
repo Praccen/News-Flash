@@ -254,13 +254,16 @@ export default class Heightmap extends Mesh {
 		} else {
 			invertedMatrix = new Matrix4(heightmapTransformMatrix).invert();
 		}
-		
+
 		// Take the world position and transform it into heightmap local coordinates
 		let transformedPos = invertedTransformMatrix.multiplyVector4(
 			new Vector4([...worldPosition, 1.0])
 		);
 
-		return this.getNormal(transformedPos.elements[0], transformedPos.elements[2]);
+		return this.getNormal(
+			transformedPos.elements[0],
+			transformedPos.elements[2]
+		);
 	}
 
 	getHeightFromWorldPosition(
@@ -396,8 +399,8 @@ export default class Heightmap extends Mesh {
 		let normal = new Vec3([
 			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 3],
 			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 4],
-			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 5]
-		])
+			this.vertices[zCoord * this.xResolution * 8 + xCoord * 8 + 5],
+		]);
 
 		return normal;
 	}

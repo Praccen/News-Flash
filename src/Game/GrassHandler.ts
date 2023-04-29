@@ -125,7 +125,11 @@ export default class GrassHandler {
 			if (height != null) {
 				let normal = (<Heightmap>(
 					this.mapBundle.graphicsObject
-				)).getNormalFromWorldPosition(this.mapBundle.modelMatrix, grassStrawPosition, invertedMatrix);
+				)).getNormalFromWorldPosition(
+					this.mapBundle.modelMatrix,
+					grassStrawPosition,
+					invertedMatrix
+				);
 
 				if (normal != null) {
 					if (normal.y < 0.999999999 || height < this.grassElevationCutoff) {
