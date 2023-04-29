@@ -78,6 +78,7 @@ export default class Game extends State {
 		this.menuButton.textSize = 40;
 		this.menuButton.getInputElement().style.backgroundColor = "transparent";
 		this.menuButton.getInputElement().style.borderColor = "transparent";
+		this.menuButton.getInputElement().style.color = "black";
 		this.menuButton.textString = "Menu";
 
 		let self = this;
