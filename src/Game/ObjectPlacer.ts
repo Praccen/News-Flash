@@ -1,7 +1,9 @@
+import MeshStore from "../Engine/AssetHandling/MeshStore";
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
 import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
 import GraphicsComponent from "../Engine/ECS/Components/GraphicsComponent.js";
+import MeshCollisionComponent from "../Engine/ECS/Components/MeshCollisionComponent.js";
 import PositionComponent from "../Engine/ECS/Components/PositionComponent.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
 import Entity from "../Engine/ECS/Entity.js";
@@ -74,12 +76,14 @@ export default class ObjectPlacer {
 	private transformsAdded: boolean;
 	private scene: Scene;
 	private ecsManager: ECSManager;
+	private meshStore: MeshStore;
 
 	private lastPlacedTransform: Transform;
 	private lastPlacedEntity: Entity;
 	private lastPlacedBundle: GraphicsBundle;
 
-	constructor() {
+	constructor(meshStore: MeshStore) {
+		this.meshStore = meshStore;
 		this.transformsAdded = false;
 		this.placements = new Map<string, Placement>();
 
@@ -263,9 +267,9 @@ export default class ObjectPlacer {
 		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
 
-		// let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree(objPath));
-		// meshColComp.octree.setModelMatrix(mesh.modelMatrix);
-		// this.ecsManager.addComponent(entity, meshColComp);
+		let meshColComp = new MeshCollisionComponent(this.meshStore.getOctree(placement.modelPath));
+		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
+		this.ecsManager.addComponent(entity, meshColComp);
 	}
 
 	updateLastPlacedObject(rotationChange: number, scaleChange: number) {

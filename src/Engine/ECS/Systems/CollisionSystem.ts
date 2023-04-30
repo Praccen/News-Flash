@@ -107,9 +107,9 @@ export default class CollisionSystem extends System {
 
 							// First update e2 octree
 							// TODO: This has to be done every time right now since multiple instances of the same object share the same octree, but has different transforms. Can this be solved another way?
-							// e2MeshCollisionComp.octree.setModelMatrix(
-							// 	e2BoundingBoxComp.boundingBox.getTransformMatrix()
-							// );
+							e2MeshCollisionComp.octree.setModelMatrix(
+								e2BoundingBoxComp.boundingBox.getTransformMatrix()
+							);
 
 							// Then get the shapes from the octree
 							e2MeshCollisionComp.octree.getShapesForCollision(

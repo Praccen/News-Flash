@@ -254,6 +254,9 @@ export default class Octree {
 	 * @param matrix Optional: Will set a new matrix to use for the triangles. If no matrix is sent, it will use the previously set matrix but mark all triangles to be updated.
 	 */
 	setModelMatrix(matrix?: Matrix4) {
+		if (matrix == this.baseNode.obb.getTransformMatrix()) { // Setting the already used matrix
+			return;
+		}
 		if (matrix) {
 			this.baseNode.setModelMatrix(matrix);
 		} else {

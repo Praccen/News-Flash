@@ -53,7 +53,7 @@ export default class Game extends State {
 		super();
 		this.stateAccessible = sa;
 
-		this.objectPlacer = new ObjectPlacer();
+		this.objectPlacer = new ObjectPlacer(this.stateAccessible.meshStore);
 	}
 
 	async load() {
