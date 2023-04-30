@@ -76,7 +76,6 @@ export default class LoadingScreen extends State {
 
 		// Meshes to load
 		let meshes = [
-
 			"Assets/objs/body.obj",
 			"Assets/objs/knight.obj",
 			"Assets/objs/house.obj",

@@ -27,7 +27,7 @@ class Placement {
 	placementsPath: string;
 	diffuseTexturePath: string;
 	specularTexturePath: string;
-	sizeMultiplier: number
+	sizeMultiplier: number;
 	transforms: Array<Transform>;
 
 	constructor(
@@ -122,7 +122,7 @@ export default class ObjectPlacer {
 				4.5
 			)
 		);
-		
+
 		this.placements.set(
 			"Assets/objs/house.obj",
 			new Placement(

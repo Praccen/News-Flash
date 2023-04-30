@@ -22,7 +22,12 @@ export default class DebugMode extends State {
 		this.game = game;
 		this.debugMenu = new DebugMenu(this.stateAccessible, this.game);
 		this.currentlyPlacing = 0;
-		this.placementOptions = ["Assets/objs/mailbox.obj", "Assets/objs/house.obj", "Assets/objs/newspaper.obj", "Assets/objs/fence.obj"];
+		this.placementOptions = [
+			"Assets/objs/mailbox.obj",
+			"Assets/objs/house.obj",
+			"Assets/objs/newspaper.obj",
+			"Assets/objs/fence.obj",
+		];
 
 		this.lastMousePos = new Vec2([
 			input.mousePosition.x,

@@ -107,24 +107,39 @@ export default class OBB extends Shape {
 		if (this.normalsNeedsUpdate) {
 			this.transformedNormals.length = 0;
 
-			this.getTransformedVertices()
+			this.getTransformedVertices();
 
 			this.transformedNormals.push(
-				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
-				new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
-				).normalize()
+				new Vec3(this.transformedVertices[0])
+					.subtract(this.transformedVertices[1])
+					.cross(
+						new Vec3(this.transformedVertices[4]).subtract(
+							this.transformedVertices[0]
+						)
+					)
+					.normalize()
 			);
 
 			this.transformedNormals.push(
-				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
-				new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[0])
-				).normalize()
+				new Vec3(this.transformedVertices[0])
+					.subtract(this.transformedVertices[1])
+					.cross(
+						new Vec3(this.transformedVertices[2]).subtract(
+							this.transformedVertices[0]
+						)
+					)
+					.normalize()
 			);
 
 			this.transformedNormals.push(
-				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[2]).cross(
-				new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
-				).normalize()
+				new Vec3(this.transformedVertices[0])
+					.subtract(this.transformedVertices[2])
+					.cross(
+						new Vec3(this.transformedVertices[4]).subtract(
+							this.transformedVertices[0]
+						)
+					)
+					.normalize()
 			);
 
 			// let tempMatrix = new Matrix3();

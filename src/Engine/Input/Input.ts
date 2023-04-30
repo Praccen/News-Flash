@@ -303,7 +303,7 @@ export default class Input {
 	}
 
 	getMouseMovement(): Vec2 {
-		let diff = new Vec2(this.mouseMovementSinceLast)
+		let diff = new Vec2(this.mouseMovementSinceLast);
 		this.mouseMovementSinceLast.setValues(0.0, 0.0);
 		return diff;
 	}

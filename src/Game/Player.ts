@@ -128,7 +128,7 @@ export default class Player {
 					this.newspapersStopped[i].entity.getComponent(
 						ComponentTypeEnum.POSITION
 					)
-				)
+				);
 				if (this.deliveryZones[i].inZone(posComp.position)) {
 					this.deliveryZones.splice(i, 1);
 					i--;
@@ -151,10 +151,7 @@ export default class Player {
 
 		let mouseMovement = input.getMouseMovement();
 		if (mouseMovement.length2() > 0.0) {
-			rotVec.setValues(	
-				-(mouseMovement.y) * 0.2,
-				-(mouseMovement.x) * 0.2
-			);
+			rotVec.setValues(-mouseMovement.y * 0.2, -mouseMovement.x * 0.2);
 			rotate = true;
 		}
 
