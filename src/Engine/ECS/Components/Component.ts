@@ -9,6 +9,7 @@ export enum ComponentTypeEnum {
 	POINTLIGHT,
 	POSITION,
 	POSITIONPARENT,
+	DELIVERYZONE,
 }
 
 export class Component {

@@ -19,9 +19,10 @@ import { gl } from "../../main.js";
 import Scene from "../../Engine/Rendering/Scene.js";
 import GrassHandler from "../GrassHandler.js";
 import ObjectPlacer from "../ObjectPlacer.js";
-import DeliveryZone from "../DeliveryZone.js";
 import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
+import Newspaper from "../Newspaper.js";
+import DeiliveryZoneComponent from "../ECS/Components/DeliveryZoneComponent.js";
 
 export enum TreeTypeEnum {
 	FIRST,
@@ -33,7 +34,6 @@ export enum TreeTypeEnum {
 export default class Game extends State {
 	rendering: Rendering;
 	ecsManager: ECSManager;
-	private deliveryZones: Array<DeliveryZone>;
 	private stateAccessible: StateAccessible;
 
 	private overlayRendering: OverlayRendering;
@@ -45,15 +45,30 @@ export default class Game extends State {
 	private grassHandler: GrassHandler;
 	private gameTimer: number;
 
+	score: number;
+	newspapersStopped: Array<Newspaper>;
 	objectPlacer: ObjectPlacer;
 
 	private scene: Scene;
+	private static instance: Game;
 
-	constructor(sa: StateAccessible) {
+	public static getInstance(sa: StateAccessible): Game {
+		if (!Game.instance) {
+			Game.instance = new Game(sa);
+		}
+		return Game.instance;
+	}
+
+	public static getInstanceNoSa(): Game {
+		return Game.instance;
+	}
+
+	private constructor(sa: StateAccessible) {
 		super();
 		this.stateAccessible = sa;
-
 		this.objectPlacer = new ObjectPlacer(this.stateAccessible.meshStore);
+		this.newspapersStopped = new Array<Newspaper>();
+		this.score = 0;
 	}
 
 	async load() {
@@ -68,8 +83,13 @@ export default class Game extends State {
 		this.ecsManager = new ECSManager(this.rendering);
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
-		this.deliveryZones = new Array<DeliveryZone>();
-		this.deliveryZones.push(new DeliveryZone(new Vec3([0, 0, 0]), 20));
+
+		// TODO test of zones
+		let entity = this.ecsManager.createEntity();
+		let deliveryComp = new DeiliveryZoneComponent();
+		deliveryComp.pos = new Vec3([0.0, 0.0, 0.0]);
+		deliveryComp.radius = 20.0;
+		this.ecsManager.addComponent(entity, deliveryComp);
 
 		this.createMapEntity();
 
@@ -82,7 +102,6 @@ export default class Game extends State {
 			this.scene,
 			this.rendering,
 			this.ecsManager,
-			this.deliveryZones
 		);
 
 		this.grassHandler = new GrassHandler(
@@ -233,7 +252,7 @@ export default class Game extends State {
 			this.gotoState = StatesEnum.MAINMENU;
 		}
 
-		this.scoreText.textString = this.player.score.toString();
+		this.scoreText.textString = this.score.toString();
 		this.gameTimeText.textString = Math.floor(this.gameTimer).toString();
 
 		this.grassHandler.update(dt);

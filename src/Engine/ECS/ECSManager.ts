@@ -9,6 +9,7 @@ import { Component, ComponentTypeEnum } from "./Components/Component.js";
 import Camera from "../Camera.js";
 import CameraFocusSystem from "./Systems/CameraFocusSystem.js";
 import PositionMatrixUpdateSystem from "./Systems/PositionMatrixUpdateSystem.js";
+import DeliveryZoneSystem from "../../Game/ECS/Systems/DeliveryZoneSystem.js";
 
 export default class ECSManager {
 	private systems: Map<String, System>;
@@ -59,6 +60,7 @@ export default class ECSManager {
 			"CAMERAFOCUS",
 			new CameraFocusSystem(this.rendering.camera)
 		);
+		this.systems.set("DELIVERY", new DeliveryZoneSystem());
 	}
 
 	update(dt: number) {
@@ -75,6 +77,7 @@ export default class ECSManager {
 		this.systems.get("POSITIONMATRIXUPDATE").update(dt);
 		this.systems.get("GRAPHICS").update(dt);
 		this.systems.get("COLLISION").update(dt);
+		this.systems.get("DELIVERY").update(dt);
 	}
 
 	updateRenderingSystems(dt: number) {

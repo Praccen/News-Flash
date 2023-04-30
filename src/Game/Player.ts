@@ -1,6 +1,5 @@
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
-import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
 import MovementComponent from "../Engine/ECS/Components/MovementComponent.js";
 import PositionComponent from "../Engine/ECS/Components/PositionComponent.js";
 import ECSManager from "../Engine/ECS/ECSManager.js";
@@ -8,9 +7,9 @@ import Vec2 from "../Engine/Maths/Vec2.js";
 import Vec3 from "../Engine/Maths/Vec3.js";
 import Rendering from "../Engine/Rendering/Rendering.js";
 import Scene from "../Engine/Rendering/Scene.js";
-import DeliveryZone from "./DeliveryZone.js";
 import { input } from "./GameMachine.js";
 import Newspaper from "./Newspaper.js";
+import Game from "./States/Game.js";
 
 export default class Player {
 	private scene: Scene;
@@ -23,29 +22,25 @@ export default class Player {
 	private throwCooldown: number;
 	private throwTimer: number;
 	private newspapers: Array<Newspaper>;
-	private newspapersStopped: Array<Newspaper>;
-	private deliveryZones: Array<DeliveryZone>;
 	private rotation: Vec3;
+	private game: Game;
 
-	score: number;
 
 	constructor(
 		scene: Scene,
 		rendering: Rendering,
 		ecsManager: ECSManager,
-		deliveryZones: Array<DeliveryZone>
 	) {
 		this.scene = scene;
 		this.rendering = rendering;
 		this.ecsManager = ecsManager;
-		this.deliveryZones = deliveryZones;
 
 		this.throwCooldown = 0.5;
 		this.throwTimer = 0.0;
 		this.newspapers = new Array<Newspaper>();
-		this.newspapersStopped = new Array<Newspaper>();
-		this.score = 0;
 		this.rotation = new Vec3();
+
+		this.game = Game.getInstanceNoSa()
 	}
 
 	async init() {
@@ -115,27 +110,9 @@ export default class Player {
 			let paper = this.newspapers[i];
 			// Newspaper is not moving so remove from array
 			if (!paper.update(dt)) {
-				this.newspapersStopped.push(this.newspapers[i]);
+				this.game.newspapersStopped.push(this.newspapers[i]);
 				this.newspapers.splice(i, 1);
 				i--;
-			}
-		}
-
-		// TODO Move this, and other newspaper, logic to game.ts
-		for (let i = 0; i < this.deliveryZones.length; i++) {
-			for (let j = 0; j < this.newspapersStopped.length; j++) {
-				let posComp = <PositionComponent>(
-					this.newspapersStopped[i].entity.getComponent(
-						ComponentTypeEnum.POSITION
-					)
-				);
-				if (this.deliveryZones[i].inZone(posComp.position)) {
-					this.deliveryZones.splice(i, 1);
-					i--;
-					this.newspapersStopped.splice(j, 1);
-					j--;
-					this.score += 100;
-				}
 			}
 		}
 

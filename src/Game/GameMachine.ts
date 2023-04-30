@@ -2,7 +2,6 @@ import AudioPlayer from "../Engine/Audio/AudioPlayer.js";
 import TextObject2D from "../Engine/GUI/Text/TextObject2D.js";
 import Input from "../Engine/Input/Input.js";
 import MeshStore from "../Engine/AssetHandling/MeshStore.js";
-import Rendering from "../Engine/Rendering/Rendering.js";
 import { StatesEnum } from "../Engine/State.js";
 import StateMachine from "../Engine/StateMachine.js";
 import TextureStore from "../Engine/AssetHandling/TextureStore.js";
@@ -79,7 +78,7 @@ export default class GameMachine extends StateMachine {
 			1.0 / 60.0,
 			new ControlsMenu(this.stateAccessible)
 		);
-		let game = new Game(this.stateAccessible);
+		let game = Game.getInstance(this.stateAccessible);
 		this.addState(StatesEnum.GAME, Game, 1.0 / 144.0, game);
 		this.stateAccessible.restartGame = true;
 

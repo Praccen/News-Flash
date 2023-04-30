@@ -191,10 +191,6 @@ export default class ObjectPlacer {
 			)
 		);
 
-
-
-
-
 		this.lastPlacedTransform = null;
 		this.lastPlacedEntity = null;
 	}

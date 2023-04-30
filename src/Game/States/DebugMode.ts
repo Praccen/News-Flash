@@ -5,7 +5,6 @@ import Vec2 from "../../Engine/Maths/Vec2.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
 import { MousePicking } from "../../Engine/Maths/MousePicking.js";
 import DebugMenu from "./DebugMenu.js";
-import PositionComponent from "../../Engine/ECS/Components/PositionComponent.js";
 
 export default class DebugMode extends State {
 	private game: Game;
