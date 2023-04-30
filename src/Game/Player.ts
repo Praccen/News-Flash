@@ -44,12 +44,16 @@ export default class Player {
 	private bodyMesh;
 	score: number;
 
-	constructor(scene: Scene, rendering: Rendering, ecsManager: ECSManager, deliveryZones: Array<DeliveryZone>) {
+	constructor(
+		scene: Scene,
+		rendering: Rendering,
+		ecsManager: ECSManager,
+		deliveryZones: Array<DeliveryZone>
+	) {
 		this.scene = scene;
 		this.rendering = rendering;
 		this.ecsManager = ecsManager;
 		this.deliveryZones = deliveryZones;
-
 
 		this.legs = new Array<Entity>(4);
 
@@ -213,7 +217,11 @@ export default class Player {
 		// TODO Move this, and other newspaper, logic to game.ts
 		for (let i = 0; i < this.deliveryZones.length; i++) {
 			for (let j = 0; j < this.newspapersStopped.length; j++) {
-				let posComp = <PositionComponent>this.newspapersStopped[i].entity.getComponent(ComponentTypeEnum.POSITION);
+				let posComp = <PositionComponent>(
+					this.newspapersStopped[i].entity.getComponent(
+						ComponentTypeEnum.POSITION
+					)
+				);
 				if (this.deliveryZones[i].inZone(posComp.position)) {
 					this.deliveryZones.splice(i, 1);
 					i--;
@@ -259,9 +267,7 @@ export default class Player {
 			rotVec = new Vec2([
 				input.joystickRightDirection.y,
 				input.joystickRightDirection.x,
-			])
-				.normalize()
-				.multiply(-210 * dt);
+			]).multiply(-210 * dt);
 			rotate = true;
 		}
 

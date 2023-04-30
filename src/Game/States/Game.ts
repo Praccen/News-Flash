@@ -19,7 +19,7 @@ import { gl } from "../../main.js";
 import Scene from "../../Engine/Rendering/Scene.js";
 import GrassHandler from "../GrassHandler.js";
 import ObjectPlacer from "../ObjectPlacer.js";
-import DeliveryZone from "../DeliveryZone.js"
+import DeliveryZone from "../DeliveryZone.js";
 import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
 
@@ -70,7 +70,12 @@ export default class Game extends State {
 		dirLight.ambientMultiplier = 0.3;
 		dirLight.direction.setValues(0.05, -0.4, -0.7);
 
-		this.player = new Player(this.scene, this.rendering, this.ecsManager, this.deliveryZones);
+		this.player = new Player(
+			this.scene,
+			this.rendering,
+			this.ecsManager,
+			this.deliveryZones
+		);
 
 		this.grassHandler = new GrassHandler(
 			this.scene,
