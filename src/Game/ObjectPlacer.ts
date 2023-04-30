@@ -150,6 +150,46 @@ export default class ObjectPlacer {
 				"Assets/textures/knight.png"
 			)
 		);
+		this.placements.set(
+			"Assets/objs/BigBuske.obj",
+			new Placement(
+				"Assets/objs/BigBuske.obj",
+				"BigBuskeTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
+			)
+		);
+		this.placements.set(
+			"Assets/objs/Solros.obj",
+			new Placement(
+				"Assets/objs/Solros.obj",
+				"SolrosTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
+			)
+		);
+		this.placements.set(
+			"Assets/objs/Plant.obj",
+			new Placement(
+				"Assets/objs/Plant.obj",
+				"PlantTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
+			)
+		);
+		this.placements.set(
+			"Assets/objs/SmolBuske.obj",
+			new Placement(
+				"Assets/objs/SmolBuske.obj",
+				"SmolBuskeTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
+			)
+		);
+
+
+
+
 
 		this.lastPlacedTransform = null;
 		this.lastPlacedEntity = null;

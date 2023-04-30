@@ -27,6 +27,10 @@ export default class DebugMode extends State {
 			"Assets/objs/house.obj",
 			"Assets/objs/newspaper.obj",
 			"Assets/objs/fence.obj",
+			"Assets/objs/BigBuske.obj",
+			"Assets/objs/Solros.obj",
+			"Assets/objs/Plant.obj",
+			"Assets/objs/SmolBuske.obj",
 		];
 
 		this.lastMousePos = new Vec2([
