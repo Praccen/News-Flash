@@ -19,14 +19,19 @@ import { gl } from "../../main.js";
 import Scene from "../../Engine/Rendering/Scene.js";
 import GrassHandler from "../GrassHandler.js";
 import ObjectPlacer from "../ObjectPlacer.js";
+import DeliveryZone from "../DeliveryZone.js"
+import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
+import Vec3 from "../../Engine/Maths/Vec3.js";
 
 export default class Game extends State {
 	rendering: Rendering;
 	ecsManager: ECSManager;
+	private deliveryZones: Array<DeliveryZone>;
 	private stateAccessible: StateAccessible;
 
 	private overlayRendering: OverlayRendering;
 	private menuButton: Button;
+	private scoreText: TextObject2D;
 	private player: Player;
 	private mapBundle: GraphicsBundle;
 	private grassHandler: GrassHandler;
@@ -54,6 +59,9 @@ export default class Game extends State {
 		this.ecsManager = new ECSManager(this.rendering);
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
+		this.deliveryZones = new Array<DeliveryZone>();
+		this.deliveryZones.push(new DeliveryZone(new Vec3([0, 0, 0]), 20));
+
 		this.createMapEntity();
 
 		// this.rendering.camera.setPosition(0.0, 0.0, 5.5);
@@ -62,7 +70,7 @@ export default class Game extends State {
 		dirLight.ambientMultiplier = 0.3;
 		dirLight.direction.setValues(0.05, -0.4, -0.7);
 
-		this.player = new Player(this.scene, this.rendering, this.ecsManager);
+		this.player = new Player(this.scene, this.rendering, this.ecsManager, this.deliveryZones);
 
 		this.grassHandler = new GrassHandler(
 			this.scene,
@@ -78,6 +86,11 @@ export default class Game extends State {
 		this.menuButton.getInputElement().style.borderColor = "transparent";
 		this.menuButton.getInputElement().style.color = "black";
 		this.menuButton.textString = "Menu";
+
+		this.scoreText = this.overlayRendering.getNew2DText();
+		this.scoreText.position.x = 0.1;
+		this.scoreText.position.y = 0.0;
+		this.scoreText.textString = "0";
 
 		let self = this;
 		this.menuButton.onClick(function () {
@@ -185,6 +198,8 @@ export default class Game extends State {
 
 	update(dt: number) {
 		this.player.update(dt);
+
+		this.scoreText.textString = this.player.score.toString();
 
 		this.grassHandler.update(dt);
 
