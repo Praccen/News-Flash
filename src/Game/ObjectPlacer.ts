@@ -128,8 +128,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/house.obj",
 				"HouseTransforms.txt",
-				"Assets/textures/houseTex.png",
-				"Assets/textures/houseTex.png"
+				"Assets/textures/houseTex_bright.png",
+				"Assets/textures/houseTex_bright.png"
 			)
 		);
 		this.placements.set(
