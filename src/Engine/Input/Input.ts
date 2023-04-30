@@ -319,14 +319,14 @@ export default class Input {
 				}
 
 				this.touchUsed = false;
-				if (Math.abs(gp.axes[0]) > 0.1) {
-					this.joystickRightDirection.x = gp.axes[0];
+				if (Math.abs(gp.axes[2]) > 0.1) {
+					this.joystickRightDirection.x = gp.axes[2];
 				} else {
 					this.joystickRightDirection.x = 0.0;
 				}
 
-				if (Math.abs(gp.axes[1]) > 0.1) {
-					this.joystickRightDirection.y = gp.axes[1];
+				if (Math.abs(gp.axes[3]) > 0.1) {
+					this.joystickRightDirection.y = gp.axes[3];
 				} else {
 					this.joystickRightDirection.y = 0.0;
 				}
