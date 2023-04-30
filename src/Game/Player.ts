@@ -91,16 +91,16 @@ export default class Player {
 				.add(forward.multiply(1.0))
 				.add([0.0, 1.4, 0.0]);
 			// Add velocity to projectile and some extra uppwards velocity
-			let vel = forward
+			let vel = new Vec3(this.rendering.camera.getDir())
+				.normalize()
 				.multiply(10.0)
-				.add(this.movComp.velocity)
-				.add([0.0, 5.0, 0.0]);
+				.add(this.movComp.velocity);
 
 			this.newspapers.push(
 				new Newspaper(
 					pos,
 					vel,
-					new Vec3(this.rotation),
+					new Vec3([0.0, this.rotation.y, 0.0]),
 					this.ecsManager,
 					this.scene
 				)
@@ -178,7 +178,7 @@ export default class Player {
 			rotate = true;
 		}
 
-		this.rotation.add([0.0, rotVec.y * 90.0 * dt, 0.0]);
+		this.rotation.add(new Vec3([rotVec.x, rotVec.y, 0.0]).multiply(90.0 * dt));
 
 		// Touch / joystick control
 		input.updateGamepad();

@@ -36,8 +36,8 @@ export default class Newspaper {
 		this.ecsManager.addComponent(this.entity, moveComp);
 
 		let paperMesh = this.scene.getNewMesh(
-			"Assets/objs/body.obj",
-			"Assets/textures/medium_fur.png",
+			"Assets/objs/newspaper.obj",
+			"Assets/textures/news.png",
 			"Assets/textures/black.png"
 		);
 		let boundingBoxComp = new BoundingBoxComponent();
