@@ -25,6 +25,7 @@ export default class Player {
 	private newspapers: Array<Newspaper>;
 	private newspapersStopped: Array<Newspaper>;
 	private deliveryZones: Array<DeliveryZone>;
+	private rotation: Vec3;
 
 	score: number;
 
@@ -44,6 +45,7 @@ export default class Player {
 		this.newspapers = new Array<Newspaper>();
 		this.newspapersStopped = new Array<Newspaper>();
 		this.score = 0;
+		this.rotation = new Vec3();
 	}
 
 	async init() {
@@ -93,11 +95,12 @@ export default class Player {
 				.multiply(10.0)
 				.add(this.movComp.velocity)
 				.add([0.0, 5.0, 0.0]);
+
 			this.newspapers.push(
 				new Newspaper(
 					pos,
 					vel,
-					this.positionComp.rotation,
+					new Vec3(this.rotation),
 					this.ecsManager,
 					this.scene
 				)
@@ -125,7 +128,7 @@ export default class Player {
 					this.newspapersStopped[i].entity.getComponent(
 						ComponentTypeEnum.POSITION
 					)
-				);
+				)
 				if (this.deliveryZones[i].inZone(posComp.position)) {
 					this.deliveryZones.splice(i, 1);
 					i--;
@@ -143,7 +146,7 @@ export default class Player {
 			this.positionComp.position.z
 		);
 
-		let rotVec: Vec2 = new Vec2([0.0, 0.0]);
+		let rotVec: Vec2 = new Vec3([0.0, 0.0, 0.0]);
 		let rotate = false;
 		if (input.keys["ARROWUP"]) {
 			rotVec.x += 210 * dt;
@@ -164,6 +167,8 @@ export default class Player {
 			rotVec.y -= 210 * dt;
 			rotate = true;
 		}
+
+		this.rotation.add([0.0, rotVec.y * 90.0 * dt, 0.0]);
 
 		// Touch / joystick control
 		input.updateGamepad();
