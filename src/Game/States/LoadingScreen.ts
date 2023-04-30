@@ -60,6 +60,7 @@ export default class LoadingScreen extends State {
 			"Assets/textures/knight.png",
 			"Assets/textures/medium_fur.png",
 			"Assets/textures/black.png",
+			"Assets/textures/white.png",
 			"Assets/textures/GrassStraw.png",
 			"Assets/textures/GrassStraw_Spec.png",
 			"Assets/textures/HeightmapTexture.png",

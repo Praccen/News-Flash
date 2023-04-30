@@ -30,8 +30,9 @@ class Placement {
 	diffuseTexturePath: string;
 	specularTexturePath: string;
 	sizeMultiplier: number;
-	transforms: Array<Transform>;
 	addCollision: boolean;
+	transforms: Array<Transform>;
+	transformAdded: boolean;
 
 	constructor(
 		modelPath: string,
@@ -48,6 +49,7 @@ class Placement {
 		this.sizeMultiplier = sizeMultiplier;
 		this.transforms = new Array<Transform>();
 		this.addCollision = addCollision;
+		this.transformAdded = false;
 	}
 
 	async loadFromFile() {
@@ -83,7 +85,6 @@ export default class ObjectPlacer {
 
 	private lastPlacedTransform: Transform;
 	private lastPlacedEntity: Entity;
-	private lastPlacedBundle: GraphicsBundle;
 
 	constructor(meshStore: MeshStore) {
 		this.meshStore = meshStore;
@@ -155,8 +156,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/fence.obj",
 				"FenceTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/white.png",
+				"Assets/textures/white.png"
 			)
 		);
 		this.placements.set(
@@ -256,11 +257,11 @@ export default class ObjectPlacer {
 				size: size,
 				rot: rotation,
 			});
+			placement.transformAdded = true;
 			this.transformsAdded = true;
 
 			this.lastPlacedTransform = placement.transforms[length - 1];
 			this.lastPlacedEntity = entity;
-			this.lastPlacedBundle = mesh;
 		}
 
 		if (!placement.addCollision) {
@@ -317,6 +318,10 @@ export default class ObjectPlacer {
 
 	downloadTransforms() {
 		for (let placement of this.placements) {
+			if (!placement[1].transformAdded) {
+				continue;
+			}
+
 			let transformsData = "";
 
 			for (let transform of placement[1].transforms) {
@@ -325,6 +330,7 @@ export default class ObjectPlacer {
 			}
 
 			WebUtils.DownloadFile(placement[1].placementsPath, transformsData);
+			placement[1].transformAdded = false;
 		}
 
 		this.transformsAdded = false;
