@@ -53,7 +53,10 @@ export default class Newspaper {
 		let moveComp = <MovementComponent>(
 			this.entity.getComponent(ComponentTypeEnum.MOVEMENT)
 		);
-		if (moveComp.velocity.length2() <= 0.01 && moveComp.onGround) {
+		let posComp = <PositionComponent>(
+			this.entity.getComponent(ComponentTypeEnum.POSITION)
+		);
+		if ((moveComp.velocity.length2() <= 0.01 && moveComp.onGround) || (posComp != undefined && posComp.position.y < -10.0)) {
 			this.ecsManager.removeComponent(this.entity, ComponentTypeEnum.MOVEMENT);
 			this.ecsManager.removeComponent(this.entity, ComponentTypeEnum.COLLISION);
 			this.ecsManager.removeComponent(

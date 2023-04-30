@@ -5,7 +5,6 @@ import { options } from "../GameMachine.js";
 import State, { StatesEnum } from "../../Engine/State.js";
 import { StateAccessible } from "../GameMachine.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
-import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 
 export default class OptionsMenu extends State {
 	private overlayRendering: OverlayRendering;
@@ -15,7 +14,6 @@ export default class OptionsMenu extends State {
 	private bloomCB: Checkbox;
 	private grassCB: Checkbox;
 	private grassDensitySlider: Slider;
-	private grassDensityText: TextObject2D;
 	private fpsDisplayCB: Checkbox;
 	private volumeSlider: Slider;
 	private controlsButton: Button;
@@ -51,18 +49,12 @@ export default class OptionsMenu extends State {
 		this.grassDensitySlider = this.overlayRendering.getNewSlider();
 		this.grassDensitySlider.position.x = 0.4;
 		this.grassDensitySlider.position.y = 0.4;
-		this.grassDensitySlider.textString = "Grass density ";
+		this.grassDensitySlider.textString = "Grass density \r\n(requires restart)";
 		this.grassDensitySlider.getElement().style.color = "cyan";
 		this.grassDensitySlider.getInputElement().style.accentColor = "red";
 		this.grassDensitySlider.getInputElement().min = "1000";
 		this.grassDensitySlider.getInputElement().max = "100000";
 		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
-
-		this.grassDensityText = this.overlayRendering.getNew2DText();
-		this.grassDensityText.position.x = 0.42;
-		this.grassDensityText.position.y = 0.45;
-		this.grassDensityText.textString = "(requires restart)";
-		this.grassDensityText.getElement().style.color = "cyan";
 
 		this.fpsDisplayCB = this.overlayRendering.getNewCheckbox();
 		this.fpsDisplayCB.position.x = 0.4;
