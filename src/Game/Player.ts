@@ -111,9 +111,6 @@ export default class Player {
 						"Assets/textures/black.png"
 					);
 
-
-
-
 					legMesh.textureMatrix.setScale(10.0, 2.0, 1.0);
 					this.ecsManager.addComponent(
 						this.legs[counter],
@@ -149,7 +146,11 @@ export default class Player {
 
 	respawn() {
 		this.groupPositionComp.position.setValues(0.0, -1.5, 0.0);
-		this.rendering.camera.setPosition(this.groupPositionComp.position.x, this.groupPositionComp.position.y + 1.0, this.groupPositionComp.position.z)
+		this.rendering.camera.setPosition(
+			this.groupPositionComp.position.x,
+			this.groupPositionComp.position.y + 1.0,
+			this.groupPositionComp.position.z
+		);
 		this.movComp.velocity.setValues(0.0, 0.0, 0.0);
 	}
 
@@ -164,11 +165,23 @@ export default class Player {
 	throwPaper(dt: number, forward: Vec3) {
 		if (this.throwTimer > this.throwCooldown) {
 			this.throwTimer = 0.0;
-			let pos = new Vec3(this.groupPositionComp.position).add(
-				forward.multiply(1.0)).add([0.0, 0.4, 0.0]);
+			let pos = new Vec3(this.groupPositionComp.position)
+				.add(forward.multiply(1.0))
+				.add([0.0, 0.4, 0.0]);
 			// Add velocity to projectile and some extra uppwards velocity
-			let vel = forward.multiply(10.0).add(this.movComp.velocity).add([0.0, 5.0, 0.0]);
-			this.newspapers.push(new Newspaper(pos, vel, this.groupPositionComp.rotation, this.ecsManager, this.scene));
+			let vel = forward
+				.multiply(10.0)
+				.add(this.movComp.velocity)
+				.add([0.0, 5.0, 0.0]);
+			this.newspapers.push(
+				new Newspaper(
+					pos,
+					vel,
+					this.groupPositionComp.rotation,
+					this.ecsManager,
+					this.scene
+				)
+			);
 		}
 	}
 
@@ -212,7 +225,11 @@ export default class Player {
 		}
 
 		// Update camera
-		this.rendering.camera.setPosition(this.groupPositionComp.position.x, this.groupPositionComp.position.y + 1.0, this.groupPositionComp.position.z)
+		this.rendering.camera.setPosition(
+			this.groupPositionComp.position.x,
+			this.groupPositionComp.position.y + 1.0,
+			this.groupPositionComp.position.z
+		);
 
 		let rotVec: Vec2 = new Vec2([0.0, 0.0]);
 		let rotate = false;
@@ -239,7 +256,12 @@ export default class Player {
 		// Touch / joystick control
 		input.updateGamepad();
 		if (input.joystickRightDirection.length2() > 0.01) {
-			rotVec = new Vec2([input.joystickRightDirection.y, input.joystickRightDirection.x]).normalize().multiply(-210 * dt);
+			rotVec = new Vec2([
+				input.joystickRightDirection.y,
+				input.joystickRightDirection.x,
+			])
+				.normalize()
+				.multiply(-210 * dt);
 			rotate = true;
 		}
 
@@ -266,8 +288,6 @@ export default class Player {
 				newDir.elements[2]
 			);
 		}
-
-
 
 		// Touch / joystick control
 		input.updateGamepad();
@@ -458,8 +478,8 @@ export default class Player {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin(this.timer * animationSpeed + flip[i] * 0.7) *
-					50.0 *
-					flip[i],
+						50.0 *
+						flip[i],
 					0.0,
 					0.0
 				);
@@ -518,8 +538,8 @@ export default class Player {
 			if (posComp) {
 				posComp.rotation.setValues(
 					Math.sin((Math.min(this.timer, 1.4) + 1.1) * animationSpeed) *
-					80.0 *
-					flip[i],
+						80.0 *
+						flip[i],
 					0.0,
 					0.0
 				);

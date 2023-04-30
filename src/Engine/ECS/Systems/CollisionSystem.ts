@@ -10,7 +10,6 @@ import { CollisionSolver } from "../../Physics/CollisionSolver.js";
 import CollisionComponent from "../Components/CollisionComponent.js";
 import BoundingBoxComponent from "../Components/BoundingBoxComponent.js";
 import Shape from "../../Physics/Shapes/Shape.js";
-import { SAT } from "../../Maths/SAT.js";
 
 export default class CollisionSystem extends System {
 	constructor() {

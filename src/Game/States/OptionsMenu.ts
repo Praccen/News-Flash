@@ -57,13 +57,12 @@ export default class OptionsMenu extends State {
 		this.grassDensitySlider.getInputElement().min = "1000";
 		this.grassDensitySlider.getInputElement().max = "100000";
 		this.grassDensitySlider.getInputElement().value = options.grassDensity + "";
-		
+
 		this.grassDensityText = this.overlayRendering.getNew2DText();
 		this.grassDensityText.position.x = 0.42;
 		this.grassDensityText.position.y = 0.45;
 		this.grassDensityText.textString = "(requires restart)";
 		this.grassDensityText.getElement().style.color = "cyan";
-
 
 		this.fpsDisplayCB = this.overlayRendering.getNewCheckbox();
 		this.fpsDisplayCB.position.x = 0.4;

@@ -14,7 +14,13 @@ export default class Newspaper {
 	private scene;
 	entity: Entity;
 
-	constructor(startingPos: Vec3, startingVel: Vec3, startingRot: Vec3, ecsManager: ECSManager, scene: Scene) {
+	constructor(
+		startingPos: Vec3,
+		startingVel: Vec3,
+		startingRot: Vec3,
+		ecsManager: ECSManager,
+		scene: Scene
+	) {
 		this.ecsManager = ecsManager;
 		this.scene = scene;
 		this.entity = this.ecsManager.createEntity();
@@ -39,19 +45,21 @@ export default class Newspaper {
 		boundingBoxComp.updateTransformMatrix(paperMesh.modelMatrix);
 		this.ecsManager.addComponent(this.entity, boundingBoxComp);
 
-		this.ecsManager.addComponent(
-			this.entity,
-			new GraphicsComponent(paperMesh)
-		);
+		this.ecsManager.addComponent(this.entity, new GraphicsComponent(paperMesh));
 		this.ecsManager.addComponent(this.entity, new CollisionComponent());
 	}
 
 	update(dt: number): boolean {
-		let moveComp = <MovementComponent>this.entity.getComponent(ComponentTypeEnum.MOVEMENT);
-		if ((moveComp.velocity.length2() <= 0.01) && (moveComp.onGround)) {
+		let moveComp = <MovementComponent>(
+			this.entity.getComponent(ComponentTypeEnum.MOVEMENT)
+		);
+		if (moveComp.velocity.length2() <= 0.01 && moveComp.onGround) {
 			this.ecsManager.removeComponent(this.entity, ComponentTypeEnum.MOVEMENT);
 			this.ecsManager.removeComponent(this.entity, ComponentTypeEnum.COLLISION);
-			this.ecsManager.removeComponent(this.entity, ComponentTypeEnum.BOUNDINGBOX);
+			this.ecsManager.removeComponent(
+				this.entity,
+				ComponentTypeEnum.BOUNDINGBOX
+			);
 			return false;
 		} else {
 			return true;
