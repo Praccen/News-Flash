@@ -5,6 +5,7 @@ import Vec2 from "../../Engine/Maths/Vec2.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
 import { MousePicking } from "../../Engine/Maths/MousePicking.js";
 import DebugMenu from "./DebugMenu.js";
+import { WebUtils } from "../../Engine/Utils/WebUtils.js";
 
 export default class DebugMode extends State {
 	private game: Game;
@@ -49,6 +50,13 @@ export default class DebugMode extends State {
 	async init() {
 		super.init();
 		this.debugMenu.init();
+		let cookie = WebUtils.GetCookie("debugPos");
+		if (cookie != "") {
+			let coords = cookie.split(",");
+			if (coords.length == 3) {
+				this.game.rendering.camera.setPosition(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]));
+			}
+		}
 	}
 
 	reset() {
@@ -201,6 +209,9 @@ export default class DebugMode extends State {
 			input.mousePosition.y,
 		]);
 		this.game.ecsManager.update(0.0);
+
+		let camPos = this.game.rendering.camera.getPosition();
+		WebUtils.SetCookie("debugPos", camPos.x + "," + camPos.y + "," + camPos.z);
 	}
 
 	prepareDraw(dt: number): void {}
