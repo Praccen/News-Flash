@@ -31,6 +31,7 @@ export default class DebugMode extends State {
 			"Assets/objs/Solros.obj",
 			"Assets/objs/Plant.obj",
 			"Assets/objs/SmolBuske.obj",
+			"Assets/objs/rugg.obj",
 		];
 
 		let textString = "";

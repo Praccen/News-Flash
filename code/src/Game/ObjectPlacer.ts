@@ -8,9 +8,9 @@ import PositionComponent from "../Engine/ECS/Components/PositionComponent";
 import ECSManager from "../Engine/ECS/ECSManager";
 import Entity from "../Engine/ECS/Entity";
 import Vec3 from "../Engine/Maths/Vec3";
-import GraphicsBundle from "../Engine/Objects/GraphicsBundle";
 import Scene from "../Engine/Rendering/Scene";
 import { WebUtils } from "../Engine/Utils/WebUtils";
+import DeiliveryZoneComponent from "./ECS/Components/DeliveryZoneComponent";
 
 class Transform {
 	pos: Vec3;
@@ -200,6 +200,15 @@ export default class ObjectPlacer {
 				"Assets/textures/tree_2.png"
 			)
 		);
+		this.placements.set(
+			"Assets/objs/rugg.obj",
+			new Placement(
+				"Assets/objs/rugg.obj",
+				"RuggTransforms.txt",
+				"Assets/textures/tree_2.png",
+				"Assets/textures/tree_2.png"
+			)
+		);
 
 		this.lastPlacedTransform = null;
 		this.lastPlacedEntity = null;
@@ -268,24 +277,31 @@ export default class ObjectPlacer {
 			return;
 		}
 
-		// Collision stuff
-		let boundingBoxComp = new BoundingBoxComponent();
-		boundingBoxComp.setup(mesh.graphicsObject);
-		boundingBoxComp.updateTransformMatrix(mesh.modelMatrix);
-		this.ecsManager.addComponent(entity, boundingBoxComp);
-		let collisionComp = new CollisionComponent();
-		collisionComp.isStatic = true;
-		this.ecsManager.addComponent(entity, collisionComp);
+		if (placement.modelPath == "Assets/objs/rugg.obj") {
+			let zoneComp = new DeiliveryZoneComponent();
+			zoneComp.pos = posComp.position;
+			zoneComp.radius = 1.0;
+			this.ecsManager.addComponent(entity, zoneComp);
+		} else {
+			// Collision stuff
+			let boundingBoxComp = new BoundingBoxComponent();
+			boundingBoxComp.setup(mesh.graphicsObject);
+			boundingBoxComp.updateTransformMatrix(mesh.modelMatrix);
+			this.ecsManager.addComponent(entity, boundingBoxComp);
+			let collisionComp = new CollisionComponent();
+			collisionComp.isStatic = true;
+			this.ecsManager.addComponent(entity, collisionComp);
 
-		let octree = this.meshStore.getOctree(placement.modelPath);
-		if (octree == undefined) {
-			return;
+			let octree = this.meshStore.getOctree(placement.modelPath);
+			if (octree == undefined) {
+				return;
+			}
+			let meshColComp = new MeshCollisionComponent(
+				octree
+			);
+			meshColComp.octree.setModelMatrix(mesh.modelMatrix);
+			this.ecsManager.addComponent(entity, meshColComp);
 		}
-		let meshColComp = new MeshCollisionComponent(
-			octree
-		);
-		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
-		this.ecsManager.addComponent(entity, meshColComp);
 	}
 
 	updateLastPlacedObject(rotationChange: number, scaleChange: number) {

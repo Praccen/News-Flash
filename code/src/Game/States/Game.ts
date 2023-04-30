@@ -83,14 +83,6 @@ export default class Game extends State {
 		this.ecsManager = new ECSManager(this.rendering);
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
-
-		// TODO test of zones
-		let entity = this.ecsManager.createEntity();
-		let deliveryComp = new DeiliveryZoneComponent();
-		deliveryComp.pos = new Vec3([0.0, 0.0, 0.0]);
-		deliveryComp.radius = 20.0;
-		this.ecsManager.addComponent(entity, deliveryComp);
-
 		this.createMapEntity();
 
 		let dirLight = this.scene.getDirectionalLight();
