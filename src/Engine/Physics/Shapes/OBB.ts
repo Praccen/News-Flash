@@ -107,31 +107,33 @@ export default class OBB extends Shape {
 		if (this.normalsNeedsUpdate) {
 			this.transformedNormals.length = 0;
 
-			// this.transformedNormals.push(
-			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
-			// 	new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
-			// 	).normalize()
-			// );
+			this.getTransformedVertices()
 
-			// this.transformedNormals.push(
-			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
-			// 	new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[0])
-			// 	).normalize()
-			// );
+			this.transformedNormals.push(
+				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
+				new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
+				).normalize()
+			);
 
-			// this.transformedNormals.push(
-			// 	new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[2]).cross(
-			// 	new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
-			// 	).normalize()
-			// );
+			this.transformedNormals.push(
+				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[1]).cross(
+				new Vec3(this.transformedVertices[2]).subtract(this.transformedVertices[0])
+				).normalize()
+			);
 
-			let tempMatrix = new Matrix3();
-			tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
-			for (const originalNormal of this.originalNormals) {
-				this.transformedNormals.push(
-					tempMatrix.multiplyVec3(originalNormal).normalize()
-				);
-			}
+			this.transformedNormals.push(
+				new Vec3(this.transformedVertices[0]).subtract(this.transformedVertices[2]).cross(
+				new Vec3(this.transformedVertices[4]).subtract(this.transformedVertices[0])
+				).normalize()
+			);
+
+			// let tempMatrix = new Matrix3();
+			// tempMatrix.fromMatrix4(this.transformMatrix).invert().transpose();
+			// for (const originalNormal of this.originalNormals) {
+			// 	this.transformedNormals.push(
+			// 		tempMatrix.multiplyVec3(originalNormal).normalize()
+			// 	);
+			// }
 
 			this.normalsNeedsUpdate = false;
 		}
