@@ -239,7 +239,7 @@ export default class Player {
 			let newDir = rotMatrix.multiplyVector3(oldDir);
 			this.rendering.camera.setDir(
 				newDir.elements[0],
-				newDir.elements[1],
+				Math.max(-0.65, Math.min(0.65, newDir.elements[1])),
 				newDir.elements[2]
 			);
 		}
