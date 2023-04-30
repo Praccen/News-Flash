@@ -148,6 +148,16 @@ export default class Player {
 
 		let rotVec: Vec2 = new Vec3([0.0, 0.0, 0.0]);
 		let rotate = false;
+
+		let mouseMovement = input.getMouseMovement();
+		if (mouseMovement.length2() > 0.0) {
+			rotVec.setValues(	
+				-(mouseMovement.y) * 0.2,
+				-(mouseMovement.x) * 0.2
+			);
+			rotate = true;
+		}
+
 		if (input.keys["ARROWUP"]) {
 			rotVec.x += 210 * dt;
 			rotate = true;

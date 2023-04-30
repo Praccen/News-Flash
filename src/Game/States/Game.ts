@@ -138,6 +138,7 @@ export default class Game extends State {
 		this.overlayRendering.show();
 		this.rendering.useCrt = options.useCrt;
 		this.rendering.useBloom = options.useBloom;
+		document.getElementById("gameDiv").requestPointerLock();
 	}
 
 	reset() {

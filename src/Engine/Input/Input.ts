@@ -34,6 +34,8 @@ export default class Input {
 	private aButton: TextObject2D;
 	private bButton: TextObject2D;
 
+	private mouseMovementSinceLast: Vec2;
+
 	constructor() {
 		this.keys = [];
 		this.buttons = new Map();
@@ -41,6 +43,8 @@ export default class Input {
 		this.mousePosition = { x: 0, y: 0, previousX: 0, previousY: 0 };
 		this.mousePositionOnCanvas = { x: 0, y: 0, previousX: 0, previousY: 0 };
 		this.mouseClicked = false;
+
+		this.mouseMovementSinceLast = new Vec2();
 
 		this.simulateTouchBasedOnMouse = false;
 
@@ -60,6 +64,8 @@ export default class Input {
 		});
 
 		document.addEventListener("mousemove", function (event) {
+			self.mouseMovementSinceLast.x += event.movementX;
+			self.mouseMovementSinceLast.y += event.movementY;
 			self.mousePosition = {
 				x: event.clientX,
 				y: event.clientY,
@@ -294,6 +300,12 @@ export default class Input {
 				}
 			}
 		}
+	}
+
+	getMouseMovement(): Vec2 {
+		let diff = new Vec2(this.mouseMovementSinceLast)
+		this.mouseMovementSinceLast.setValues(0.0, 0.0);
+		return diff;
 	}
 
 	updateGamepad() {
