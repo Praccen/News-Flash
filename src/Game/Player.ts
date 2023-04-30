@@ -1,4 +1,3 @@
-import Camera from "../Engine/Camera.js";
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent.js";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent.js";
 import { ComponentTypeEnum } from "../Engine/ECS/Components/Component.js";
@@ -71,12 +70,8 @@ export default class Player {
 
 	respawn() {
 		this.positionComp.position.setValues(0.0, 0.0, 0.0);
-		this.rendering.camera.setPosition(
-			this.positionComp.position.x,
-			this.positionComp.position.y + 1.7,
-			this.positionComp.position.z
-		);
 		this.movComp.velocity.setValues(0.0, 0.0, 0.0);
+		this.movComp.accelerationDirection.setValues(0.0, 0.0, 0.0);
 	}
 
 	getPosition(): Vec3 {

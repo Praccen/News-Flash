@@ -68,7 +68,7 @@ export default class Camera {
 	setPosition(posX: number, posY: number, posZ?: number) {
 		this.pos.x = posX;
 		this.pos.y = posY;
-		if (posZ) {
+		if (posZ != undefined) {
 			this.pos.z = posZ;
 		}
 		this.viewMatrixNeedsUpdate = true;
