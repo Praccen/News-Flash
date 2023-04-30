@@ -56,20 +56,10 @@ export default class LoadingScreen extends State {
 
 		// Load all textures to avoid loading mid game
 		let textures = [
-			"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png",
-			"https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/371b6fdf-69a3-4fa2-9ff0-bd04d50f4b98/de8synv-6aad06ab-ed16-47fd-8898-d21028c571c4.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzM3MWI2ZmRmLTY5YTMtNGZhMi05ZmYwLWJkMDRkNTBmNGI5OFwvZGU4c3ludi02YWFkMDZhYi1lZDE2LTQ3ZmQtODg5OC1kMjEwMjhjNTcxYzQucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.wa-oSVpeXEpWqfc_bexczFs33hDFvEGGAQD969J7Ugw",
-			"https://as2.ftcdn.net/v2/jpg/01/99/14/99/1000_F_199149981_RG8gciij11WKAQ5nKi35Xx0ovesLCRaU.jpg",
 			"Assets/textures/fire.png",
 			"Assets/textures/knight.png",
-			"Assets/textures/black_fur.png",
 			"Assets/textures/medium_fur.png",
-			"Assets/textures/fur.png",
 			"Assets/textures/black.png",
-			"Assets/textures/monu9.png",
-			"Assets/textures/Grass_04.png",
-			"Assets/textures/stylized-grass1_albedo.png",
-			// "Assets/textures/stylized-grass2_albedo.png",
-			"Assets/textures/stylized-grass1_ao.png",
 			"Assets/textures/GrassStraw.png",
 			"Assets/textures/GrassStraw_Spec.png",
 			"Assets/textures/HeightmapTexture.png",
@@ -83,12 +73,9 @@ export default class LoadingScreen extends State {
 
 		// Meshes to load
 		let meshes = [
+
 			"Assets/objs/body.obj",
-			"Assets/objs/front_leg.obj",
-			"Assets/objs/hind_leg.obj",
-			"Assets/objs/cube.obj",
 			"Assets/objs/knight.obj",
-			"Assets/objs/monu9.obj",
 			"Assets/objs/house.obj",
 		];
 		this.meshesRequested = meshes.length;
