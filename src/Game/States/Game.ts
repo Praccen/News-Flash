@@ -27,7 +27,7 @@ export enum TreeTypeEnum {
 	FIRST,
 	SECOND,
 	THIRD,
-	FOURTH,
+	// FOURTH,
 }
 
 export default class Game extends State {
