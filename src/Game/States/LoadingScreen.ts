@@ -66,6 +66,7 @@ export default class LoadingScreen extends State {
 			"Assets/textures/houseTex.png",
 			"Assets/textures/black_mailbox.png",
 			"Assets/textures/green_mailbox.png",
+			"Assets/textures/mailbox.png",
 		];
 
 		let cubeMaps = [
@@ -79,7 +80,9 @@ export default class LoadingScreen extends State {
 			"Assets/objs/body.obj",
 			"Assets/objs/knight.obj",
 			"Assets/objs/house.obj",
-			"Assets/objs/Postlada.obj",
+			"Assets/objs/mailbox.obj",
+			"Assets/objs/newspaper.obj",
+			"Assets/objs/fence.obj",
 		];
 		this.meshesRequested = meshes.length;
 		this.meshesLoaded = 0;

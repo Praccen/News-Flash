@@ -22,7 +22,7 @@ export default class DebugMode extends State {
 		this.game = game;
 		this.debugMenu = new DebugMenu(this.stateAccessible, this.game);
 		this.currentlyPlacing = 0;
-		this.placementOptions = ["Assets/objs/Postlada.obj", "Assets/objs/house.obj"];
+		this.placementOptions = ["Assets/objs/mailbox.obj", "Assets/objs/house.obj", "Assets/objs/newspaper.obj", "Assets/objs/fence.obj"];
 
 		this.lastMousePos = new Vec2([
 			input.mousePosition.x,
@@ -143,10 +143,11 @@ export default class DebugMode extends State {
 			);
 		}
 
-		if (input.keys["1"]) {
-			this.currentlyPlacing = 0;
-		} else if (input.keys["2"]) {
-			this.currentlyPlacing = 1;
+		for (let i = 1; i < this.placementOptions.length + 1; i++) {
+			if (input.keys[i]) {
+				this.currentlyPlacing = i - 1;
+				break;
+			}
 		}
 
 		if (input.mouseClicked) {

@@ -81,12 +81,12 @@ export default class ObjectPlacer {
 		this.placements = new Map<string, Placement>();
 
 		this.placements.set(
-			"Assets/objs/Postlada.obj",
+			"Assets/objs/mailbox.obj",
 			new Placement(
-				"Assets/objs/Postlada.obj",
+				"Assets/objs/mailbox.obj",
 				"TreeTransforms.txt",
-				"Assets/textures/green_mailbox.png",
-				"Assets/textures/black.png"
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
 			)
 		);
 		this.placements.set(
@@ -96,6 +96,24 @@ export default class ObjectPlacer {
 				"HouseTransforms.txt",
 				"Assets/textures/houseTex.png",
 				"Assets/textures/houseTex.png"
+			)
+		);
+		this.placements.set(
+			"Assets/objs/newspaper.obj",
+			new Placement(
+				"Assets/objs/newspaper.obj",
+				"NewspaperTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
+			)
+		);
+		this.placements.set(
+			"Assets/objs/fence.obj",
+			new Placement(
+				"Assets/objs/fence.obj",
+				"FenceTransforms.txt",
+				"Assets/textures/knight.png",
+				"Assets/textures/knight.png"
 			)
 		);
 
@@ -132,6 +150,9 @@ export default class ObjectPlacer {
 		saveToTransforms: boolean = true
 	) {
 		let placement = this.placements.get(type);
+		if (placement == undefined) {
+			return;
+		}
 		let entity = this.ecsManager.createEntity();
 		let mesh = this.scene.getNewMesh(
 			placement.modelPath,
