@@ -1,4 +1,5 @@
 import Button from "../../Engine/GUI/Button.js";
+import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
 import { StateAccessible } from "../GameMachine.js";
 import Game from "./Game.js";
@@ -10,6 +11,8 @@ export default class DebugMenu {
 
 	private downloadOctreesButton: Button;
 	private downloadTransformsButton: Button;
+
+	placementMenuText: TextObject2D;
 
 	constructor(stateAccessible: StateAccessible, game: Game) {
 		this.overlay = new OverlayRendering();
@@ -48,6 +51,15 @@ export default class DebugMenu {
 		this.downloadTransformsButton.onClick(function () {
 			self.game.objectPlacer.downloadTransforms();
 		});
+
+		this.placementMenuText = this.overlay.getNew2DText();
+		this.placementMenuText.position.x = 0.1;
+		this.placementMenuText.position.y = 0.1;
+		this.placementMenuText.center = true;
+		this.placementMenuText.size = 20;
+		this.placementMenuText.getElement().style.color = "white";
+		this.placementMenuText.getElement().style.textShadow =
+			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 	}
 
 	async init() {

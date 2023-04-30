@@ -40,6 +40,7 @@ canvas {
 .floating-div {
     position: absolute;
 	font-family:'Courier New', Courier, monospace;
+	white-space: pre;
 	
 	/* Make text not selectable */
 	-webkit-touch-callout: none; /* iOS Safari */

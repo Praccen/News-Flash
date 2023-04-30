@@ -31,13 +31,15 @@ class Placement {
 	specularTexturePath: string;
 	sizeMultiplier: number;
 	transforms: Array<Transform>;
+	addCollision: boolean;
 
 	constructor(
 		modelPath: string,
 		placementPath: string,
 		diffuseTexturePath: string,
 		specularTexturePath: string,
-		sizeMultiplier: number = 1
+		sizeMultiplier: number = 1,
+		addCollision: boolean = true
 	) {
 		this.modelPath = modelPath;
 		this.placementsPath = placementPath;
@@ -45,6 +47,7 @@ class Placement {
 		this.specularTexturePath = specularTexturePath;
 		this.sizeMultiplier = sizeMultiplier;
 		this.transforms = new Array<Transform>();
+		this.addCollision = addCollision;
 	}
 
 	async loadFromFile() {
@@ -141,8 +144,10 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/newspaper.obj",
 				"NewspaperTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/news.png",
+				"Assets/textures/news.png",
+				1,
+				false
 			)
 		);
 		this.placements.set(
@@ -159,8 +164,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/BigBuske.obj",
 				"BigBuskeTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/tree_2.png",
+				"Assets/textures/tree_2.png"
 			)
 		);
 		this.placements.set(
@@ -168,8 +173,10 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/Solros.obj",
 				"SolrosTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/GrassStraw.png",
+				"Assets/textures/GrassStraw_Spec.png",
+				1,
+				false
 			)
 		);
 		this.placements.set(
@@ -177,8 +184,10 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/Plant.obj",
 				"PlantTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/GrassStraw.png",
+				"Assets/textures/GrassStraw_Spec.png",
+				1,
+				false
 			)
 		);
 		this.placements.set(
@@ -186,8 +195,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/SmolBuske.obj",
 				"SmolBuskeTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/tree_2.png",
+				"Assets/textures/tree_2.png"
 			)
 		);
 
@@ -254,6 +263,10 @@ export default class ObjectPlacer {
 			this.lastPlacedBundle = mesh;
 		}
 
+		if (!placement.addCollision) {
+			return;
+		}
+
 		// Collision stuff
 		let boundingBoxComp = new BoundingBoxComponent();
 		boundingBoxComp.setup(mesh.graphicsObject);
@@ -263,7 +276,13 @@ export default class ObjectPlacer {
 		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
 
-		let meshColComp = new MeshCollisionComponent(this.meshStore.getOctree(placement.modelPath));
+		let octree = this.meshStore.getOctree(placement.modelPath);
+		if (octree == undefined) {
+			return;
+		}
+		let meshColComp = new MeshCollisionComponent(
+			octree
+		);
 		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
 		this.ecsManager.addComponent(entity, meshColComp);
 	}
@@ -289,7 +308,10 @@ export default class ObjectPlacer {
 			let boundingBoxComp = this.lastPlacedEntity.getComponent(
 				ComponentTypeEnum.BOUNDINGBOX
 			) as BoundingBoxComponent;
-			boundingBoxComp.updateTransformMatrix(this.lastPlacedBundle.modelMatrix);
+
+			if (boundingBoxComp != undefined) {
+				boundingBoxComp.updateTransformMatrix();
+			}
 		}
 	}
 

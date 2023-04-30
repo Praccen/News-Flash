@@ -32,6 +32,12 @@ export default class DebugMode extends State {
 			"Assets/objs/SmolBuske.obj",
 		];
 
+		let textString = "";
+		for (let i = 0; i < this.placementOptions.length; i++) {
+			textString += (i + 1) + ": " + this.placementOptions[i].split("/")[2] + " \r\n";
+		}
+		this.debugMenu.placementMenuText.textString = textString;
+
 		this.lastMousePos = new Vec2([
 			input.mousePosition.x,
 			input.mousePosition.y,
