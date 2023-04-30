@@ -7,6 +7,8 @@ export default class PositionComponent extends Component {
 	scale: Vec3;
 	origin: Vec3;
 
+	matrix: Matrix4;
+
 	constructor(componentType?: ComponentTypeEnum) {
 		super(componentType ? componentType : ComponentTypeEnum.POSITION);
 
@@ -14,6 +16,8 @@ export default class PositionComponent extends Component {
 		this.rotation = new Vec3();
 		this.scale = new Vec3([1.0, 1.0, 1.0]);
 		this.origin = new Vec3();
+
+		this.matrix = new Matrix4(null);
 	}
 
 	calculateMatrix(matrix: Matrix4) {

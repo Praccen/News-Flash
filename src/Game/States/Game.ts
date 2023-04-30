@@ -85,7 +85,7 @@ export default class Game extends State {
 			this.player
 		);
 
-		this.gameTimer = 10.0;
+		this.gameTimer = 1000.0;
 
 		this.menuButton = this.overlayRendering.getNewButton();
 		this.menuButton.position.x = 0.9;
@@ -94,7 +94,8 @@ export default class Game extends State {
 		this.menuButton.getInputElement().style.backgroundColor = "transparent";
 		this.menuButton.getInputElement().style.borderColor = "transparent";
 		this.menuButton.getInputElement().style.color = "white";
-		this.menuButton.getInputElement().style.textShadow = "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
+		this.menuButton.getInputElement().style.textShadow =
+			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 		this.menuButton.textString = "Menu";
 
 		this.scoreText = this.overlayRendering.getNew2DText();
@@ -102,14 +103,16 @@ export default class Game extends State {
 		this.scoreText.position.y = 0.05;
 		this.scoreText.textString = "0";
 		this.scoreText.getElement().style.color = "white";
-		this.scoreText.getElement().style.textShadow = "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
+		this.scoreText.getElement().style.textShadow =
+			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 
 		this.gameTimeText = this.overlayRendering.getNew2DText();
 		this.gameTimeText.position.x = 0.15;
 		this.gameTimeText.position.y = 0.05;
 		this.gameTimeText.textString = "0";
 		this.gameTimeText.getElement().style.color = "white";
-		this.gameTimeText.getElement().style.textShadow = "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
+		this.gameTimeText.getElement().style.textShadow =
+			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 
 		let self = this;
 		this.menuButton.onClick(function () {
@@ -220,7 +223,7 @@ export default class Game extends State {
 		this.gameTimer -= dt;
 
 		if (this.gameTimer <= 0.0) {
-			this.gotoState = StatesEnum.ENDSCREEN;
+			this.gotoState = StatesEnum.MAINMENU;
 		}
 
 		this.scoreText.textString = this.player.score.toString();

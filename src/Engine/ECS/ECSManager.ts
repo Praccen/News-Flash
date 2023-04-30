@@ -7,8 +7,8 @@ import Rendering from "../Rendering/Rendering.js";
 import Entity from "./Entity.js";
 import { Component, ComponentTypeEnum } from "./Components/Component.js";
 import Camera from "../Camera.js";
-import CameraFocusComponent from "./Components/CameraFocusCompontent.js";
 import CameraFocusSystem from "./Systems/CameraFocusSystem.js";
+import PositionMatrixUpdateSystem from "./Systems/PositionMatrixUpdateSystem.js";
 
 export default class ECSManager {
 	private systems: Map<String, System>;
@@ -52,6 +52,7 @@ export default class ECSManager {
 	initializeSystems() {
 		this.systems.set("COLLISION", new CollisionSystem());
 		this.systems.set("MOVEMENT", new MovementSystem());
+		this.systems.set("POSITIONMATRIXUPDATE", new PositionMatrixUpdateSystem());
 		this.systems.set("GRAPHICS", new GraphicsSystem());
 		this.systems.set("PARTICLE", new ParticleSpawnerSystem());
 		this.systems.set(
@@ -71,6 +72,7 @@ export default class ECSManager {
 		this.removeEntitiesMarkedForDeletion();
 
 		this.systems.get("MOVEMENT").update(dt);
+		this.systems.get("POSITIONMATRIXUPDATE").update(dt);
 		this.systems.get("GRAPHICS").update(dt);
 		this.systems.get("COLLISION").update(dt);
 	}
