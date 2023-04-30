@@ -74,7 +74,7 @@ export default class ObjectPlacer {
 
 	private lastPlacedTransform: Transform;
 	private lastPlacedEntity: Entity;
-    private lastPlacedBundle: GraphicsBundle; 
+	private lastPlacedBundle: GraphicsBundle;
 
 	constructor() {
 		this.transformsAdded = false;
@@ -108,19 +108,19 @@ export default class ObjectPlacer {
 		this.ecsManager = ecsManager;
 
 		for (let placement of this.placements) {
-            if (placement[1].transforms.length == 0) {
-                await placement[1].loadFromFile();
-            }
+			if (placement[1].transforms.length == 0) {
+				await placement[1].loadFromFile();
+			}
 
-            for (let transform of placement[1].transforms) {
-                this.placeObject(
-                    placement[0],
-                    transform.pos,
-                    transform.size,
-                    transform.rot,
-                    false
-                );
-            }
+			for (let transform of placement[1].transforms) {
+				this.placeObject(
+					placement[0],
+					transform.pos,
+					transform.size,
+					transform.rot,
+					false
+				);
+			}
 		}
 	}
 
@@ -156,7 +156,7 @@ export default class ObjectPlacer {
 
 			this.lastPlacedTransform = placement.transforms[length - 1];
 			this.lastPlacedEntity = entity;
-            this.lastPlacedBundle = mesh;
+			this.lastPlacedBundle = mesh;
 		}
 
 		// Collision stuff
@@ -180,7 +180,9 @@ export default class ObjectPlacer {
 		}
 
 		if (this.lastPlacedEntity != null) {
-            let posComp = this.lastPlacedEntity.getComponent(ComponentTypeEnum.POSITION) as PositionComponent;
+			let posComp = this.lastPlacedEntity.getComponent(
+				ComponentTypeEnum.POSITION
+			) as PositionComponent;
 
 			posComp.rotation.deepAssign(this.lastPlacedTransform.rot);
 			posComp.scale.deepAssign([
@@ -189,8 +191,10 @@ export default class ObjectPlacer {
 				this.lastPlacedTransform.size,
 			]);
 
-            let boundingBoxComp = this.lastPlacedEntity.getComponent(ComponentTypeEnum.BOUNDINGBOX) as BoundingBoxComponent;
-            boundingBoxComp.updateTransformMatrix(this.lastPlacedBundle.modelMatrix);
+			let boundingBoxComp = this.lastPlacedEntity.getComponent(
+				ComponentTypeEnum.BOUNDINGBOX
+			) as BoundingBoxComponent;
+			boundingBoxComp.updateTransformMatrix(this.lastPlacedBundle.modelMatrix);
 		}
 	}
 

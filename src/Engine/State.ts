@@ -5,6 +5,7 @@ export enum StatesEnum {
 	OPTIONS,
 	CONTROLS,
 	GAME,
+	ENDSCREEN,
 	DEBUGMODE,
 }
 
