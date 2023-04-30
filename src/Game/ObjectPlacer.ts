@@ -27,18 +27,21 @@ class Placement {
 	placementsPath: string;
 	diffuseTexturePath: string;
 	specularTexturePath: string;
+	sizeMultiplier: number
 	transforms: Array<Transform>;
 
 	constructor(
 		modelPath: string,
 		placementPath: string,
 		diffuseTexturePath: string,
-		specularTexturePath: string
+		specularTexturePath: string,
+		sizeMultiplier: number = 1
 	) {
 		this.modelPath = modelPath;
 		this.placementsPath = placementPath;
 		this.diffuseTexturePath = diffuseTexturePath;
 		this.specularTexturePath = specularTexturePath;
+		this.sizeMultiplier = sizeMultiplier;
 		this.transforms = new Array<Transform>();
 	}
 
@@ -84,11 +87,42 @@ export default class ObjectPlacer {
 			"Assets/objs/mailbox.obj",
 			new Placement(
 				"Assets/objs/mailbox.obj",
-				"TreeTransforms.txt",
+				"MailboxTransforms.txt",
 				"Assets/textures/knight.png",
 				"Assets/textures/knight.png"
 			)
 		);
+		this.placements.set(
+			"Assets/objs/tree_1.obj",
+			new Placement(
+				"Assets/objs/tree_1.obj",
+				"Tree1Transforms.txt",
+				"Assets/textures/tree_1.png",
+				"Assets/textures/tree_1.png",
+				0.4
+			)
+		);
+		this.placements.set(
+			"Assets/objs/tree_2.obj",
+			new Placement(
+				"Assets/objs/tree_2.obj",
+				"Tree2Transforms.txt",
+				"Assets/textures/tree_2.png",
+				"Assets/textures/tree_2.png",
+				25.5
+			)
+		);
+		this.placements.set(
+			"Assets/objs/tree_3.obj",
+			new Placement(
+				"Assets/objs/tree_3.obj",
+				"Tree3Transforms.txt",
+				"Assets/textures/tree_3.png",
+				"Assets/textures/tree_3.png",
+				4.5
+			)
+		);
+		
 		this.placements.set(
 			"Assets/objs/house.obj",
 			new Placement(
@@ -134,7 +168,7 @@ export default class ObjectPlacer {
 				this.placeObject(
 					placement[0],
 					transform.pos,
-					transform.size,
+					transform.size * placement[1].sizeMultiplier,
 					transform.rot,
 					false
 				);

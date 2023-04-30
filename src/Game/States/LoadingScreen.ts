@@ -83,6 +83,9 @@ export default class LoadingScreen extends State {
 			"Assets/objs/mailbox.obj",
 			"Assets/objs/newspaper.obj",
 			"Assets/objs/fence.obj",
+			"Assets/objs/tree_1.obj",
+			"Assets/objs/tree_2.obj",
+			"Assets/objs/tree_3.obj",
 		];
 		this.meshesRequested = meshes.length;
 		this.meshesLoaded = 0;

@@ -23,6 +23,13 @@ import DeliveryZone from "../DeliveryZone.js";
 import TextObject2D from "../../Engine/GUI/Text/TextObject2D.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
 
+export enum TreeTypeEnum {
+	FIRST,
+	SECOND,
+	THIRD,
+	FOURTH,
+}
+
 export default class Game extends State {
 	rendering: Rendering;
 	ecsManager: ECSManager;
