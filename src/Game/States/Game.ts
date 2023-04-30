@@ -67,8 +67,9 @@ export default class Game extends State {
 		this.createMapEntity();
 
 		let dirLight = this.scene.getDirectionalLight();
-		dirLight.ambientMultiplier = 0.3;
+		dirLight.ambientMultiplier = 0.5;
 		dirLight.direction.setValues(0.05, -0.4, -0.7);
+		dirLight.colour.setValues(0.3, 0.25, 0.2);
 
 		this.player = new Player(
 			this.scene,

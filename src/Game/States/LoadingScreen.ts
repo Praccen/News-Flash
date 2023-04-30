@@ -64,6 +64,8 @@ export default class LoadingScreen extends State {
 			"Assets/textures/GrassStraw_Spec.png",
 			"Assets/textures/HeightmapTexture.png",
 			"Assets/textures/houseTex.png",
+			"Assets/textures/black_mailbox.png",
+			"Assets/textures/green_mailbox.png",
 		];
 
 		let cubeMaps = [
@@ -77,6 +79,7 @@ export default class LoadingScreen extends State {
 			"Assets/objs/body.obj",
 			"Assets/objs/knight.obj",
 			"Assets/objs/house.obj",
+			"Assets/objs/Postlada.obj",
 		];
 		this.meshesRequested = meshes.length;
 		this.meshesLoaded = 0;
@@ -91,7 +94,6 @@ export default class LoadingScreen extends State {
 		// Octrees to create
 		this.octreesToLoad = [
 			["Assets/heightmaps/heightmap.png", 0.01, 10],
-			["Assets/objs/knight.obj", 0.1, 100],
 			["Assets/objs/house.obj", 0.1, 20],
 		];
 		this.octreesRequested = this.octreesToLoad.length;

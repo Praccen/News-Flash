@@ -81,12 +81,12 @@ export default class ObjectPlacer {
 		this.placements = new Map<string, Placement>();
 
 		this.placements.set(
-			"Assets/objs/knight.obj",
+			"Assets/objs/Postlada.obj",
 			new Placement(
-				"Assets/objs/knight.obj",
+				"Assets/objs/Postlada.obj",
 				"TreeTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/green_mailbox.png",
+				"Assets/textures/black.png"
 			)
 		);
 		this.placements.set(
