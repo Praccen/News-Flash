@@ -5,18 +5,31 @@ import Vec2 from "../../Engine/Maths/Vec2.js";
 import Vec3 from "../../Engine/Maths/Vec3.js";
 import { MousePicking } from "../../Engine/Maths/MousePicking.js";
 import DebugMenu from "./DebugMenu.js";
+import PositionComponent from "../../Engine/ECS/Components/PositionComponent.js";
 
 export default class DebugMode extends State {
 	private game: Game;
 	private stateAccessible: StateAccessible;
 	private debugMenu: DebugMenu;
 	private mouseWasPressed: boolean;
+	private currentlyPlacing: number;
+	private placementOptions: Array<string>;
+	private lastPlacementPositionComponent: PositionComponent;
+	private lastMousePos: Vec2;
 
 	constructor(sa: StateAccessible, game: Game) {
 		super();
 		this.stateAccessible = sa;
 		this.game = game;
 		this.debugMenu = new DebugMenu(this.stateAccessible, this.game);
+		this.currentlyPlacing = 0;
+		this.placementOptions = [
+			"Assets/objs/knight.obj",
+			"Assets/objs/house.obj",
+		]
+
+		this.lastPlacementPositionComponent = null;
+		this.lastMousePos = new Vec2([input.mousePosition.x, input.mousePosition.y]);
 
 		this.mouseWasPressed = false;
 	}
@@ -132,6 +145,13 @@ export default class DebugMode extends State {
 			);
 		}
 
+		if (input.keys["1"]) {
+			this.currentlyPlacing = 0;
+		}
+		else if (input.keys["2"]) {
+			this.currentlyPlacing = 1;
+		}
+
 		if (input.mouseClicked) {
 			if (!this.mouseWasPressed) {
 				let ray = MousePicking.GetRay(this.game.rendering.camera);
@@ -139,13 +159,23 @@ export default class DebugMode extends State {
 				let dist = this.game.doRayCast(ray);
 
 				if (dist >= 0.0) {
-					this.game.placeTree(
+					this.lastPlacementPositionComponent = this.game.objectPlacer.placeObject(this.placementOptions[this.currentlyPlacing],
 						new Vec3(this.game.rendering.camera.getPosition()).add(
 							new Vec3(ray.getDir()).multiply(dist)
 						),
-						0.1,
+						1.0,
 						new Vec3([0.0, Math.random() * 360, 0.0])
 					);
+				}
+			}
+			else {
+				// Holding mousebutton
+				if (this.lastPlacementPositionComponent != null) {
+					this.lastPlacementPositionComponent.rotation.y += input.mousePosition.x - this.lastMousePos.x;
+
+					let scaleFactor = (this.lastMousePos.y - input.mousePosition.y) * 0.001;
+					this.lastPlacementPositionComponent.scale.add([scaleFactor, scaleFactor, scaleFactor]);
+					
 				}
 			}
 
@@ -154,6 +184,7 @@ export default class DebugMode extends State {
 			this.mouseWasPressed = false;
 		}
 
+		this.lastMousePos.deepAssign([input.mousePosition.x, input.mousePosition.y]);
 		this.game.ecsManager.update(0.0);
 	}
 

@@ -46,7 +46,7 @@ export default class DebugMenu {
 		this.downloadTransformsButton.textString = "Download \nTransforms";
 
 		this.downloadTransformsButton.onClick(function () {
-			self.game.downloadTransforms();
+			self.game.objectPlacer.downloadTransforms();
 		});
 	}
 

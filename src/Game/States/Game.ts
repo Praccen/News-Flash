@@ -9,18 +9,16 @@ import { input, options, StateAccessible } from "../GameMachine.js";
 import Player from "../Player.js";
 import Button from "../../Engine/GUI/Button.js";
 import MeshCollisionComponent from "../../Engine/ECS/Components/MeshCollisionComponent.js";
-import Vec3 from "../../Engine/Maths/Vec3.js";
 import GraphicsBundle from "../../Engine/Objects/GraphicsBundle.js";
 import Heightmap from "../../Engine/Objects/Heightmap.js";
 import { IntersectionTester } from "../../Engine/Physics/IntersectionTester.js";
 import Ray from "../../Engine/Physics/Shapes/Ray.js";
 import Triangle from "../../Engine/Physics/Shapes/Triangle.js";
-import { WebUtils } from "../../Engine/Utils/WebUtils.js";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering.js";
 import { gl } from "../../main.js";
 import Scene from "../../Engine/Rendering/Scene.js";
 import GrassHandler from "../GrassHandler.js";
-import MovementComponent from "../../Engine/ECS/Components/MovementComponent.js";
+import ObjectPlacer from "../ObjectPlacer.js";
 
 export default class Game extends State {
 	rendering: Rendering;
@@ -33,8 +31,7 @@ export default class Game extends State {
 	private mapBundle: GraphicsBundle;
 	private grassHandler: GrassHandler;
 
-	private treesAdded: boolean;
-	private treeTransforms: Array<{ pos: Vec3; rot: Vec3; size: number }>;
+	objectPlacer: ObjectPlacer;
 
 	private scene: Scene;
 
@@ -42,8 +39,7 @@ export default class Game extends State {
 		super();
 		this.stateAccessible = sa;
 
-		this.treesAdded = false;
-		this.treeTransforms = new Array<{ pos: Vec3; size: number; rot: Vec3 }>();
+		this.objectPlacer = new ObjectPlacer();
 	}
 
 	async load() {
@@ -59,7 +55,6 @@ export default class Game extends State {
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
 		this.createMapEntity();
-		this.createHouseEntity();
 
 		// this.rendering.camera.setPosition(0.0, 0.0, 5.5);
 
@@ -91,34 +86,7 @@ export default class Game extends State {
 
 		this.rendering.setSkybox("Assets/textures/skyboxes/LordKitty");
 
-		if (this.treeTransforms.length == 0) {
-			// let transforms = WebUtils.GetCookie("treeTransforms");
-			const response = await fetch("Assets/placements/TreeTransforms.txt");
-			if (response.ok) {
-				const transforms = await response.text();
-
-				if (transforms != "") {
-					for (let t of transforms.split("\n")) {
-						t = t.trim();
-						if (t == "") {
-							break;
-						}
-						let [p, s, r] = t.split("|");
-						let temp = {
-							pos: new Vec3(p.split(",").map((n) => parseFloat(n))),
-							size: parseFloat(s),
-							rot: new Vec3(r.split(",").map((n) => parseFloat(n))),
-						};
-						this.treeTransforms.push(temp);
-					}
-				}
-			}
-		}
-
-		// Create the trees
-		for (let transform of this.treeTransforms) {
-			this.placeTree(transform.pos, transform.size, transform.rot, false);
-		}
+		await this.objectPlacer.load(this.scene, this.ecsManager);
 
 		await this.player.init();
 	}
@@ -149,32 +117,8 @@ export default class Game extends State {
 		input.drawTouchControls();
 	}
 
-	downloadTransforms() {
-		let treeTransformsData = "";
-
-		for (let treeTransform of this.treeTransforms) {
-			treeTransformsData +=
-				treeTransform.pos +
-				"|" +
-				treeTransform.size +
-				"|" +
-				treeTransform.rot +
-				"\n";
-		}
-
-		WebUtils.DownloadFile("TreeTransforms.txt", treeTransformsData);
-	}
-
 	onExit(e: BeforeUnloadEvent) {
-		if (this.treeTransforms.length > 0 && this.treesAdded) {
-			this.downloadTransforms();
-
-			e.preventDefault();
-			e.returnValue = "";
-			return;
-		}
-
-		delete e["returnValue"];
+		this.objectPlacer.onExit(e);
 	}
 
 	createMapEntity() {
@@ -231,74 +175,12 @@ export default class Game extends State {
 		meshColComp.octree.setModelMatrix();
 	}
 
-	createHouseEntity() {
-		let objPath = "Assets/objs/house.obj";
-		let texturePath = "Assets/textures/houseTex.png";
-		let entity = this.ecsManager.createEntity();
-		let mesh = this.scene.getNewMesh(objPath, texturePath, texturePath);
-
-		this.ecsManager.addComponent(entity, new GraphicsComponent(mesh));
-		let posComp = new PositionComponent();
-		posComp.position.setValues(20.0, -2.3, 12.0);
-		this.ecsManager.addComponent(entity, posComp);
-
-		// Collision stuff
-		let boundingBoxComp = new BoundingBoxComponent();
-		boundingBoxComp.setup(mesh.graphicsObject);
-		boundingBoxComp.updateTransformMatrix(mesh.modelMatrix);
-		this.ecsManager.addComponent(entity, boundingBoxComp);
-		let collisionComp = new CollisionComponent();
-		collisionComp.isStatic = true;
-		this.ecsManager.addComponent(entity, collisionComp);
-		let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree(objPath));
-		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
-		this.ecsManager.addComponent(entity, meshColComp);
-	}
-
 	doRayCast(ray: Ray): number {
 		let triangleArray = new Array<Triangle>();
 		this.stateAccessible.meshStore
 			.getOctree("Assets/heightmaps/heightmap.png")
 			.getShapesForRayCast(ray, triangleArray);
 		return IntersectionTester.doRayCast(ray, triangleArray);
-	}
-
-	placeTree(
-		position: Vec3,
-		size: number,
-		rotation: Vec3,
-		saveToTransforms: boolean = true
-	) {
-		let texturePath = "Assets/textures/knight.png";
-		let entity = this.ecsManager.createEntity();
-		let knightMesh = this.scene.getNewMesh(
-			"Assets/objs/knight.obj",
-			texturePath,
-			texturePath
-		);
-		this.ecsManager.addComponent(entity, new GraphicsComponent(knightMesh));
-		let posComp = new PositionComponent();
-		posComp.position.deepAssign(position);
-		posComp.scale.setValues(size, size, size);
-		posComp.rotation.deepAssign(rotation);
-		this.ecsManager.addComponent(entity, posComp);
-
-		if (saveToTransforms) {
-			this.treeTransforms.push({ pos: position, size: size, rot: rotation });
-			this.treesAdded = true;
-		}
-
-		// Collision stuff
-		let boundingBoxComp = new BoundingBoxComponent();
-		boundingBoxComp.setup(knightMesh.graphicsObject);
-		boundingBoxComp.updateTransformMatrix(knightMesh.modelMatrix);
-		this.ecsManager.addComponent(entity, boundingBoxComp);
-		let collisionComp = new CollisionComponent();
-		collisionComp.isStatic = true;
-		this.ecsManager.addComponent(entity, collisionComp);
-		// let meshColComp = new MeshCollisionComponent(this.stateAccessible.meshStore.getOctree("Assets/objs/knight.obj"));
-		// meshColComp.octree.setModelMatrix(knightMesh.modelMatrix);
-		// this.ecsManager.addComponent(entity, meshColComp);
 	}
 
 	update(dt: number) {
