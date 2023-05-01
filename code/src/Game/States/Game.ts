@@ -21,6 +21,7 @@ import GrassHandler from "../GrassHandler";
 import ObjectPlacer from "../ObjectPlacer";
 import TextObject2D from "../../Engine/GUI/Text/TextObject2D";
 import Newspaper from "../Newspaper";
+import { WebUtils } from "../../Engine/Utils/WebUtils";
 
 export enum TreeTypeEnum {
 	FIRST,
@@ -40,7 +41,7 @@ export default class Game extends State {
 	private gameTimeText: TextObject2D;
 	private player: Player;
 	private mapBundle: GraphicsBundle;
-	private grassHandler: GrassHandler;
+	grassHandler: GrassHandler;
 	private gameTimer: number;
 
 	score: number;
@@ -155,7 +156,12 @@ export default class Game extends State {
 		this.overlayRendering.show();
 		this.rendering.useCrt = options.useCrt;
 		this.rendering.useBloom = options.useBloom;
-		document.getElementById("gameDiv").requestPointerLock();
+		if (WebUtils.GetCookie("debug") == "true") {
+			this.gotoState = StatesEnum.DEBUGMODE;
+		}
+		else {
+			document.getElementById("gameDiv").requestPointerLock();
+		}
 	}
 
 	reset() {
@@ -254,6 +260,7 @@ export default class Game extends State {
 
 		if (input.keys["O"]) {
 			this.gotoState = StatesEnum.DEBUGMODE;
+			WebUtils.SetCookie("debug", "true")
 		}
 
 		this.ecsManager.update(dt);

@@ -1,5 +1,6 @@
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering";
 import State, { StatesEnum } from "../../Engine/State";
+import { WebUtils } from "../../Engine/Utils/WebUtils";
 import { StateAccessible } from "../GameMachine";
 
 export default class Menu extends State {
@@ -31,6 +32,7 @@ export default class Menu extends State {
 			self.gotoState = StatesEnum.GAME;
 			sa.restartGame = true;
 			startButton.textString = "Resume";
+			WebUtils.SetCookie("debug", "false");
 		});
 
 		let optionsButton = this.overlayRendering.getNewButton();

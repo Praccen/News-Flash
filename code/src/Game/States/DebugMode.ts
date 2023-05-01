@@ -174,6 +174,7 @@ export default class DebugMode extends State {
 			);
 		}
 
+		this.currentlyPlacing = -1;
 		for (let i = 1; i < this.placementOptions.length + 1; i++) {
 			if (input.keys[i]) {
 				this.currentlyPlacing = i - 1;
@@ -182,7 +183,40 @@ export default class DebugMode extends State {
 		}
 
 		if (input.mouseClicked) {
-			if (!this.mouseWasPressed) {
+			// Holding mousebutton
+			let rotChange = 0.0;
+			let newPosition = null;
+			let scaleChange = 0.0;
+			let edited = false;
+			if (input.keys["R"]) {
+				rotChange = input.mousePosition.x - this.lastMousePos.x;
+				edited = true;
+			}
+			if (input.keys["T"]) {
+				let ray = MousePicking.GetRay(this.game.rendering.camera);
+				let dist = this.game.doRayCast(ray);
+
+				if (dist >= 0.0) {
+					newPosition = new Vec3(this.game.rendering.camera.getPosition()).add(
+						new Vec3(ray.getDir()).multiply(dist));
+					edited = true;
+				}
+			}
+			if (input.keys["Y"]) {
+				scaleChange =
+				(this.lastMousePos.y - input.mousePosition.y) * 0.001;
+				edited = true;
+			}
+
+			if (edited) {
+				this.game.objectPlacer.updateLastPlacedObject(
+					rotChange,
+					scaleChange,
+					newPosition
+				);
+			}
+			else if (this.currentlyPlacing >= 0 && !this.mouseWasPressed) { // If we clicked the mouse button this frame, and we aren't editing anything
+				// Place a new object
 				let ray = MousePicking.GetRay(this.game.rendering.camera);
 
 				let dist = this.game.doRayCast(ray);
@@ -194,18 +228,9 @@ export default class DebugMode extends State {
 							new Vec3(ray.getDir()).multiply(dist)
 						),
 						1.0,
-						new Vec3([0.0, Math.random() * 360, 0.0])
+						new Vec3([0.0, 0.0, 0.0])
 					);
 				}
-			} else {
-				// Holding mousebutton
-				let rotChange = input.mousePosition.x - this.lastMousePos.x;
-				let scaleDifference =
-					(this.lastMousePos.y - input.mousePosition.y) * 0.001;
-				this.game.objectPlacer.updateLastPlacedObject(
-					rotChange,
-					scaleDifference
-				);
 			}
 
 			this.mouseWasPressed = true;
@@ -223,6 +248,8 @@ export default class DebugMode extends State {
 		WebUtils.SetCookie("debugPos", camPos.x + "," + camPos.y + "," + camPos.z);
 		let camDir = this.game.rendering.camera.getDir();
 		WebUtils.SetCookie("debugDir", camDir.x + "," + camDir.y + "," + camDir.z);
+
+		this.game.grassHandler.update(dt);
 	}
 
 	prepareDraw(dt: number): void {}

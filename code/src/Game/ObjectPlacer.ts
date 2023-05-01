@@ -85,6 +85,7 @@ export default class ObjectPlacer {
 
 	private lastPlacedTransform: Transform;
 	private lastPlacedEntity: Entity;
+	private lastPlacedPlacement: Placement;
 
 	constructor(meshStore: MeshStore) {
 		this.meshStore = meshStore;
@@ -273,6 +274,7 @@ export default class ObjectPlacer {
 
 			this.lastPlacedTransform = placement.transforms[length - 1];
 			this.lastPlacedEntity = entity;
+			this.lastPlacedPlacement = placement;
 		}
 
 		if (placement.modelPath == "Assets/objs/DeliveryZone.obj") {
@@ -304,10 +306,13 @@ export default class ObjectPlacer {
 		this.ecsManager.addComponent(entity, meshColComp);
 	}
 
-	updateLastPlacedObject(rotationChange: number, scaleChange: number) {
+	updateLastPlacedObject(rotationChange: number, scaleChange: number, newPosition?: Vec3) {
 		if (this.lastPlacedTransform != null) {
 			this.lastPlacedTransform.rot.y += rotationChange;
 			this.lastPlacedTransform.size += scaleChange;
+			if (newPosition != undefined) {
+				this.lastPlacedTransform.pos.deepAssign(newPosition);
+			}
 		}
 
 		if (this.lastPlacedEntity != null) {
@@ -321,14 +326,11 @@ export default class ObjectPlacer {
 				this.lastPlacedTransform.size,
 				this.lastPlacedTransform.size,
 			]);
+			posComp.position.deepAssign(this.lastPlacedTransform.pos);
+		}
 
-			let boundingBoxComp = this.lastPlacedEntity.getComponent(
-				ComponentTypeEnum.BOUNDINGBOX
-			) as BoundingBoxComponent;
-
-			if (boundingBoxComp != undefined) {
-				boundingBoxComp.updateTransformMatrix();
-			}
+		if (this.lastPlacedPlacement != null) {
+			this.lastPlacedPlacement.transformAdded = true;
 		}
 	}
 
