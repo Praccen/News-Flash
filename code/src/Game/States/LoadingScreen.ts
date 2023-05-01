@@ -56,6 +56,7 @@ export default class LoadingScreen extends State {
 
 		// Load all textures to avoid loading mid game
 		let textures = [
+			"Assets/textures/AimingBlob.png",
 			"Assets/textures/fire.png",
 			"Assets/textures/knight.png",
 			"Assets/textures/black.png",

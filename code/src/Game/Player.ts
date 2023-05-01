@@ -34,7 +34,8 @@ export default class Player {
 	private throwTimer: number;
 	private particleComp: ParticleSpawnerComponent;
 	private particleSpawner: ParticleSpawner;
-	private particleIdx: number;
+	private prepThrow: boolean;
+	private throwRelease: boolean;
 
 	constructor(
 		scene: Scene,
@@ -55,6 +56,8 @@ export default class Player {
 		this.throwVel = new Vec3();
 
 		this.game = Game.getInstanceNoSa()
+
+		this.prepThrow = false;
 	}
 
 	async init() {
@@ -73,7 +76,6 @@ export default class Player {
 
 
 		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/AimingBlob.png");
-		this.particleSpawner.sizeChangePerSecond = 0.0;
 		this.particleComp = new ParticleSpawnerComponent(this.particleSpawner);
 		this.particleSpawner.setNumParticles(10);
 
@@ -254,21 +256,39 @@ export default class Player {
 			.multiply(this.throwStrength)
 			.add(this.movComp.velocity);
 
-		for (var i = 0; i < 10; ++i) {
-			let idt = i * 0.1 ;
-			let x = this.throwPos.x + new Vec3(this.throwVel).x * idt;
-			let y = this.throwPos.y + new Vec3(this.throwVel).y * idt + 0.5 * -9.8 * idt * idt;
-			let z = this.throwPos.z + new Vec3(this.throwVel).z * idt;
-			this.particleSpawner.setParticleData(
-				i,
-				new Vec3([x, y, z]),
-				0.5,
-				new Vec3([0, 0, 0]),
-				new Vec3([0, 0, 0]));
+		this.prepThrow = false;
+		if (input.keys["E"] || input.buttons.get("B")) {
+			this.prepThrow = true;
 		}
 
-		if (input.keys["E"] || input.buttons.get("B")) {
+		if (this.prepThrow) {
+			for (var i = 0; i < 10; ++i) {
+				let idt = i * 0.1;
+				let x = this.throwPos.x + new Vec3(this.throwVel).x * idt;
+				let y = this.throwPos.y + new Vec3(this.throwVel).y * idt + 0.5 * -9.8 * idt * idt;
+				let z = this.throwPos.z + new Vec3(this.throwVel).z * idt;
+				this.particleSpawner.setParticleData(
+					i,
+					new Vec3([x, y, z]),
+					0.1,
+					new Vec3([0, 0, 0]),
+					new Vec3([0, 0, 0]));
+			}
+			this.throwRelease = true;
+		} else {
+			for (var i = 0; i < 10; ++i) {
+				this.particleSpawner.setParticleData(
+					i,
+					new Vec3([-10, -10, -10]),
+					0.1,
+					new Vec3([0, 0, 0]),
+					new Vec3([0, 0, 0]));
+			}
+		}
+
+		if (this.throwRelease && !this.prepThrow) {
 			this.throwPaper(dt, forward);
+			this.throwRelease = false;
 		}
 
 		// Jumping
