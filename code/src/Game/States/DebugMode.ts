@@ -25,13 +25,13 @@ export default class DebugMode extends State {
 		this.placementOptions = [
 			"Assets/objs/mailbox.obj",
 			"Assets/objs/house.obj",
-			"Assets/objs/newspaper.obj",
 			"Assets/objs/fence.obj",
 			"Assets/objs/BigBuske.obj",
-			"Assets/objs/Solros.obj",
-			"Assets/objs/Plant.obj",
 			"Assets/objs/SmolBuske.obj",
 			"Assets/objs/DeliveryZone.obj",
+			"Assets/objs/tree_1.obj",
+			"Assets/objs/tree_2.obj",
+			"Assets/objs/tree_3.obj",
 		];
 
 		let textString = "";
