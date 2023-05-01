@@ -263,7 +263,7 @@ export default class Player {
 		}
 
 		if (this.prepThrow) {
-			for (var i = 0; i < 10; ++i) {
+			for (var i = 0; i < 9; ++i) {
 				let idt = i * 0.1;
 				let vel = new Vec3([
 					this.throwPos.x + new Vec3(this.throwVel).x * idt,
@@ -279,7 +279,7 @@ export default class Player {
 			}
 			this.throwRelease = true;
 		} else {
-			for (var i = 0; i < 10; ++i) {
+			for (var i = 0; i < 9; ++i) {
 				this.particleSpawner.setParticleData(
 					i,
 					new Vec3([-10, -10, -10]),
