@@ -83,7 +83,7 @@ export default class Game extends State {
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
 		this.createMapEntity();
-		this.createSurroundingAreaEntity();
+		this.createSurroundingArea();
 
 		let dirLight = this.scene.getDirectionalLight();
 		dirLight.ambientMultiplier = 0.5;
@@ -234,7 +234,7 @@ export default class Game extends State {
 		meshColComp.octree.setModelMatrix();
 	}
 
-	createSurroundingAreaEntity() {
+	createSurroundingArea() {
 		let texturePath = "Assets/heightmaps/surroundingArea.png";
 		let texturePathColour = "Assets/textures/HeightmapTexture.png";
 		let texturePathSpec = "Assets/textures/HeightmapTexture.png";
@@ -265,6 +265,33 @@ export default class Game extends State {
 		posComp.position.setValues(-160.0, -4.0, -160.0);
 		posComp.scale.setValues(0.5, 80.0, 0.5);
 		this.ecsManager.addComponent(entity, posComp);
+
+		let walls = [
+			[0, 40, -9.5],
+			[90, 89.5, 40],
+			[0, 40, 90],
+			[90, -9.5, 40]
+		]
+
+		for (let wall of walls) {
+			let cubeEntity = this.ecsManager.createEntity();
+			let cubeBundle = this.scene.getNewMesh("Assets/objs/cube.obj", "Assets/textures/Bricks.png", "Assets/textures/Bricks.png");
+			this.ecsManager.addComponent(cubeEntity, new GraphicsComponent(cubeBundle));
+			let cubePosComp = new PositionComponent();
+			cubePosComp.scale.setValues(50.0, 3.0, 1.0);
+			cubePosComp.rotation.setValues(0.0, wall[0], 0.0);
+			cubePosComp.position.setValues(wall[1], -2.0, wall[2]);
+			cubeBundle.textureMatrix.scale(50.0, 1.0, 1.0);
+			this.ecsManager.addComponent(cubeEntity, cubePosComp);
+			let cubeBoundingBoxComp = new BoundingBoxComponent();
+			cubeBoundingBoxComp.setup(cubeBundle.graphicsObject);
+			cubeBoundingBoxComp.updateTransformMatrix(cubeBundle.modelMatrix);
+			this.ecsManager.addComponent(cubeEntity, cubeBoundingBoxComp);
+			let collisionComp = new CollisionComponent();
+			collisionComp.isStatic = true;
+			this.ecsManager.addComponent(cubeEntity, collisionComp);
+		}
+		
 	}
 
 
