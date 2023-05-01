@@ -72,6 +72,11 @@ export default class LoadingScreen extends State {
 			"Assets/textures/AimingBlob.png",
 			"Assets/textures/LeafTexture.png",
 			"Assets/textures/mailbox.png",
+			"Assets/textures/news.png",
+			"Assets/textures/Bricks.png",
+			"Assets/textures/tree_1.png",
+			"Assets/textures/tree_2.png",
+			"Assets/textures/tree_3.png",
 		];
 
 		let cubeMaps = [
@@ -80,8 +85,6 @@ export default class LoadingScreen extends State {
 
 		// Meshes to load
 		let meshes = [
-			"Assets/objs/body.obj",
-			"Assets/objs/knight.obj",
 			"Assets/objs/house.obj",
 			"Assets/objs/mailbox.obj",
 			"Assets/objs/newspaper.obj",
