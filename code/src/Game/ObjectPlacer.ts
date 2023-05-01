@@ -99,8 +99,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/mailbox.obj",
 				"MailboxTransforms.txt",
-				"Assets/textures/knight.png",
-				"Assets/textures/knight.png"
+				"Assets/textures/mailbox.png",
+				"Assets/textures/mailbox.png"
 			)
 		);
 		this.placements.set(
