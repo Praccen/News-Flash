@@ -13,6 +13,7 @@ import Menu from "./States/Menu";
 import OptionsMenu from "./States/OptionsMenu";
 import { WebUtils } from "../Engine/Utils/WebUtils";
 import { OverlayRendering } from "../Engine/Rendering/OverlayRendering";
+import EndScreen from "./States/EndScreen";
 
 // Globals
 export let input = new Input();
@@ -77,6 +78,12 @@ export default class GameMachine extends StateMachine {
 			ControlsMenu,
 			1.0 / 60.0,
 			new ControlsMenu(this.stateAccessible)
+		);
+		this.addState(
+			StatesEnum.ENDSCREEN,
+			EndScreen,
+			1.0 / 60.0,
+			new EndScreen(this.stateAccessible)
 		);
 		let game = Game.getInstance(this.stateAccessible);
 		this.addState(StatesEnum.GAME, Game, 1.0 / 144.0, game);

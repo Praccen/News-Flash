@@ -1,33 +1,54 @@
+import TextObject2D from "../../Engine/GUI/Text/TextObject2D";
 import { OverlayRendering } from "../../Engine/Rendering/OverlayRendering";
-import State from "../../Engine/State";
+import State, { StatesEnum } from "../../Engine/State";
 import { StateAccessible } from "../GameMachine";
 import Game from "./Game";
 
 export default class EndScreen extends State {
 	private game: Game;
-	private stateAccessible: StateAccessible;
 	private overlayRendering: OverlayRendering;
+	private endText: TextObject2D;
+	private scoreText: TextObject2D;
+	private scoreTextNumber: TextObject2D;
 
-	constructor(sa: StateAccessible, game: Game) {
+	constructor(sa: StateAccessible) {
 		super();
 		this.overlayRendering = new OverlayRendering();
-		let endText = this.overlayRendering.getNew2DText();
-		endText.position.x = 0.5;
-		endText.position.y = 0.2;
-		endText.center = true;
-		endText.textString = "Game over!";
-		endText.getElement().style.borderColor = "white";
+		this.endText = this.overlayRendering.getNew2DText();
+		this.endText.position.x = 0.5;
+		this.endText.position.y = 0.2;
+		this.endText.center = true;
+		this.endText.textString = "Game over!";
+		this.endText.getElement().style.borderColor = "white";
 
-		let scoreText = this.overlayRendering.getNew2DText();
-		scoreText.position.x = 0.5;
-		scoreText.position.y = 0.2;
-		scoreText.center = true;
-		scoreText.textString = "Game over!";
+		this.scoreText = this.overlayRendering.getNew2DText();
+		this.scoreText.position.x = 0.5;
+		this.scoreText.position.y = 0.3;
+		this.scoreText.center = true;
+		this.scoreText.textString = "Final Score:";
+
+		this.scoreTextNumber = this.overlayRendering.getNew2DText();
+		this.scoreTextNumber.position.x = 0.5;
+		this.scoreTextNumber.position.y = 0.35;
+		this.scoreTextNumber.center = true;
+		this.scoreTextNumber.textString = "0";
+
+		let restartButton = this.overlayRendering.getNewButton();
+		restartButton.position.x = 0.5;
+		restartButton.position.y = 0.45;
+		restartButton.center = true;
+		restartButton.textString = "Restart";
+
+		restartButton.onClick(function () {
+			this.gotoState = StatesEnum.GAME;
+			sa.restartGame = true;
+		}.bind(this));
 	}
 
 	async init() {
 		super.init();
 		this.overlayRendering.show();
+		this.game = Game.getInstanceNoSa();
 	}
 
 	reset() {
@@ -39,5 +60,6 @@ export default class EndScreen extends State {
 
 	draw() {
 		this.overlayRendering.draw();
+		this.scoreTextNumber.textString = this.game.score.toString();
 	}
 }

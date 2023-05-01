@@ -20,9 +20,7 @@ import Scene from "../../Engine/Rendering/Scene";
 import GrassHandler from "../GrassHandler";
 import ObjectPlacer from "../ObjectPlacer";
 import TextObject2D from "../../Engine/GUI/Text/TextObject2D";
-import Vec3 from "../../Engine/Maths/Vec3";
 import Newspaper from "../Newspaper";
-import DeiliveryZoneComponent from "../ECS/Components/DeliveryZoneComponent";
 
 export enum TreeTypeEnum {
 	FIRST,
@@ -102,7 +100,7 @@ export default class Game extends State {
 			this.player
 		);
 
-		this.gameTimer = 1000.0;
+		this.gameTimer = 100.0;
 
 		this.menuButton = this.overlayRendering.getNewButton();
 		this.menuButton.position.x = 0.9;
@@ -241,7 +239,7 @@ export default class Game extends State {
 		this.gameTimer -= dt;
 
 		if (this.gameTimer <= 0.0) {
-			this.gotoState = StatesEnum.MAINMENU;
+			this.gotoState = StatesEnum.ENDSCREEN;
 		}
 
 		this.scoreText.textString = this.score.toString();
