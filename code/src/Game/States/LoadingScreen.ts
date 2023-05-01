@@ -58,18 +58,16 @@ export default class LoadingScreen extends State {
 		let textures = [
 			"Assets/textures/fire.png",
 			"Assets/textures/knight.png",
-			"Assets/textures/medium_fur.png",
 			"Assets/textures/black.png",
 			"Assets/textures/white.png",
 			"Assets/textures/GrassStraw.png",
 			"Assets/textures/GrassStraw_Spec.png",
 			"Assets/textures/HeightmapTexture.png",
 			"Assets/textures/houseTex.png",
-			"Assets/textures/black_mailbox.png",
-			"Assets/textures/green_mailbox.png",
-			"Assets/textures/mailbox.png",
+			"Assets/textures/houseTex_bright.png",
 			"Assets/textures/DZ.png",
 			"Assets/textures/BushTexture.png",
+			"Assets/textures/Solros.png",
 		];
 
 		let cubeMaps = [

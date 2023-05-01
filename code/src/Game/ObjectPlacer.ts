@@ -173,8 +173,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/Solros.obj",
 				"SolrosTransforms.txt",
-				"Assets/textures/GrassStraw.png",
-				"Assets/textures/GrassStraw_Spec.png",
+				"Assets/textures/Solros.png",
+				"Assets/textures/Solros.png",
 				false
 			)
 		);
