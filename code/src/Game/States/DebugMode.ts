@@ -112,7 +112,7 @@ export default class DebugMode extends State {
 
 		if (move) {
 			moveVec.normalize();
-			moveVec.multiply(5.0 * dt); // Speed
+			moveVec.multiply(15.0 * dt); // Speed
 
 			this.game.rendering.camera.translate(moveVec.x, moveVec.y, moveVec.z);
 		}
