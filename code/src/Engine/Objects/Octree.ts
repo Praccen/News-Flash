@@ -255,6 +255,7 @@ export default class Octree {
 	 */
 	setModelMatrix(matrix?: Matrix4) {
 		if (matrix == this.baseNode.obb.getTransformMatrix()) { // Setting the already used matrix
+			// TODO: This screws us over if transform matrix is the same matrix but has been modified :(
 			return;
 		}
 		if (matrix) {

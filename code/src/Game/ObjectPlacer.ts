@@ -326,6 +326,7 @@ export default class ObjectPlacer {
 					// Ray cast against mesh if there is one, only caring about hits closer than the previous closest
 					let meshColComp = transform.entity.getComponent(ComponentTypeEnum.MESHCOLLISION) as MeshCollisionComponent;
 					if (meshColComp != undefined) {
+						// TODO: This is ugly but works
 						meshColComp.octree.setModelMatrix(bbComp.boundingBox.getTransformMatrix());
 						meshColComp.octree.setModelMatrix();
 						let shapeArray = new Array<Triangle>();
