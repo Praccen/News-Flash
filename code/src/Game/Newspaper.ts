@@ -57,6 +57,9 @@ export default class Newspaper {
 		if (moveComp.onGround) {
 			moveComp.drag = 18;
 		}
+		else {
+			moveComp.drag = 1;
+		}
 		let posComp = <PositionComponent>(
 			this.entity.getComponent(ComponentTypeEnum.POSITION)
 		);

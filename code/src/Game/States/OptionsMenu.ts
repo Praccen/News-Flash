@@ -15,7 +15,6 @@ export default class OptionsMenu extends State {
 	private grassCB: Checkbox;
 	private grassDensitySlider: Slider;
 	private fpsDisplayCB: Checkbox;
-	private volumeSlider: Slider;
 	private controlsButton: Button;
 
 	constructor(sa: StateAccessible) {
@@ -64,16 +63,6 @@ export default class OptionsMenu extends State {
 		this.fpsDisplayCB.getInputElement().style.accentColor = "red";
 		this.fpsDisplayCB.getInputElement().checked = options.showFps;
 
-		this.volumeSlider = this.overlayRendering.getNewSlider();
-		this.volumeSlider.position.x = 0.4;
-		this.volumeSlider.position.y = 0.55;
-		this.volumeSlider.textString = "Volume ";
-		this.volumeSlider.getElement().style.color = "cyan";
-		this.volumeSlider.getInputElement().style.accentColor = "red";
-		this.volumeSlider.getInputElement().min = "0";
-		this.volumeSlider.getInputElement().max = "100";
-		this.volumeSlider.getInputElement().value = options.volume * 1000 + "";
-
 		this.controlsButton = this.overlayRendering.getNewButton();
 		this.controlsButton.position.x = 0.5;
 		this.controlsButton.position.y = 0.75;
@@ -112,7 +101,6 @@ export default class OptionsMenu extends State {
 		options.useBloom = this.bloomCB.getChecked();
 		options.foldableGrass = this.grassCB.getChecked();
 		options.showFps = this.fpsDisplayCB.getChecked();
-		options.volume = this.volumeSlider.getValue() * 0.001;
 		options.grassDensity = this.grassDensitySlider.getValue();
 	}
 

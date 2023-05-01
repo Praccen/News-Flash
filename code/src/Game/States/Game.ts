@@ -23,13 +23,6 @@ import TextObject2D from "../../Engine/GUI/Text/TextObject2D";
 import Newspaper from "../Newspaper";
 import { WebUtils } from "../../Engine/Utils/WebUtils";
 
-export enum TreeTypeEnum {
-	FIRST,
-	SECOND,
-	THIRD,
-	// FOURTH,
-}
-
 export default class Game extends State {
 	rendering: Rendering;
 	ecsManager: ECSManager;
@@ -102,7 +95,7 @@ export default class Game extends State {
 			this.player
 		);
 
-		this.gameTimer = 100.0;
+		this.gameTimer = 0.0;
 		this.score = 0;
 
 		this.menuButton = this.overlayRendering.getNewButton();
@@ -316,14 +309,14 @@ export default class Game extends State {
 
 		this.grassHandler.update(dt);
 
-		if (input.keys["P"]) {
-			this.player.respawn();
-		}
+		// if (input.keys["P"]) {
+		// 	this.player.respawn();
+		// }
 
-		if (input.keys["O"]) {
-			this.gotoState = StatesEnum.DEBUGMODE;
-			WebUtils.SetCookie("debug", "true")
-		}
+		// if (input.keys["O"]) {
+		// 	this.gotoState = StatesEnum.DEBUGMODE;
+		// 	WebUtils.SetCookie("debug", "true")
+		// }
 
 		this.ecsManager.update(dt);
 	}

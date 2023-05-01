@@ -257,7 +257,7 @@ export default class Player {
 			.add(this.movComp.velocity);
 
 		this.prepThrow = false;
-		if (input.keys["E"] || input.buttons.get("B")) {
+		if (input.keys["E"] || input.mouseClicked || input.buttons.get("B")) {
 			this.prepThrow = true;
 		}
 
