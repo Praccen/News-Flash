@@ -18,14 +18,14 @@ export default class EndScreen extends State {
 		this.endText.position.x = 0.5;
 		this.endText.position.y = 0.2;
 		this.endText.center = true;
-		this.endText.textString = "Game over!";
+		this.endText.textString = "Game End!";
 		this.endText.getElement().style.borderColor = "white";
 
 		this.scoreText = this.overlayRendering.getNew2DText();
 		this.scoreText.position.x = 0.5;
 		this.scoreText.position.y = 0.3;
 		this.scoreText.center = true;
-		this.scoreText.textString = "Final Score:";
+		this.scoreText.textString = "Completion time:";
 
 		this.scoreTextNumber = this.overlayRendering.getNew2DText();
 		this.scoreTextNumber.position.x = 0.5;
@@ -60,6 +60,6 @@ export default class EndScreen extends State {
 
 	draw() {
 		this.overlayRendering.draw();
-		this.scoreTextNumber.textString = this.game.score.toString();
+		this.scoreTextNumber.textString = Math.floor(this.game.gameTimer).toString();
 	}
 }

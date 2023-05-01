@@ -42,7 +42,7 @@ export default class Game extends State {
 	private player: Player;
 	private mapBundle: GraphicsBundle;
 	grassHandler: GrassHandler;
-	private gameTimer: number;
+	gameTimer: number;
 
 	score: number;
 	newspapersStopped: Array<Newspaper>;
@@ -117,15 +117,15 @@ export default class Game extends State {
 		this.menuButton.textString = "Menu";
 
 		this.scoreText = this.overlayRendering.getNew2DText();
-		this.scoreText.position.x = 0.1;
-		this.scoreText.position.y = 0.05;
+		this.scoreText.position.x = 0.05;
+		this.scoreText.position.y = 0.1;
 		this.scoreText.textString = "0";
 		this.scoreText.getElement().style.color = "white";
 		this.scoreText.getElement().style.textShadow =
 			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 
 		this.gameTimeText = this.overlayRendering.getNew2DText();
-		this.gameTimeText.position.x = 0.15;
+		this.gameTimeText.position.x = 0.05;
 		this.gameTimeText.position.y = 0.05;
 		this.gameTimeText.textString = "0";
 		this.gameTimeText.getElement().style.color = "white";
@@ -278,13 +278,13 @@ export default class Game extends State {
 
 	update(dt: number) {
 		this.player.update(dt);
-		this.gameTimer -= dt;
+		this.gameTimer += dt;
 
-		if (this.gameTimer <= 0.0) {
+		if (this.score <= 0.0) {
 			this.gotoState = StatesEnum.ENDSCREEN;
 		}
 
-		this.scoreText.textString = this.score.toString();
+		this.scoreText.textString = "Houses left: " + this.score.toString();
 		this.gameTimeText.textString = Math.floor(this.gameTimer).toString();
 
 		this.grassHandler.update(dt);

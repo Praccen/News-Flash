@@ -2,6 +2,7 @@ import { ComponentTypeEnum } from "../../../Engine/ECS/Components/Component";
 import GraphicsComponent from "../../../Engine/ECS/Components/GraphicsComponent";
 import PositionComponent from "../../../Engine/ECS/Components/PositionComponent";
 import System from "../../../Engine/ECS/Systems/System";
+import { StatesEnum } from "../../../Engine/State";
 import Game from "../../States/Game";
 import DeiliveryZoneComponent from "../Components/DeliveryZoneComponent";
 
@@ -35,7 +36,7 @@ export default class DeliveryZoneSystem extends System {
 				) {
 					zoneComp.triggerd = true;
 					graComp.object.baseColor = new Vector3([0, 1, 0]);
-					this.game.score += 100;
+					this.game.score -= 1;
 					this.game.newspapersStopped.splice(i, 1);
 					this.game.ecsManager.removeEntity(e.id);
 					i--;

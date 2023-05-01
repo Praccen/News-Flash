@@ -14,6 +14,7 @@ import Triangle from "../Engine/Physics/Shapes/Triangle";
 import Scene from "../Engine/Rendering/Scene";
 import { WebUtils } from "../Engine/Utils/WebUtils";
 import DeiliveryZoneComponent from "./ECS/Components/DeliveryZoneComponent";
+import Game from "./States/Game";
 
 class Transform {
 	pos: Vec3;
@@ -88,6 +89,7 @@ export default class ObjectPlacer {
 
 	private currentlyEditingTransform: Transform;
 	private currentlyEditingPlacement: Placement;
+	game: Game;
 
 	constructor(meshStore: MeshStore) {
 		this.meshStore = meshStore;
@@ -215,6 +217,7 @@ export default class ObjectPlacer {
 	async load(scene: Scene, ecsManager: ECSManager) {
 		this.scene = scene;
 		this.ecsManager = ecsManager;
+		this.game = Game.getInstanceNoSa();
 
 		for (let placement of this.placements) {
 			if (placement[1].transforms.length == 0) {
@@ -282,6 +285,7 @@ export default class ObjectPlacer {
 			let zoneComp = new DeiliveryZoneComponent();
 			this.ecsManager.addComponent(entity, zoneComp);
 			graComp.object.baseColor = new Vector3([1, 0, 0]);
+			this.game.score += 1;
 		}
 
 		let boundingBoxComp = new BoundingBoxComponent();
