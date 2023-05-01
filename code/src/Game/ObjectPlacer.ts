@@ -44,14 +44,12 @@ class Placement {
 		placementPath: string,
 		diffuseTexturePath: string,
 		specularTexturePath: string,
-		sizeMultiplier: number = 1,
 		addCollision: boolean = true
 	) {
 		this.modelPath = modelPath;
 		this.placementsPath = placementPath;
 		this.diffuseTexturePath = diffuseTexturePath;
 		this.specularTexturePath = specularTexturePath;
-		this.sizeMultiplier = sizeMultiplier;
 		this.transforms = new Array<Transform>();
 		this.addCollision = addCollision;
 		this.transformAdded = false;
@@ -111,8 +109,7 @@ export default class ObjectPlacer {
 				"Assets/objs/tree_1.obj",
 				"Tree1Transforms.txt",
 				"Assets/textures/tree_1.png",
-				"Assets/textures/tree_1.png",
-				0.4
+				"Assets/textures/tree_1.png"
 			)
 		);
 		this.placements.set(
@@ -121,8 +118,7 @@ export default class ObjectPlacer {
 				"Assets/objs/tree_2.obj",
 				"Tree2Transforms.txt",
 				"Assets/textures/tree_2.png",
-				"Assets/textures/tree_2.png",
-				25.5
+				"Assets/textures/tree_2.png"
 			)
 		);
 		this.placements.set(
@@ -131,8 +127,7 @@ export default class ObjectPlacer {
 				"Assets/objs/tree_3.obj",
 				"Tree3Transforms.txt",
 				"Assets/textures/tree_3.png",
-				"Assets/textures/tree_3.png",
-				4.5
+				"Assets/textures/tree_3.png"
 			)
 		);
 
@@ -152,7 +147,6 @@ export default class ObjectPlacer {
 				"NewspaperTransforms.txt",
 				"Assets/textures/news.png",
 				"Assets/textures/news.png",
-				1,
 				false
 			)
 		);
@@ -181,7 +175,6 @@ export default class ObjectPlacer {
 				"SolrosTransforms.txt",
 				"Assets/textures/GrassStraw.png",
 				"Assets/textures/GrassStraw_Spec.png",
-				1,
 				false
 			)
 		);
@@ -192,7 +185,6 @@ export default class ObjectPlacer {
 				"PlantTransforms.txt",
 				"Assets/textures/GrassStraw.png",
 				"Assets/textures/GrassStraw_Spec.png",
-				1,
 				false
 			)
 		);
@@ -212,7 +204,6 @@ export default class ObjectPlacer {
 				"DeliveryZoneTransforms.txt",
 				"Assets/textures/DZ.png",
 				"Assets/textures/DZ.png",
-				1,
 				false
 			)
 		);
@@ -234,7 +225,7 @@ export default class ObjectPlacer {
 				let entity = this.placeObject(
 					placement[0],
 					transform.pos,
-					transform.size * placement[1].sizeMultiplier,
+					transform.size,
 					transform.rot,
 					false
 				);
@@ -257,6 +248,7 @@ export default class ObjectPlacer {
 		if (placement == undefined) {
 			return null;
 		}
+		
 		let entity = this.ecsManager.createEntity();
 		let mesh = this.scene.getNewMesh(
 			placement.modelPath,
