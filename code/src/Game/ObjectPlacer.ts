@@ -318,6 +318,8 @@ export default class ObjectPlacer {
 					continue;
 				}
 
+				bbComp.boundingBox.setUpdateNeeded();
+
 				let dist = IntersectionTester.doRayCast(ray, [bbComp.boundingBox], closest); // Ray cast against bounding box, only caring about hits closer than the previous closest
 				if (dist > 0 && dist < closest) { // Boundingbox is closer than current closest hit
 
@@ -325,6 +327,7 @@ export default class ObjectPlacer {
 					let meshColComp = transform.entity.getComponent(ComponentTypeEnum.MESHCOLLISION) as MeshCollisionComponent;
 					if (meshColComp != undefined) {
 						meshColComp.octree.setModelMatrix(bbComp.boundingBox.getTransformMatrix());
+						meshColComp.octree.setModelMatrix();
 						let shapeArray = new Array<Triangle>();
 						meshColComp.octree.getShapesForRayCast(ray, shapeArray, closest);
 						dist = IntersectionTester.doRayCast(ray, shapeArray, closest);
