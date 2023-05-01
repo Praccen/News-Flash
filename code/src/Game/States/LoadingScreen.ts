@@ -68,6 +68,8 @@ export default class LoadingScreen extends State {
 			"Assets/textures/DZ.png",
 			"Assets/textures/BushTexture.png",
 			"Assets/textures/Solros.png",
+			"Assets/textures/AimingBlob.png",
+			"Assets/textures/LeafTexture.png",
 		];
 
 		let cubeMaps = [

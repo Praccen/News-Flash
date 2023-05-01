@@ -183,8 +183,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/Plant.obj",
 				"PlantTransforms.txt",
-				"Assets/textures/GrassStraw.png",
-				"Assets/textures/GrassStraw_Spec.png",
+				"Assets/textures/LeafTexture.png",
+				"Assets/textures/LeafTexture.png",
 				false
 			)
 		);

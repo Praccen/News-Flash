@@ -72,7 +72,7 @@ export default class Player {
 		this.movComp.drag = 10.0;
 
 
-		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/fire.png");
+		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/AimingBlob.png");
 		this.particleSpawner.sizeChangePerSecond = 0.0;
 		this.particleComp = new ParticleSpawnerComponent(this.particleSpawner);
 		this.particleSpawner.setNumParticles(10);
