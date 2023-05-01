@@ -93,6 +93,7 @@ export default class Player {
 		this.positionComp.position.setValues(0.0, 0.0, 0.0);
 		this.movComp.velocity.setValues(0.0, 0.0, 0.0);
 		this.movComp.accelerationDirection.setValues(0.0, 0.0, 0.0);
+		this.game.rendering.camera.setDir(0.0, 0.0, 1.0);
 	}
 
 	getPosition(): Vec3 {
@@ -168,8 +169,6 @@ export default class Player {
 			rotate = true;
 		}
 
-		this.rotation.add(new Vec3([rotVec.x, rotVec.y, 0.0]).multiply(90.0 * dt));
-
 		// Touch / joystick control
 		input.updateGamepad();
 		if (input.joystickRightDirection.length2() > 0.01) {
@@ -179,6 +178,8 @@ export default class Player {
 			]).multiply(-210 * dt);
 			rotate = true;
 		}
+
+		this.rotation.add(new Vec3([rotVec.x, rotVec.y, 0.0]).multiply(90.0 * dt));
 
 		if (rotate) {
 			let rotMatrix = new Matrix4(null);
