@@ -3,7 +3,6 @@ import { ComponentTypeEnum } from "../Components/Component";
 import PositionComponent from "../Components/PositionComponent";
 import MovementComponent from "../Components/MovementComponent";
 import Vec3 from "../../Maths/Vec3";
-import PositionParentComponent from "../Components/PositionParentComponent";
 
 export default class MovementSystem extends System {
 	constructor() {

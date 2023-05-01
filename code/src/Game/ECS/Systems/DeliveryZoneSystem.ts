@@ -1,4 +1,5 @@
 import { ComponentTypeEnum } from "../../../Engine/ECS/Components/Component";
+import GraphicsComponent from "../../../Engine/ECS/Components/GraphicsComponent";
 import PositionComponent from "../../../Engine/ECS/Components/PositionComponent";
 import System from "../../../Engine/ECS/Systems/System";
 import Game from "../../States/Game";
@@ -21,7 +22,8 @@ export default class DeliveryZoneSystem extends System {
 				);
 				let zoneComp = (<DeiliveryZoneComponent>(e.getComponent(ComponentTypeEnum.DELIVERYZONE)));
 				let posComp = (<PositionComponent>(e.getComponent(ComponentTypeEnum.POSITION)));
-				
+				let graComp = (<GraphicsComponent>(e.getComponent(ComponentTypeEnum.GRAPHICS)));
+
 				zoneComp.pos.deepAssign(posComp.position);
 				zoneComp.radius = posComp.scale.x;
 
@@ -32,6 +34,7 @@ export default class DeliveryZoneSystem extends System {
 					Math.pow(zoneComp.radius, 2)
 				) {
 					zoneComp.triggerd = true;
+					graComp.object.baseColor = new Vector3([0, 1, 0]);
 					this.game.score += 100;
 					this.game.newspapersStopped.splice(i, 1);
 					this.game.ecsManager.removeEntity(e.id);

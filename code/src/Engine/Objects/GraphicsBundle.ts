@@ -10,6 +10,8 @@ export default class GraphicsBundle {
 	specular: Texture;
 	emission: Texture;
 
+	baseColor: Vector3;
+
 	graphicsObject: GraphicsObject;
 
 	constructor(
@@ -27,6 +29,7 @@ export default class GraphicsBundle {
 			this.emission = new Texture();
 			this.emission.setTextureData(new Uint8Array([0.0, 0.0, 0.0, 0.0]), 1, 1);
 		}
+		this.baseColor = new Vector3([0, 0, 0]);
 
 		this.modelMatrix = new Matrix4(null);
 		this.textureMatrix = new Matrix4(null);
@@ -42,6 +45,11 @@ export default class GraphicsBundle {
 			this.emission.bind(2);
 		}
 
+		let baseColor: [WebGLUniformLocation, boolean] =
+			this.graphicsObject.shaderProgram.getUniformLocation("baseColor");
+		if (baseColor[1]) {
+			gl.uniform3fv(baseColor[0], this.baseColor.elements);
+		}
 		let modelReturn: [WebGLUniformLocation, boolean] =
 			this.graphicsObject.shaderProgram.getUniformLocation("modelMatrix");
 		if (modelReturn[1]) {

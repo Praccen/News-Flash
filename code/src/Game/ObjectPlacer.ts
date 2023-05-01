@@ -256,7 +256,8 @@ export default class ObjectPlacer {
 			placement.specularTexturePath
 		);
 
-		this.ecsManager.addComponent(entity, new GraphicsComponent(mesh));
+		let graComp = new GraphicsComponent(mesh);
+		this.ecsManager.addComponent(entity, graComp);
 		let posComp = new PositionComponent();
 		posComp.position.deepAssign(position);
 		posComp.scale.deepAssign([size, size, size]);
@@ -280,6 +281,7 @@ export default class ObjectPlacer {
 		if (placement.modelPath == "Assets/objs/DeliveryZone.obj") {
 			let zoneComp = new DeiliveryZoneComponent();
 			this.ecsManager.addComponent(entity, zoneComp);
+			graComp.object.baseColor = new Vector3([1, 0, 0]);
 		}
 
 		let boundingBoxComp = new BoundingBoxComponent();

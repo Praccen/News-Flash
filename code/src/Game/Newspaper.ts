@@ -45,7 +45,8 @@ export default class Newspaper {
 		boundingBoxComp.updateTransformMatrix(paperMesh.modelMatrix);
 		this.ecsManager.addComponent(this.entity, boundingBoxComp);
 
-		this.ecsManager.addComponent(this.entity, new GraphicsComponent(paperMesh));
+		let graComp = new GraphicsComponent(paperMesh);
+		this.ecsManager.addComponent(this.entity, graComp);
 		this.ecsManager.addComponent(this.entity, new CollisionComponent());
 	}
 

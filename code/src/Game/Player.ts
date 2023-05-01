@@ -4,7 +4,6 @@ import MovementComponent from "../Engine/ECS/Components/MovementComponent";
 import ParticleSpawnerComponent from "../Engine/ECS/Components/ParticleSpawnerComponent";
 import PositionComponent from "../Engine/ECS/Components/PositionComponent";
 import ECSManager from "../Engine/ECS/ECSManager";
-import Entity from "../Engine/ECS/Entity";
 import Vec2 from "../Engine/Maths/Vec2";
 import Vec3 from "../Engine/Maths/Vec3";
 import ParticleSpawner from "../Engine/Objects/ParticleSpawner";
@@ -78,7 +77,7 @@ export default class Player {
 		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/AimingBlob.png");
 		this.particleSpawner.sizeChangePerSecond = 0.0;
 		this.particleComp = new ParticleSpawnerComponent(this.particleSpawner);
-		this.particleSpawner.setNumParticles(10);
+		this.particleSpawner.setNumParticles(9);
 
 		this.ecsManager.addComponent(entity, this.positionComp);
 		this.ecsManager.addComponent(entity, boundingBoxComp);
@@ -104,7 +103,7 @@ export default class Player {
 		return this.movComp.velocity;
 	}
 
-	throwPaper(dt: number, forward: Vec3) {
+	throwPaper() {
 		if (this.throwTimer > this.throwCooldown) {
 			this.throwTimer = 0.0;
 
@@ -265,12 +264,14 @@ export default class Player {
 		if (this.prepThrow) {
 			for (var i = 0; i < 10; ++i) {
 				let idt = i * 0.1;
-				let x = this.throwPos.x + new Vec3(this.throwVel).x * idt;
-				let y = this.throwPos.y + new Vec3(this.throwVel).y * idt + 0.5 * -9.8 * idt * idt;
-				let z = this.throwPos.z + new Vec3(this.throwVel).z * idt;
+				let vel = new Vec3([
+					this.throwPos.x + new Vec3(this.throwVel).x * idt,
+					this.throwPos.y + new Vec3(this.throwVel).y * idt + 0.5 * -9.8 * idt * idt,
+					this.throwPos.z + new Vec3(this.throwVel).z * idt
+				]);
 				this.particleSpawner.setParticleData(
 					i,
-					new Vec3([x, y, z]),
+					vel,
 					0.1,
 					new Vec3([0, 0, 0]),
 					new Vec3([0, 0, 0]));
@@ -288,7 +289,7 @@ export default class Player {
 		}
 
 		if (this.throwRelease && !this.prepThrow) {
-			this.throwPaper(dt, forward);
+			this.throwPaper();
 			this.throwRelease = false;
 		}
 
