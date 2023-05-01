@@ -8,6 +8,9 @@ import PositionComponent from "../Engine/ECS/Components/PositionComponent";
 import ECSManager from "../Engine/ECS/ECSManager";
 import Entity from "../Engine/ECS/Entity";
 import Vec3 from "../Engine/Maths/Vec3";
+import { IntersectionTester } from "../Engine/Physics/IntersectionTester";
+import Ray from "../Engine/Physics/Shapes/Ray";
+import Triangle from "../Engine/Physics/Shapes/Triangle";
 import Scene from "../Engine/Rendering/Scene";
 import { WebUtils } from "../Engine/Utils/WebUtils";
 import DeiliveryZoneComponent from "./ECS/Components/DeliveryZoneComponent";
@@ -16,11 +19,13 @@ class Transform {
 	pos: Vec3;
 	size: number;
 	rot: Vec3;
+	entity: Entity;
 
 	constructor(pos: Vec3, size: number, rot: Vec3) {
 		this.pos = pos;
 		this.size = size;
 		this.rot = rot;
+		this.entity = null;
 	}
 }
 
@@ -64,11 +69,11 @@ class Placement {
 						break;
 					}
 					let [p, s, r] = t.split("|");
-					let temp = {
-						pos: new Vec3(p.split(",").map((n) => parseFloat(n))),
-						size: parseFloat(s),
-						rot: new Vec3(r.split(",").map((n) => parseFloat(n))),
-					};
+					let temp = new Transform(
+						new Vec3(p.split(",").map((n) => parseFloat(n))),
+						parseFloat(s),
+						new Vec3(r.split(",").map((n) => parseFloat(n))),
+					);
 					this.transforms.push(temp);
 				}
 			}
@@ -83,9 +88,8 @@ export default class ObjectPlacer {
 	private ecsManager: ECSManager;
 	private meshStore: MeshStore;
 
-	private lastPlacedTransform: Transform;
-	private lastPlacedEntity: Entity;
-	private lastPlacedPlacement: Placement;
+	private currentlyEditingTransform: Transform;
+	private currentlyEditingPlacement: Placement;
 
 	constructor(meshStore: MeshStore) {
 		this.meshStore = meshStore;
@@ -213,8 +217,8 @@ export default class ObjectPlacer {
 			)
 		);
 
-		this.lastPlacedTransform = null;
-		this.lastPlacedEntity = null;
+		this.currentlyEditingTransform = null;
+		this.currentlyEditingPlacement = null;
 	}
 
 	async load(scene: Scene, ecsManager: ECSManager) {
@@ -227,13 +231,17 @@ export default class ObjectPlacer {
 			}
 
 			for (let transform of placement[1].transforms) {
-				this.placeObject(
+				let entity = this.placeObject(
 					placement[0],
 					transform.pos,
 					transform.size * placement[1].sizeMultiplier,
 					transform.rot,
 					false
 				);
+
+				if (entity != undefined) {
+					transform.entity = entity;
+				}
 			}
 		}
 	}
@@ -244,10 +252,10 @@ export default class ObjectPlacer {
 		size: number,
 		rotation: Vec3,
 		saveToTransforms: boolean = true
-	) {
+	): Entity {
 		let placement = this.placements.get(type);
 		if (placement == undefined) {
-			return;
+			return null;
 		}
 		let entity = this.ecsManager.createEntity();
 		let mesh = this.scene.getNewMesh(
@@ -264,17 +272,17 @@ export default class ObjectPlacer {
 		this.ecsManager.addComponent(entity, posComp);
 
 		if (saveToTransforms) {
-			let length = placement.transforms.push({
-				pos: position,
-				size: size,
-				rot: rotation,
-			});
+			let length = placement.transforms.push(new Transform(
+				position,
+				size,
+				rotation
+			));
 			placement.transformAdded = true;
 			this.transformsAdded = true;
+			placement.transforms[length - 1].entity = entity;
 
-			this.lastPlacedTransform = placement.transforms[length - 1];
-			this.lastPlacedEntity = entity;
-			this.lastPlacedPlacement = placement;
+			this.currentlyEditingTransform = placement.transforms[length - 1];
+			this.currentlyEditingPlacement = placement;
 		}
 
 		if (placement.modelPath == "Assets/objs/DeliveryZone.obj") {
@@ -282,55 +290,94 @@ export default class ObjectPlacer {
 			this.ecsManager.addComponent(entity, zoneComp);
 		}
 
-		if (!placement.addCollision) {
-			return;
-		}
-
-		// Collision stuff
 		let boundingBoxComp = new BoundingBoxComponent();
 		boundingBoxComp.setup(mesh.graphicsObject);
 		boundingBoxComp.updateTransformMatrix(mesh.modelMatrix);
 		this.ecsManager.addComponent(entity, boundingBoxComp);
+
+		if (!placement.addCollision) {
+			return entity;
+		}
+
+		// Collision stuff
 		let collisionComp = new CollisionComponent();
 		collisionComp.isStatic = true;
 		this.ecsManager.addComponent(entity, collisionComp);
 
-		let octree = this.meshStore.getOctree(placement.modelPath);
+		let octree = this.meshStore.getOctree(placement.modelPath, false);
 		if (octree == undefined) {
-			return;
+			return entity;
 		}
 		let meshColComp = new MeshCollisionComponent(
 			octree
 		);
 		meshColComp.octree.setModelMatrix(mesh.modelMatrix);
 		this.ecsManager.addComponent(entity, meshColComp);
+
+		return entity;
 	}
 
-	updateLastPlacedObject(rotationChange: number, scaleChange: number, newPosition?: Vec3) {
-		if (this.lastPlacedTransform != null) {
-			this.lastPlacedTransform.rot.y += rotationChange;
-			this.lastPlacedTransform.size += scaleChange;
+	rayCastToSelectNewObject(ray: Ray) {
+		let closest = Infinity;
+		for (let placement of this.placements) {
+			for (let transform of placement[1].transforms) {
+				let bbComp = transform.entity.getComponent(ComponentTypeEnum.BOUNDINGBOX) as BoundingBoxComponent;
+				if (bbComp == undefined) {
+					continue;
+				}
+
+				let dist = IntersectionTester.doRayCast(ray, [bbComp.boundingBox], closest); // Ray cast against bounding box, only caring about hits closer than the previous closest
+				if (dist > 0 && dist < closest) { // Boundingbox is closer than current closest hit
+
+					// Ray cast against mesh if there is one, only caring about hits closer than the previous closest
+					let meshColComp = transform.entity.getComponent(ComponentTypeEnum.MESHCOLLISION) as MeshCollisionComponent;
+					if (meshColComp != undefined) {
+						meshColComp.octree.setModelMatrix(bbComp.boundingBox.getTransformMatrix());
+						let shapeArray = new Array<Triangle>();
+						meshColComp.octree.getShapesForRayCast(ray, shapeArray, closest);
+						dist = IntersectionTester.doRayCast(ray, shapeArray, closest);
+					}
+					
+					if (dist > 0 && dist < closest) { // Hit is still closer than current closest
+						// Update the closest information and save the object for editing
+						closest = dist;
+						this.currentlyEditingPlacement = placement[1];
+						this.currentlyEditingTransform = transform;
+					}
+				}
+				
+			}
+		}
+	}
+
+	updateCurrentlyEditingObject(rotationChange: number, scaleChange: number, newPosition?: Vec3) {
+		if (this.currentlyEditingTransform != null) {
+			this.currentlyEditingTransform.rot.y += rotationChange;
+			this.currentlyEditingTransform.size += scaleChange;
 			if (newPosition != undefined) {
-				this.lastPlacedTransform.pos.deepAssign(newPosition);
+				this.currentlyEditingTransform.pos.deepAssign(newPosition);
+			}
+
+			let currentlyEditingEntity = this.currentlyEditingTransform.entity;
+
+			if (currentlyEditingEntity != null) {
+				let posComp = currentlyEditingEntity.getComponent(
+					ComponentTypeEnum.POSITION
+				) as PositionComponent;
+	
+				posComp.rotation.deepAssign(this.currentlyEditingTransform.rot);
+				posComp.scale.deepAssign([
+					this.currentlyEditingTransform.size,
+					this.currentlyEditingTransform.size,
+					this.currentlyEditingTransform.size,
+				]);
+				posComp.position.deepAssign(this.currentlyEditingTransform.pos);
 			}
 		}
 
-		if (this.lastPlacedEntity != null) {
-			let posComp = this.lastPlacedEntity.getComponent(
-				ComponentTypeEnum.POSITION
-			) as PositionComponent;
-
-			posComp.rotation.deepAssign(this.lastPlacedTransform.rot);
-			posComp.scale.deepAssign([
-				this.lastPlacedTransform.size,
-				this.lastPlacedTransform.size,
-				this.lastPlacedTransform.size,
-			]);
-			posComp.position.deepAssign(this.lastPlacedTransform.pos);
-		}
-
-		if (this.lastPlacedPlacement != null) {
-			this.lastPlacedPlacement.transformAdded = true;
+		if (this.currentlyEditingPlacement != null) {
+			this.currentlyEditingPlacement.transformAdded = true;
+			this.transformsAdded = true;
 		}
 	}
 

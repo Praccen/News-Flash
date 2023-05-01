@@ -191,6 +191,7 @@ export default class DebugMode extends State {
 			if (input.keys["R"]) {
 				rotChange = input.mousePosition.x - this.lastMousePos.x;
 				edited = true;
+				this.debugMenu.actionText.textString = "Rotating";
 			}
 			if (input.keys["T"]) {
 				let ray = MousePicking.GetRay(this.game.rendering.camera);
@@ -201,35 +202,44 @@ export default class DebugMode extends State {
 						new Vec3(ray.getDir()).multiply(dist));
 					edited = true;
 				}
+				this.debugMenu.actionText.textString = "Moving";
 			}
 			if (input.keys["Y"]) {
 				scaleChange =
 				(this.lastMousePos.y - input.mousePosition.y) * 0.001;
 				edited = true;
+				this.debugMenu.actionText.textString = "Scaling";
 			}
 
 			if (edited) {
-				this.game.objectPlacer.updateLastPlacedObject(
+				this.game.objectPlacer.updateCurrentlyEditingObject(
 					rotChange,
 					scaleChange,
 					newPosition
 				);
 			}
-			else if (this.currentlyPlacing >= 0 && !this.mouseWasPressed) { // If we clicked the mouse button this frame, and we aren't editing anything
-				// Place a new object
+			else if (!this.mouseWasPressed) { // If we clicked the mouse button this frame
 				let ray = MousePicking.GetRay(this.game.rendering.camera);
+				if (this.currentlyPlacing >= 0) {
+					// Place a new object
+					let dist = this.game.doRayCast(ray);
 
-				let dist = this.game.doRayCast(ray);
-
-				if (dist >= 0.0) {
-					this.game.objectPlacer.placeObject(
-						this.placementOptions[this.currentlyPlacing],
-						new Vec3(this.game.rendering.camera.getPosition()).add(
-							new Vec3(ray.getDir()).multiply(dist)
-						),
-						1.0,
-						new Vec3([0.0, 0.0, 0.0])
-					);
+					if (dist >= 0.0) {
+						this.game.objectPlacer.placeObject(
+							this.placementOptions[this.currentlyPlacing],
+							new Vec3(this.game.rendering.camera.getPosition()).add(
+								new Vec3(ray.getDir()).multiply(dist)
+							),
+							1.0,
+							new Vec3([0.0, 0.0, 0.0])
+						);
+					}
+					
+					this.debugMenu.actionText.textString = "Placing new";
+				}
+				else { // Try to select a new object to edit
+					this.game.objectPlacer.rayCastToSelectNewObject(ray);
+					this.debugMenu.actionText.textString = "Picking";
 				}
 			}
 

@@ -11,6 +11,7 @@ const stylesHandler = "style-loader";
 
 const config = {
   entry: "./code/index.ts",
+  devtool: "source-map",
   output: {
     path: path.resolve(__dirname, "out"),
   },

@@ -13,6 +13,7 @@ export default class DebugMenu {
 	private downloadTransformsButton: Button;
 
 	placementMenuText: TextObject2D;
+	actionText: TextObject2D;
 
 	constructor(stateAccessible: StateAccessible, game: Game) {
 		this.overlay = new OverlayRendering();
@@ -53,12 +54,19 @@ export default class DebugMenu {
 		});
 
 		this.placementMenuText = this.overlay.getNew2DText();
-		this.placementMenuText.position.x = 0.1;
-		this.placementMenuText.position.y = 0.1;
-		this.placementMenuText.center = true;
+		this.placementMenuText.position.x = 0.05;
+		this.placementMenuText.position.y = 0.01;
 		this.placementMenuText.size = 20;
 		this.placementMenuText.getElement().style.color = "white";
 		this.placementMenuText.getElement().style.textShadow =
+			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
+
+		this.actionText = this.overlay.getNew2DText();
+		this.actionText.position.x = 0.2;
+		this.actionText.position.y = 0.01;
+		this.actionText.size = 20;
+		this.actionText.getElement().style.color = "white";
+		this.actionText.getElement().style.textShadow =
 			"-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
 	}
 
