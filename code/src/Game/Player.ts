@@ -1,10 +1,13 @@
 import BoundingBoxComponent from "../Engine/ECS/Components/BoundingBoxComponent";
 import CollisionComponent from "../Engine/ECS/Components/CollisionComponent";
 import MovementComponent from "../Engine/ECS/Components/MovementComponent";
+import ParticleSpawnerComponent from "../Engine/ECS/Components/ParticleSpawnerComponent";
 import PositionComponent from "../Engine/ECS/Components/PositionComponent";
 import ECSManager from "../Engine/ECS/ECSManager";
+import Entity from "../Engine/ECS/Entity";
 import Vec2 from "../Engine/Maths/Vec2";
 import Vec3 from "../Engine/Maths/Vec3";
+import ParticleSpawner from "../Engine/Objects/ParticleSpawner";
 import Rendering from "../Engine/Rendering/Rendering";
 import Scene from "../Engine/Rendering/Scene";
 import { input } from "./GameMachine";
@@ -19,12 +22,19 @@ export default class Player {
 	private positionComp: PositionComponent;
 	private movComp: MovementComponent;
 
-	private throwCooldown: number;
-	private throwTimer: number;
 	private newspapers: Array<Newspaper>;
 	private rotation: Vec3;
 	private game: Game;
 
+	//Projectile prediction
+	private throwStrength: number;
+	private throwPos: Vec3;
+	private throwVel: Vec3;
+	private throwCooldown: number;
+	private throwTimer: number;
+	private particleComp: ParticleSpawnerComponent;
+	private particleSpawner: ParticleSpawner;
+	private particleIdx: number;
 
 	constructor(
 		scene: Scene,
@@ -39,6 +49,10 @@ export default class Player {
 		this.throwTimer = 0.0;
 		this.newspapers = new Array<Newspaper>();
 		this.rotation = new Vec3();
+
+		this.throwStrength = 10.0;
+		this.throwPos = new Vec3();
+		this.throwVel = new Vec3();
 
 		this.game = Game.getInstanceNoSa()
 	}
@@ -57,13 +71,20 @@ export default class Player {
 		this.movComp.acceleration = 20.0;
 		this.movComp.drag = 10.0;
 
+
+		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/fire.png");
+		this.particleComp = new ParticleSpawnerComponent(this.particleSpawner);
+		this.particleSpawner.setNumParticles(10);
+
 		this.ecsManager.addComponent(entity, this.positionComp);
 		this.ecsManager.addComponent(entity, boundingBoxComp);
 		this.ecsManager.addComponent(entity, this.movComp);
+		this.ecsManager.addComponent(entity, this.particleComp);
 		this.ecsManager.addComponent(entity, new CollisionComponent());
 
 		this.respawn();
 	}
+
 
 	respawn() {
 		this.positionComp.position.setValues(0.0, 0.0, 0.0);
@@ -82,19 +103,11 @@ export default class Player {
 	throwPaper(dt: number, forward: Vec3) {
 		if (this.throwTimer > this.throwCooldown) {
 			this.throwTimer = 0.0;
-			let pos = new Vec3(this.positionComp.position)
-				.add(forward.multiply(1.0))
-				.add([0.0, 1.4, 0.0]);
-			// Add velocity to projectile and some extra uppwards velocity
-			let vel = new Vec3(this.rendering.camera.getDir())
-				.normalize()
-				.multiply(10.0)
-				.add(this.movComp.velocity);
 
 			this.newspapers.push(
 				new Newspaper(
-					pos,
-					vel,
+					this.throwPos,
+					this.throwVel,
 					new Vec3([0.0, this.rotation.y, 0.0]),
 					this.ecsManager,
 					this.scene
@@ -230,6 +243,28 @@ export default class Player {
 			accVec.normalize();
 		}
 		this.movComp.accelerationDirection.deepAssign(accVec);
+
+		// Update throw data
+		this.throwPos = new Vec3(this.positionComp.position)
+			.add(forward.multiply(1.0))
+			.add([0.0, 1.4, 0.0]);
+		this.throwVel = new Vec3(this.rendering.camera.getDir())
+			.normalize()
+			.multiply(this.throwStrength)
+			.add(this.movComp.velocity);
+
+		for (var i = 0; i < 10; ++i) {
+			let idt = i * 0.1 ;
+			let x = this.throwPos.x + new Vec3(this.throwVel).x * idt;
+			let y = this.throwPos.y + new Vec3(this.throwVel).y * idt + 0.5 * -9.8 * idt * idt;
+			let z = this.throwPos.z + new Vec3(this.throwVel).z * idt;
+			this.particleSpawner.setParticleData(
+				i,
+				new Vec3([x, y, z]),
+				0.5,
+				new Vec3([0, 0, 0]),
+				new Vec3([0, 0, 0]));
+		}
 
 		if (input.keys["E"] || input.buttons.get("B")) {
 			this.throwPaper(dt, forward);
