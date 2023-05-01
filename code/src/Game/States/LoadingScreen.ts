@@ -101,6 +101,7 @@ export default class LoadingScreen extends State {
 		// Heightmaps to load
 		let heightmaps: (string | number)[][] = [
 			["Assets/heightmaps/heightmap.png", 200, 200, 1.0, 1.0],
+			["Assets/heightmaps/surroundingArea.png", 400, 400, 2.0, 2.0],
 		];
 		this.heightmapsRequested = heightmaps.length;
 		this.heightmapsLoaded = 0;

@@ -83,6 +83,7 @@ export default class Game extends State {
 		this.overlayRendering = new OverlayRendering(this.rendering.camera);
 
 		this.createMapEntity();
+		this.createSurroundingAreaEntity();
 
 		let dirLight = this.scene.getDirectionalLight();
 		dirLight.ambientMultiplier = 0.5;
@@ -232,6 +233,40 @@ export default class Game extends State {
 		posComp.calculateMatrix(this.mapBundle.modelMatrix);
 		meshColComp.octree.setModelMatrix();
 	}
+
+	createSurroundingAreaEntity() {
+		let texturePath = "Assets/heightmaps/surroundingArea.png";
+		let texturePathColour = "Assets/textures/HeightmapTexture.png";
+		let texturePathSpec = "Assets/textures/HeightmapTexture.png";
+		let entity = this.ecsManager.createEntity();
+		let bundle = this.scene.getNewHeightMap(
+			texturePath,
+			texturePathColour,
+			texturePathSpec
+		);
+
+		let heightmap = bundle.graphicsObject as Heightmap;
+		let vertices = heightmap.getVertices();
+
+		for (let i = 0; i < heightmap.xResolution * heightmap.zResolution; i++) {
+			if (Math.pow((vertices[i * 8 + 1] * Math.random()), 2) > Math.pow(0.07, 2.0)) {
+				// Set uvs to be tarmac
+				vertices[i * 8 + 6] = 0.75;
+			} else {
+				// Set uvs to be grass
+				vertices[i * 8 + 6] = 0.25;
+			}
+		}
+
+		heightmap.setVertexData(vertices);
+
+		this.ecsManager.addComponent(entity, new GraphicsComponent(bundle));
+		let posComp = new PositionComponent();
+		posComp.position.setValues(-160.0, -4.0, -160.0);
+		posComp.scale.setValues(0.5, 80.0, 0.5);
+		this.ecsManager.addComponent(entity, posComp);
+	}
+
 
 	doRayCast(ray: Ray): number {
 		let triangleArray = new Array<Triangle>();
