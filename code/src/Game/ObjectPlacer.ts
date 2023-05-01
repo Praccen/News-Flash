@@ -164,8 +164,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/BigBuske.obj",
 				"BigBuskeTransforms.txt",
-				"Assets/textures/BigBushTexture.png",
-				"Assets/textures/BigBushTexture.png"
+				"Assets/textures/BushTexture.png",
+				"Assets/textures/BushTexture.png"
 			)
 		);
 		this.placements.set(
@@ -193,8 +193,8 @@ export default class ObjectPlacer {
 			new Placement(
 				"Assets/objs/SmolBuske.obj",
 				"SmolBuskeTransforms.txt",
-				"Assets/textures/tree_2.png",
-				"Assets/textures/tree_2.png"
+				"Assets/textures/BushTexture.png",
+				"Assets/textures/BushTexture.png"
 			)
 		);
 		this.placements.set(
