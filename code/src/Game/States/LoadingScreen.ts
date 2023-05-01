@@ -71,7 +71,6 @@ export default class LoadingScreen extends State {
 		];
 
 		let cubeMaps = [
-			// "Assets/textures/skyboxes/learnopengl",
 			"Assets/textures/skyboxes/LordKitty",
 		];
 
@@ -109,7 +108,6 @@ export default class LoadingScreen extends State {
 			["Assets/objs/mailbox.obj", 0.1, 20],
 			["Assets/objs/BigBuske.obj", 0.1, 20],
 			["Assets/objs/Solros.obj", 0.1, 20],
-			["Assets/objs/Plant.obj", 0.1, 20],
 			["Assets/objs/SmolBuske.obj", 0.1, 20],
 			["Assets/objs/tree_1.obj", 0.1, 20],
 			["Assets/objs/tree_2.obj", 0.1, 20],
