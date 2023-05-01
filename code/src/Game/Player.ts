@@ -73,6 +73,7 @@ export default class Player {
 
 
 		this.particleSpawner = this.scene.getNewParticleSpawner("Assets/textures/fire.png");
+		this.particleSpawner.sizeChangePerSecond = 0.0;
 		this.particleComp = new ParticleSpawnerComponent(this.particleSpawner);
 		this.particleSpawner.setNumParticles(10);
 
