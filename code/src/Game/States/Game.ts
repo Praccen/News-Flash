@@ -101,6 +101,7 @@ export default class Game extends State {
 		);
 
 		this.gameTimer = 100.0;
+		this.score = 0;
 
 		this.menuButton = this.overlayRendering.getNewButton();
 		this.menuButton.position.x = 0.9;

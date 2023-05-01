@@ -7,7 +7,7 @@ import DeiliveryZoneComponent from "../Components/DeliveryZoneComponent";
 export default class DeliveryZoneSystem extends System {
 	private game: Game;
 	constructor() {
-		super([ComponentTypeEnum.DELIVERYZONE]);
+		super([ComponentTypeEnum.DELIVERYZONE, ComponentTypeEnum.POSITION]);
 		this.game = Game.getInstanceNoSa();
 	}
 
@@ -20,6 +20,11 @@ export default class DeliveryZoneSystem extends System {
 					)
 				);
 				let zoneComp = (<DeiliveryZoneComponent>(e.getComponent(ComponentTypeEnum.DELIVERYZONE)));
+				let posComp = (<PositionComponent>(e.getComponent(ComponentTypeEnum.POSITION)));
+				
+				zoneComp.pos.deepAssign(posComp.position);
+				zoneComp.radius = posComp.scale.x;
+
 				if (!zoneComp.triggerd &&
 					Math.pow(paperPosComp.position.x - zoneComp.pos.x, 2) +
 					Math.pow(paperPosComp.position.y - zoneComp.pos.y, 2) +

@@ -31,7 +31,7 @@ export default class DebugMode extends State {
 			"Assets/objs/Solros.obj",
 			"Assets/objs/Plant.obj",
 			"Assets/objs/SmolBuske.obj",
-			"Assets/objs/rugg.obj",
+			"Assets/objs/DeliveryZone.obj",
 		];
 
 		let textString = "";
@@ -51,11 +51,19 @@ export default class DebugMode extends State {
 	async init() {
 		super.init();
 		this.debugMenu.init();
-		let cookie = WebUtils.GetCookie("debugPos");
-		if (cookie != "") {
-			let coords = cookie.split(",");
+		let posCookie = WebUtils.GetCookie("debugPos");
+		if (posCookie != "") {
+			let coords = posCookie.split(",");
 			if (coords.length == 3) {
 				this.game.rendering.camera.setPosition(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]));
+			}
+		}
+
+		let dirCookie = WebUtils.GetCookie("debugDir");
+		if (dirCookie != "") {
+			let coords = dirCookie.split(",");
+			if (coords.length == 3) {
+				this.game.rendering.camera.setDir(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]));
 			}
 		}
 	}
@@ -213,6 +221,8 @@ export default class DebugMode extends State {
 
 		let camPos = this.game.rendering.camera.getPosition();
 		WebUtils.SetCookie("debugPos", camPos.x + "," + camPos.y + "," + camPos.z);
+		let camDir = this.game.rendering.camera.getDir();
+		WebUtils.SetCookie("debugDir", camDir.x + "," + camDir.y + "," + camDir.z);
 	}
 
 	prepareDraw(dt: number): void {}
