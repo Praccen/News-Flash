@@ -49,6 +49,7 @@ export default class EndScreen extends State {
 		super.init();
 		this.overlayRendering.show();
 		this.game = Game.getInstanceNoSa();
+		document.exitPointerLock();
 	}
 
 	reset() {

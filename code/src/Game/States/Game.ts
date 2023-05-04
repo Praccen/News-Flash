@@ -98,6 +98,8 @@ export default class Game extends State {
 		this.gameTimer = 0.0;
 		this.score = 0;
 
+		this.newspapersStopped.length = 0;
+
 		this.menuButton = this.overlayRendering.getNewButton();
 		this.menuButton.position.x = 0.9;
 		this.menuButton.position.y = 0.0;
